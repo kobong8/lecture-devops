@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jenkins 가이드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --sidebar-bg: #0f0f1a;
+    --sidebar-w: 280px;
+    --accent: #6ee7b7;
+    --accent2: #818cf8;
+    --accent3: #f472b6;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --border: rgba(255,255,255,0.07);
+    --slide-transition: 0.5s cubic-bezier(0.4,0,0.2,1);
+    --card-bg: rgba(255,255,255,0.03);
+    --card-hover-bg: rgba(255,255,255,0.055);
+    --toc-hover: rgba(255,255,255,0.04);
+    --toc-active: rgba(110,231,183,0.08);
+    --stat-bg: rgba(255,255,255,0.025);
+    --bar-track: rgba(255,255,255,0.05);
+    --kbd-bg: rgba(255,255,255,0.06);
+    --nav-bg: rgba(255,255,255,0.06);
+    --shadow: none;
+    --code-bg: #0d1117;
+    --code-text: #e6edf3;
+    --highlight-bg: rgba(110,231,183,0.05);
+    --highlight-border: rgba(110,231,183,0.3);
+    --table-header: rgba(255,255,255,0.05);
+    --table-row-alt: rgba(255,255,255,0.02);
+    --table-border: rgba(255,255,255,0.08);
+  }
+
+  html.light {
+    --bg: #f5f5f0;
+    --sidebar-bg: #eeeee8;
+    --accent: #059669;
+    --accent2: #4f46e5;
+    --accent3: #db2777;
+    --text: #1e293b;
+    --text-muted: #94a3b8;
+    --border: rgba(0,0,0,0.09);
+    --card-bg: rgba(255,255,255,0.7);
+    --card-hover-bg: rgba(255,255,255,0.95);
+    --toc-hover: rgba(0,0,0,0.04);
+    --toc-active: rgba(5,150,105,0.08);
+    --stat-bg: rgba(255,255,255,0.6);
+    --bar-track: rgba(0,0,0,0.07);
+    --kbd-bg: rgba(0,0,0,0.06);
+    --nav-bg: rgba(255,255,255,0.7);
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --code-bg: #1e2530;
+    --code-text: #e6edf3;
+    --highlight-bg: rgba(5,150,105,0.06);
+    --highlight-border: rgba(5,150,105,0.3);
+    --table-header: rgba(0,0,0,0.05);
+    --table-row-alt: rgba(0,0,0,0.02);
+    --table-border: rgba(0,0,0,0.1);
+  }
+
+  *, *::before, *::after {
+    transition-property: background, background-color, border-color, color, box-shadow;
+    transition-duration: 0.35s;
+    transition-timing-function: ease;
+  }
+  .slide { transition: opacity var(--slide-transition), transform var(--slide-transition) !important; }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 10;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .brand-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, rgba(110,231,183,0.2), rgba(129,140,248,0.2));
+    border: 1px solid rgba(110,231,183,0.3);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .brand-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .brand-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .home-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(110,231,183,0.07);
+    border: 1px solid rgba(110,231,183,0.18);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--accent);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    text-decoration: none;
+    transition: all 0.2s;
+    margin-bottom: 8px;
+  }
+  .home-btn:hover {
+    background: rgba(110,231,183,0.14);
+    border-color: rgba(110,231,183,0.35);
+    transform: translateX(2px);
+  }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .theme-toggle:hover { background: var(--toc-hover); }
+  .theme-label {
+    font-size: 16px;
+    color: var(--text-muted);
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .toggle-track {
+    width: 32px; height: 18px;
+    border-radius: 9px;
+    background: var(--accent2);
+    position: relative;
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  html.light .toggle-track { background: #f59e0b; }
+  .toggle-thumb {
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    font-size: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  html.light .toggle-thumb { transform: translateX(14px); }
+
+  .toc-label {
+    padding: 20px 20px 10px;
+    font-size: 16px;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .toc-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 10px 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 1px;
+    position: relative;
+  }
+  .toc-item:hover { background: var(--toc-hover); }
+  .toc-item.active { background: var(--toc-active); }
+  .toc-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 2px; height: 55%;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .toc-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--text-muted);
+    min-width: 22px;
+    transition: color 0.2s;
+  }
+  .toc-item.active .toc-num { color: var(--accent); }
+
+  .toc-text {
+    font-size: 15px;
+    color: #94a3b8;
+    line-height: 1.35;
+    transition: color 0.2s;
+  }
+  .toc-item.active .toc-text,
+  .toc-item:hover .toc-text { color: var(--text); }
+
+  .toc-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .toc-item.active .toc-dot { background: var(--accent); box-shadow: 0 0 5px var(--accent); }
+
+  .sidebar-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .slide-counter {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .slide-counter span { color: var(--accent); font-weight: 700; }
+
+  .progress-bar {
+    width: 70px; height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 1px;
+    transition: width 0.4s ease !important;
+  }
+
+  /* ── MAIN ── */
+  #main {
+    flex: 1;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 52px 68px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity var(--slide-transition), transform var(--slide-transition);
+    pointer-events: none;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateY(-28px);
+  }
+
+  /* ── SLIDE: HOME ── */
+  .slide-home {
+    background: radial-gradient(ellipse at 25% 50%, rgba(110,231,183,0.06) 0%, transparent 55%),
+                radial-gradient(ellipse at 78% 18%, rgba(129,140,248,0.08) 0%, transparent 50%),
+                var(--bg);
+    justify-content: center;
+  }
+
+  .slide-home .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .slide-home h1 {
+    font-size: clamp(34px, 4.5vw, 60px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.35s forwards;
+  }
+
+  .slide-home h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .slide-home p.subtitle {
+    font-size: 18px;
+    color: #94a3b8;
+    max-width: 520px;
+    line-height: 1.75;
+    margin-bottom: 36px;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.5s forwards;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.65s forwards;
+  }
+
+  .meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 16px;
+    color: var(--text-muted);
+  }
+  .meta-chip .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .deco-grid {
+    position: absolute;
+    right: 60px; top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    opacity: 0;
+    animation: fadeIn 1s 0.8s forwards;
+    pointer-events: none;
+  }
+  .deco-cell {
+    width: 44px; height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .deco-cell:nth-child(3n) { background: rgba(110,231,183,0.05); border-color: rgba(110,231,183,0.15); }
+  .deco-cell:nth-child(5n) { background: rgba(129,140,248,0.05); border-color: rgba(129,140,248,0.15); }
+
+  /* ── SLIDE: COMMON ── */
+  .slide-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--accent2);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .slide h1 {
+    font-size: clamp(26px, 3vw, 42px);
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+  }
+
+  .slide h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 28px;
+    margin-bottom: 12px;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .slide h2::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 18px;
+    background: var(--accent2);
+    margin-right: 10px;
+    border-radius: 2px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+  }
+
+  .slide h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+
+  .slide p {
+    font-size: 18px;
+    line-height: 1.8;
+    color: #94a3b8;
+    margin-bottom: 14px;
+  }
+  html.light .slide p { color: #475569; }
+
+  .slide ul, .slide ol {
+    margin-left: 20px;
+    margin-bottom: 18px;
+  }
+
+  .slide li {
+    font-size: 18px;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+  html.light .slide li { color: #475569; }
+
+  .slide li strong { color: var(--text); }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 18px 20px;
+    border-radius: 10px;
+    margin: 14px 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    overflow: visible;
+    flex-shrink: 0;
+  }
+  .code-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+    border-radius: 10px 10px 0 0;
+    opacity: 0.4;
+  }
+  .code-comment { color: #6e7681; }
+  .code-cmd { color: var(--accent); font-weight: 700; }
+  .code-flag { color: var(--accent2); }
+  .code-str { color: #a5d6ff; }
+  
+  /* Jenkins Specific Syntax */
+  .c-comment { color: #6e7681; }
+  .c-keyword { color: #f472b6; font-weight: bold; }
+  .c-string { color: #a5d6ff; }
+  .c-stage { color: #818cf8; font-weight: bold; }
+  .c-fn { color: #6ee7b7; }
+  .c-var { color: #fb923c; }
+
+  /* ── HIGHLIGHT / INFO / WARNING BOX ── */
+  .highlight-box {
+    background: var(--highlight-bg);
+    border-left: 3px solid var(--accent);
+    padding: 18px 20px;
+    margin: 16px 0;
+    border-radius: 0 10px 10px 0;
+    border: 1px solid var(--border);
+  }
+  .highlight-box h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  .highlight-box p, .highlight-box li {
+    font-size: 18px;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+  html.light .highlight-box p, html.light .highlight-box li { color: #475569; }
+
+  .info-box {
+    background: var(--highlight-bg);
+    padding: 18px 20px;
+    margin: 16px 0;
+    border-radius: 0 10px 10px 0;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+  }
+  .info-box p, .info-box li {
+    font-size: 18px;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+  html.light .info-box p, html.light .info-box li { color: #475569; }
+
+  .warning-box {
+    background: rgba(245, 158, 11, 0.05);
+    padding: 18px 20px;
+    margin: 16px 0;
+    border-radius: 0 10px 10px 0;
+    border: 1px solid var(--border);
+    border-left: 3px solid #f59e0b;
+  }
+  .warning-box p, .warning-box li {
+    font-size: 18px;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+
+  .success-box {
+    background: rgba(110, 231, 183, 0.05);
+    padding: 18px 20px;
+    margin: 16px 0;
+    border-radius: 0 10px 10px 0;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+  }
+  .success-box p, .success-box li {
+    font-size: 18px;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+
+  /* ── CMD GRID (2-col command reference) ── */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .tool-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .tool-card:hover {
+    background: var(--card-hover-bg);
+    border-color: rgba(110,231,183,0.25);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+  .tool-icon { font-size: 32px; margin-bottom: 12px; }
+  .tool-card h4 {
+    font-size: 16px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .tool-card p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.55;
+  }
+
+  /* ── TABLE ── */
+  .slide table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 16px;
+  }
+  .slide table th {
+    padding: 11px 14px;
+    background: var(--table-header);
+    border: 1px solid var(--table-border);
+    color: var(--text);
+    font-weight: 600;
+    text-align: center;
+    font-size: 16px;
+    letter-spacing: 0.03em;
+  }
+  .slide table td {
+    padding: 10px 14px;
+    border: 1px solid var(--table-border);
+    color: #94a3b8;
+    font-size: 16px;
+    line-height: 1.6;
+    vertical-align: top;
+  }
+  html.light .slide table td { color: #475569; }
+  .slide table tr:nth-child(even) td { background: var(--table-row-alt); }
+  .slide table tr:hover td { background: var(--toc-hover); }
+  .slide table td strong { color: var(--text); font-weight: 600; }
+  .slide table td code {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    background: rgba(110,231,183,0.08);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin: 25px 0;
+  }
+  .flow-actor {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px 24px;
+    border-radius: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+  }
+  .flow-actor.dev { border-color: var(--accent2); }
+  .flow-actor.jenkins { border-color: var(--accent3); }
+  .flow-actor.docker { border-color: var(--accent); }
+  .flow-actor.k8s { border-color: #3b82f6; }
+  
+  .flow-icon { font-size: 32px; flex-shrink: 0; }
+  .flow-content { flex: 1; }
+  .flow-content strong { font-size: 17px; display: block; margin-bottom: 4px; color: var(--text); }
+  .flow-content span { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+  
+  .flow-line {
+    width: 2px;
+    height: 30px;
+    background: var(--border);
+    margin-left: 42px;
+  }
+
+  /* ── KEYWORD / BADGE ── */
+  .keyword {
+    background: rgba(110,231,183,0.12);
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.95em;
+    border: 1px solid rgba(110,231,183,0.2);
+  }
+  .important { color: var(--accent3); font-weight: 700; }
+
+  /* ── NAV ARROWS ── */
+  .nav-arrows {
+    position: fixed;
+    bottom: 28px;
+    right: 36px;
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+  .nav-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--nav-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-size: 14px;
+    box-shadow: var(--shadow);
+  }
+  .nav-btn:hover {
+    background: rgba(110,231,183,0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+
+  .key-hint {
+    position: fixed;
+    bottom: 32px; left: calc(var(--sidebar-w) + 20px);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 16px;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .key-hint kbd {
+    padding: 1px 5px;
+    background: var(--kbd-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+  }
+
+  /* ── CODE BLOCK ENHANCEMENTS ── */
+  .code-block-container {
+    position: relative;
+    margin: 14px 0;
+    overflow: visible;
+  }
+  .code-block {
+    margin: 0 !important;
+    padding-top: 36px !important;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-lang-tag {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: var(--accent2);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 9px 0 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 5;
+    pointer-events: none;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  }
+  .copy-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .copy-btn:hover {
+    background: rgba(110,231,183,0.15);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .copy-btn.copied {
+    background: rgba(110,231,183,0.2);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  html.light .copy-btn {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.1);
+  }
+  html.light .copy-btn:hover {
+    background: rgba(5,150,105,0.1);
+  }
+
+  details summary { cursor: pointer; user-select: none; }
+  details[open] summary { margin-bottom: 12px; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ── MOBILE ── */
+  .menu-toggle {
+    display: none;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 300;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--sidebar-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    backdrop-filter: blur(8px);
+  }
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 150;
+  }
+  @media (max-width: 768px) {
+    .menu-toggle { display: flex; }
+    #sidebar {
+      position: fixed;
+      left: 0; top: 0;
+      height: 100vh;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease !important;
+      z-index: 200;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+    }
+    body.sidebar-open #sidebar { transform: translateX(0); }
+    body.sidebar-open .sidebar-overlay { display: block; }
+    .slide { padding: 56px 20px 80px; }
+    .nav-arrows { right: 16px; bottom: 16px; }
+    .key-hint { display: none; }
+  }
+  @media (max-width: 480px) {
+    .slide { padding: 56px 14px 80px; }
+    .slide h2 { font-size: 22px !important; }
+    .nav-btn { width: 44px; height: 44px; font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="toggleSidebar()" aria-label="메뉴 열기">☰</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- ── SIDEBAR ── -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🔧</div>
+      <div>
+        <div class="brand-text">Jenkins 가이드</div>
+        <div class="brand-sub">General Jenkins Guide</div>
+      </div>
+    </div>
+    <a class="home-btn" href="../" title="홈으로">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      홈으로
+    </a>
+    <div class="theme-toggle" onclick="toggleTheme()">
+      <span class="theme-label" id="themeLabel">🌙 다크 모드</span>
+      <div class="toggle-track"><div class="toggle-thumb">🌙</div></div>
+    </div>
+  </div>
+
+  <div class="toc-label">목 차</div>
+  <div class="toc-list" id="tocList"></div>
+
+  <div class="sidebar-footer">
+    <div class="slide-counter"><span id="curNum">1</span> / <span id="totNum">1</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</nav>
+
+<main id="main">
+
+  <!-- 0. HOME -->
+  <section class="slide slide-home" data-title="Jenkins 시작하기">
+    <div class="eyebrow">— CI/CD Automation Guide</div>
+    <h1>🔧 <em>Jenkins</em> 가이드</h1>
+    <p class="subtitle">빌드, 테스트, 배포 전 과정을 자동화하는 <strong>지휘자(Orchestrator)</strong> Jenkins의 모든 것을 실무 중심으로 배웁니다.</p>
+    <div class="meta-row">
+      <div class="meta-chip"><span class="dot"></span> 2026 DevOps</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 4 슬라이드</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent3)"></span> CI/CD Mastery</div>
+    </div>
+    <div class="deco-grid">
+      <div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div>
+      <div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div>
+      <div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div>
+      <div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div>
+    </div>
+  </section>
+
+  <!-- 1. Jenkins란? -->
+  <section class="slide" data-title="Jenkins란?">
+    <div class="slide-label">01 — Introduction</div>
+    <h1>🔧 Jenkins란?</h1>
+    <p><span class="keyword">Jenkins</span>는 소프트웨어 빌드, 테스트, 배포 과정을 <strong>자동화</strong>해주는 오픈소스 CI/CD 서버입니다. 2011년에 처음 등장한 이후 지금까지도 가장 널리 쓰이는 자동화 도구 중 하나입니다.</p>
+
+    <div class="highlight-box">
+      <h3>📌 한 문장으로 정의하면?</h3>
+      <p style="font-size: 20px; font-weight: bold; color: var(--accent2); margin: 0;">
+          "개발자가 코드를 Push하면 <span class="keyword">자동으로 빌드 → 테스트 → 배포</span>까지 실행해주는 로봇 같은 도구"
+      </p>
+    </div>
+
+    <h2>🔍 Jenkins가 하는 일</h2>
+    <div class="tool-grid">
+        <div class="tool-card">
+            <div class="tool-icon">👀</div>
+            <h4>코드 변경 감지</h4>
+            <p>GitHub 등에 코드가 Push되면 자동으로 감지하여 파이프라인을 시작</p>
+        </div>
+        <div class="tool-card">
+            <div class="tool-icon">🔨</div>
+            <h4>자동 빌드</h4>
+            <p>Maven, Gradle, npm 등으로 소스코드를 실행 가능한 형태로 빌드</p>
+        </div>
+        <div class="tool-card">
+            <div class="tool-icon">🧪</div>
+            <h4>자동 테스트</h4>
+            <p>단위 테스트, 통합 테스트를 자동 실행하고 결과를 리포트로 제공</p>
+        </div>
+        <div class="tool-card">
+            <div class="tool-icon">📦</div>
+            <h4>이미지 패키징</h4>
+            <p>테스트 통과 후 Docker 이미지를 빌드하고 레지스트리에 Push</p>
+        </div>
+        <div class="tool-card">
+            <div class="tool-icon">🚀</div>
+            <h4>자동 배포</h4>
+            <p>Kubernetes 또는 서버에 새 버전을 자동으로 배포</p>
+        </div>
+        <div class="tool-card">
+            <div class="tool-icon">🔔</div>
+            <h4>결과 알림</h4>
+            <p>성공/실패 여부를 Slack, Email 등으로 팀에게 즉시 알림</p>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <p>💡 Jenkins는 <strong>1,800개 이상의 플러그인</strong>을 지원합니다. GitHub, Docker, Kubernetes, Slack 등 거의 모든 DevOps 도구와 연동할 수 있어 <span class="keyword">DevOps 허브</span> 역할을 합니다.</p>
+    </div>
+  </section>
+
+  <!-- 2. CI/CD에서 Jenkins의 역할 -->
+  <section class="slide" data-title="Jenkins의 역할">
+    <div class="slide-label">02 — Roles in CI/CD</div>
+    <h1>🔄 CI/CD에서 Jenkins의 역할</h1>
+    <p>CI/CD 파이프라인에서 Jenkins는 <strong>모든 단계를 연결하고 자동화하는 지휘자</strong> 역할을 합니다.</p>
+
+    <h2>🏗️ CI/CD 파이프라인 전체 흐름</h2>
+    <div class="flow-diagram">
+        <div class="flow-actor dev">
+            <div class="flow-icon">👨‍💻</div>
+            <div class="flow-content">
+                <strong>개발자 → GitHub Push</strong>
+                <span>개발자가 코드를 작성하고 <span class="keyword">git push</span>로 GitHub에 올림. 여기서부터 자동화 시작.</span>
+            </div>
+        </div>
+        <div class="flow-line"></div>
+        <div style="margin-left: 55px; font-size: 13px; color: var(--accent2); font-weight: bold;">↓ Webhook 트리거</div>
+
+        <div class="flow-actor jenkins" style="border-color: #fce4ec;">
+            <div class="flow-icon">🔧</div>
+            <div class="flow-content">
+                <strong>Jenkins — CI 단계 (지속적 통합)</strong>
+                <span><strong>코드 체크아웃 → 빌드 → 단위 테스트 → 코드 품질 검사</strong> 순서로 자동 실행. 실패 시 즉시 알림.</span>
+            </div>
+        </div>
+        <div class="flow-line"></div>
+        <div style="margin-left: 55px; font-size: 13px; color: var(--accent); font-weight: bold;">↓ 테스트 통과 시</div>
+
+        <div class="flow-actor docker" style="border-color: #e0f7fa;">
+            <div class="flow-icon">📦</div>
+            <div class="flow-content">
+                <strong>Jenkins — Docker 이미지 빌드 & Push</strong>
+                <span><span class="keyword">docker build</span>로 이미지 생성 후 Registry에 Push. 태그는 Git 커밋 해시 등을 사용.</span>
+            </div>
+        </div>
+        <div class="flow-line"></div>
+        <div style="margin-left: 55px; font-size: 13px; color: #3b82f6; font-weight: bold;">↓ 이미지 Push 완료</div>
+
+        <div class="flow-actor k8s" style="border-color: #e8f5e9;">
+            <div class="flow-icon">☸️</div>
+            <div class="flow-content">
+                <strong>Jenkins — CD 단계 (지속적 배포)</strong>
+                <span><span class="keyword">kubectl apply</span> 등으로 Kubernetes 클러스터에 새 이미지 배포. 롤링 업데이트 수행.</span>
+            </div>
+        </div>
+    </div>
+
+    <h2>📊 CI vs CD — 무엇이 다른가?</h2>
+    <table>
+        <tr>
+            <th>구분</th>
+            <th>CI (Continuous Integration)</th>
+            <th>CD (Continuous Delivery/Deployment)</th>
+        </tr>
+        <tr>
+            <td><strong>목적</strong></td>
+            <td>코드 통합 오류를 빠르게 발견</td>
+            <td>언제든 배포 가능한 상태 유지</td>
+        </tr>
+        <tr>
+            <td><strong>Jenkins 역할</strong></td>
+            <td>빌드, 테스트 자동화</td>
+            <td>Docker 빌드, K8s 배포 자동화</td>
+        </tr>
+        <tr>
+            <td><strong>실행 시점</strong></td>
+            <td>코드 Push할 때마다</td>
+            <td>CI 성공 후 자동 또는 수동 승인</td>
+        </tr>
+        <tr>
+            <td><strong>결과물</strong></td>
+            <td>테스트 통과 여부 + 빌드 산출물</td>
+            <td>운영 서버에 새 버전 배포 완료</td>
+        </tr>
+    </table>
+  </section>
+
+  <!-- 3. Jenkinsfile 구조 이해 -->
+  <section class="slide" data-title="Jenkinsfile 구조">
+    <div class="slide-label">03 — Jenkinsfile Structure</div>
+    <h1>📄 Jenkinsfile 구조 이해</h1>
+    <p>Jenkins는 <span class="keyword">Jenkinsfile</span>이라는 파일에 파이프라인 로직을 코드로 작성합니다. 이 파일은 프로젝트 루트에 위치하며, <strong>Pipeline as Code</strong> 방식으로 버전 관리가 가능합니다.</p>
+
+    <h2>🏗️ 실무 표준 5단계 파이프라인 뼈대</h2>
+
+    <div class="code-block"><span class="c-keyword">pipeline</span> {
+    <span class="c-keyword">agent</span> any
+
+    <span class="c-keyword">environment</span> {
+        <span class="c-var">APP_NAME</span>      = <span class="c-string">'fastapi-app'</span>
+        <span class="c-var">REGISTRY</span>      = <span class="c-string">'registry.example.com'</span>
+        <span class="c-var">IMAGE_TAG</span>     = <span class="c-string">"${env.BUILD_NUMBER}"</span>
+    }
+
+    <span class="c-keyword">stages</span> {
+        <span class="c-stage">stage</span>(<span class="c-string">'① Checkout'</span>)       { <span class="c-keyword">steps</span> { <span class="c-comment">/* 코드 가져오기 */</span> } }
+        <span class="c-stage">stage</span>(<span class="c-string">'② Build'</span>)          { <span class="c-keyword">steps</span> { <span class="c-comment">/* 소스 빌드·패키징 */</span> } }
+        <span class="c-stage">stage</span>(<span class="c-string">'③ Test'</span>)           { <span class="c-keyword">steps</span> { <span class="c-comment">/* 단위·통합 테스트 */</span> } }
+        <span class="c-stage">stage</span>(<span class="c-string">'④ Docker Push'</span>)   { <span class="c-keyword">steps</span> { <span class="c-comment">/* 이미지 빌드 & 레지스트리 Push */</span> } }
+        <span class="c-stage">stage</span>(<span class="c-string">'⑤ Deploy'</span>)         { <span class="c-keyword">steps</span> { <span class="c-comment">/* 서버/K8s에 배포 */</span> } }
+    }
+
+    <span class="c-keyword">post</span> {
+        <span class="c-fn">always</span>  { <span class="c-comment">/* 성공/실패 관계없이 항상 실행 (정리 작업) */</span> }
+        <span class="c-fn">success</span> { <span class="c-comment">/* 파이프라인 성공 시 실행 (알림 등) */</span> }
+        <span class="c-fn">failure</span> { <span class="c-comment">/* 파이프라인 실패 시 실행 (알림 등) */</span> }
+    }
+}</div>
+
+    <h2>📌 전체 단계 한눈에 보기</h2>
+    <table>
+        <tr>
+            <th>단계</th>
+            <th>역할</th>
+            <th>핵심 포인트</th>
+        </tr>
+        <tr>
+            <td><strong>① Checkout</strong></td>
+            <td>코드 가져오기</td>
+            <td>GitHub에서 최신 코드를 Jenkins 작업공간에 다운로드</td>
+        </tr>
+        <tr>
+            <td><strong>② Build</strong></td>
+            <td>소스 빌드·패키징</td>
+            <td>Maven / Gradle / npm 등으로 실행 가능한 형태로 컴파일·패키징</td>
+        </tr>
+        <tr>
+            <td><strong>③ Test</strong></td>
+            <td>자동화 테스트</td>
+            <td>단위·통합 테스트 실행 — 실패 시 이후 단계 자동 중단</td>
+        </tr>
+        <tr>
+            <td><strong>④ Docker Push</strong></td>
+            <td>이미지 빌드 & 배포</td>
+            <td>Dockerfile 기반 이미지 생성 → 고유 태그 + latest로 레지스트리에 Push</td>
+        </tr>
+        <tr>
+            <td><strong>⑤ Deploy</strong></td>
+            <td>서버/K8s 배포</td>
+            <td>kubectl apply 또는 ssh 배포로 새 이미지를 운영 환경에 반영</td>
+        </tr>
+        <tr>
+            <td><strong>post 블록</strong></td>
+            <td>후처리</td>
+            <td>성공/실패 알림, 임시 파일·이미지 정리 등 항상 실행</td>
+        </tr>
+    </table>
+  </section>
+
+<!-- NAV -->
+<div class="nav-arrows">
+  <button class="nav-btn" id="btnPrev" onclick="navigate(-1)" title="이전 (←)">←</button>
+  <button class="nav-btn" id="btnNext" onclick="navigate(1)" title="다음 (→)">→</button>
+</div>
+
+<div class="key-hint">
+  <kbd>←</kbd><kbd>→</kbd> 키보드로 이동 &nbsp;·&nbsp; <kbd>T</kbd> 테마 전환
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const tocList = document.getElementById('tocList');
+  let current = -1;
+
+  // Build TOC
+  slides.forEach((s, i) => {
+    const title = s.dataset.title || `슬라이드 ${i+1}`;
+    const item = document.createElement('div');
+    item.className = 'toc-item' + (i === 0 ? ' active' : '');
+    item.innerHTML = `
+      <span class="toc-num">${String(i).padStart(2,'0')}</span>
+      <span class="toc-text">${title}</span>
+      <span class="toc-dot"></span>`;
+    item.addEventListener('click', () => goSlide(i));
+    tocList.appendChild(item);
+  });
+
+  document.getElementById('totNum').textContent = slides.length;
+
+  function goSlide(idx) {
+    if (idx < 0 || idx >= slides.length || idx === current) return;
+
+    if (current >= 0) {
+      const prev = slides[current];
+      prev.classList.add('exit');
+      setTimeout(() => prev.classList.remove('exit'), 500);
+      prev.classList.remove('active');
+    }
+
+    current = idx;
+    slides[current].classList.add('active');
+    slides[current].scrollTop = 0;
+
+    document.querySelectorAll('.toc-item').forEach((el, i) => {
+      el.classList.toggle('active', i === current);
+    });
+
+    const activeTocItem = tocList.querySelectorAll('.toc-item')[current];
+    if (activeTocItem) activeTocItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+    document.getElementById('curNum').textContent = current + 1;
+    const pct = ((current + 1) / slides.length) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+
+    document.getElementById('btnPrev').disabled = current === 0;
+    document.getElementById('btnNext').disabled = current === slides.length - 1;
+  }
+
+  function navigate(dir) { goSlide(current + dir); }
+
+  function toggleSidebar() {
+    document.body.classList.toggle('sidebar-open');
+  }
+
+  // Theme with localStorage persistence
+  let isDark = localStorage.getItem('devops-theme') !== 'light';
+  function applyTheme() {
+    document.documentElement.classList.toggle('light', !isDark);
+    const label = document.getElementById('themeLabel');
+    const thumb = document.querySelector('.toggle-thumb');
+    if (isDark) {
+      label.textContent = '🌙 다크 모드';
+      thumb.textContent = '🌙';
+    } else {
+      label.textContent = '☀️ 라이트 모드';
+      thumb.textContent = '☀️';
+    }
+  }
+  function toggleTheme() {
+    isDark = !isDark;
+    localStorage.setItem('devops-theme', isDark ? 'dark' : 'light');
+    applyTheme();
+  }
+  applyTheme();
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   navigate(-1);
+    if (e.key === 't' || e.key === 'T') toggleTheme();
+  });
+
+  // --- Code Block Enhancements (Copy & Lang Tag) ---
+  document.querySelectorAll('.code-block').forEach(block => {
+    const container = document.createElement('div');
+    container.className = 'code-block-container';
+    block.parentNode.insertBefore(container, block);
+    container.appendChild(block);
+
+    let lang = block.dataset.lang;
+    if (!lang) {
+      const text = block.textContent;
+      if (text.includes('FROM ') || text.includes('RUN ') || text.includes('COPY ')) lang = 'Dockerfile';
+      else if (text.includes('services:') || text.includes('version:') || text.includes('image:')) lang = 'YAML';
+      else if (text.includes('server {') || text.includes('location ')) lang = 'Nginx';
+      else if (text.includes('import ') || text.includes('def ')) lang = 'Python';
+      else if (text.includes('npm ') || text.includes('node ')) lang = 'Node.js';
+      else if (text.includes('[devops@') || text.includes('$ ') || text.includes('sudo ')) lang = 'Bash';
+      else if (text.includes('pipeline {') || text.includes('agent ')) lang = 'Jenkins';
+      else lang = 'Code';
+    }
+
+    const tag = document.createElement('div');
+    tag.className = 'code-lang-tag';
+    tag.textContent = lang;
+    container.appendChild(tag);
+
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> <span>Copy</span>`;
+    btn.onclick = () => {
+      const textToCopy = block.innerText;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const span = btn.querySelector('span');
+        btn.classList.add('copied');
+        span.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          span.textContent = 'Copy';
+        }, 2000);
+      });
+    };
+    container.appendChild(btn);
+  });
+
+  goSlide(0);
+</script>
+</body>
+</html>

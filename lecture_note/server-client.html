@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>서버와 클라이언트 강의</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&family=Google+Sans+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --sidebar-bg: #0f0f1a;
+    --sidebar-w: 280px;
+    --accent: #6ee7b7;
+    --accent2: #818cf8;
+    --accent3: #f472b6;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --border: rgba(255,255,255,0.07);
+    --slide-transition: 0.5s cubic-bezier(0.4,0,0.2,1);
+    --card-bg: rgba(255,255,255,0.03);
+    --card-hover-bg: rgba(255,255,255,0.055);
+    --toc-hover: rgba(255,255,255,0.04);
+    --toc-active: rgba(110,231,183,0.08);
+    --stat-bg: rgba(255,255,255,0.025);
+    --bar-track: rgba(255,255,255,0.05);
+    --kbd-bg: rgba(255,255,255,0.06);
+    --nav-bg: rgba(255,255,255,0.06);
+    --shadow: none;
+    --code-bg: #0d1117;
+    --code-text: #e6edf3;
+    --highlight-bg: rgba(110,231,183,0.05);
+    --highlight-border: rgba(110,231,183,0.3);
+    --table-header: rgba(255,255,255,0.05);
+    --table-row-alt: rgba(255,255,255,0.02);
+    --table-border: rgba(255,255,255,0.08);
+  }
+
+  html.light {
+    --bg: #f5f5f0;
+    --sidebar-bg: #eeeee8;
+    --accent: #059669;
+    --accent2: #4f46e5;
+    --accent3: #db2777;
+    --text: #1e293b;
+    --text-muted: #94a3b8;
+    --border: rgba(0,0,0,0.09);
+    --card-bg: rgba(255,255,255,0.7);
+    --card-hover-bg: rgba(255,255,255,0.95);
+    --toc-hover: rgba(0,0,0,0.04);
+    --toc-active: rgba(5,150,105,0.08);
+    --stat-bg: rgba(255,255,255,0.6);
+    --bar-track: rgba(0,0,0,0.07);
+    --kbd-bg: rgba(0,0,0,0.06);
+    --nav-bg: rgba(255,255,255,0.7);
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --code-bg: #1e2530;
+    --code-text: #e6edf3;
+    --highlight-bg: rgba(5,150,105,0.06);
+    --highlight-border: rgba(5,150,105,0.3);
+    --table-header: rgba(0,0,0,0.05);
+    --table-row-alt: rgba(0,0,0,0.02);
+    --table-border: rgba(0,0,0,0.1);
+  }
+
+  *, *::before, *::after {
+    transition-property: background, background-color, border-color, color, box-shadow;
+    transition-duration: 0.35s;
+    transition-timing-function: ease;
+  }
+  .slide { transition: opacity var(--slide-transition), transform var(--slide-transition) !important; }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 10;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .brand-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, rgba(110,231,183,0.2), rgba(129,140,248,0.2));
+    border: 1px solid rgba(110,231,183,0.3);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .brand-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .brand-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .home-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(110,231,183,0.07);
+    border: 1px solid rgba(110,231,183,0.18);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--accent);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    text-decoration: none;
+    transition: all 0.2s;
+    margin-bottom: 8px;
+  }
+  .home-btn:hover {
+    background: rgba(110,231,183,0.14);
+    border-color: rgba(110,231,183,0.35);
+    transform: translateX(2px);
+  }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .theme-toggle:hover { background: var(--toc-hover); }
+  .theme-label {
+    font-size: 16px;
+    color: var(--text-muted);
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .toggle-track {
+    width: 32px; height: 18px;
+    border-radius: 9px;
+    background: var(--accent2);
+    position: relative;
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  html.light .toggle-track { background: #f59e0b; }
+  .toggle-thumb {
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    font-size: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  html.light .toggle-thumb { transform: translateX(14px); }
+
+  .toc-label {
+    padding: 20px 20px 10px;
+    font-size: 16px;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .toc-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 10px 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 1px;
+    position: relative;
+  }
+  .toc-item:hover { background: var(--toc-hover); }
+  .toc-item.active { background: var(--toc-active); }
+  .toc-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 2px; height: 55%;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .toc-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--text-muted);
+    min-width: 22px;
+  }
+  .toc-item.active .toc-num { color: var(--accent); }
+
+  .toc-text {
+    font-size: 15px;
+    color: #94a3b8;
+    line-height: 1.35;
+  }
+  .toc-item.active .toc-text,
+  .toc-item:hover .toc-text { color: var(--text); }
+
+  .toc-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .toc-item.active .toc-dot { background: var(--accent); box-shadow: 0 0 5px var(--accent); }
+
+  .sidebar-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .slide-counter {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .slide-counter span { color: var(--accent); font-weight: 700; }
+
+  .progress-bar {
+    width: 70px; height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 1px;
+    transition: width 0.4s ease !important;
+  }
+
+  /* ── MAIN ── */
+  #main {
+    flex: 1;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 52px 68px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity var(--slide-transition), transform var(--slide-transition);
+    pointer-events: none;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateY(-28px);
+  }
+
+  /* ── SLIDE: HOME ── */
+  .slide-home {
+    background: radial-gradient(ellipse at 25% 50%, rgba(110,231,183,0.06) 0%, transparent 55%),
+                radial-gradient(ellipse at 78% 18%, rgba(129,140,248,0.08) 0%, transparent 50%),
+                var(--bg);
+    justify-content: center;
+  }
+
+  .slide-home .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .slide-home h1 {
+    font-size: clamp(34px, 4.5vw, 60px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.35s forwards;
+  }
+
+  .slide-home h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .slide-home p.subtitle {
+    font-size: 18px;
+    color: #94a3b8;
+    max-width: 520px;
+    line-height: 1.75;
+    margin-bottom: 36px;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.5s forwards;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.65s forwards;
+  }
+
+  .meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 16px;
+    color: var(--text-muted);
+  }
+  .meta-chip .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* ── SLIDE: COMMON ── */
+  .slide-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--accent2);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .slide h1 {
+    font-size: clamp(26px, 3vw, 42px);
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+  }
+
+  .slide h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 28px;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .slide h2::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 18px;
+    background: var(--accent2);
+    margin-right: 10px;
+    border-radius: 2px;
+    vertical-align: middle;
+  }
+
+  .slide h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+
+  .slide p {
+    font-size: 18px;
+    line-height: 1.8;
+    color: #94a3b8;
+    margin-bottom: 14px;
+  }
+  html.light .slide p { color: #475569; }
+
+  .slide ul, .slide ol {
+    margin-left: 20px;
+    margin-bottom: 18px;
+  }
+
+  .slide li {
+    font-size: 18px;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+  html.light .slide li { color: #475569; }
+
+  .slide li strong { color: var(--text); }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 18px 20px;
+    border-radius: 10px;
+    margin: 14px 0;
+    font-family: 'Google Sans Code', monospace;
+    font-size: 18px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    overflow: visible;
+    flex-shrink: 0;
+    overflow-x: hidden;
+  }
+  .code-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+    border-radius: 10px 10px 0 0;
+    opacity: 0.4;
+  }
+  .code-comment { color: #6e7681; }
+  .code-cmd { color: var(--accent); font-weight: 700; }
+  .code-flag { color: var(--accent2); }
+  .code-str { color: #a5d6ff; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: var(--highlight-bg);
+    border-left: 3px solid var(--accent);
+    padding: 18px 20px;
+    margin: 16px 0;
+    border-radius: 0 10px 10px 0;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+  }
+
+  .highlight-box h3, .highlight-box h4 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+
+  .highlight-box p {
+    font-size: 18px;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+  html.light .highlight-box p { color: #475569; }
+
+  /* ── STATUS CODES (Mapped to highlight/error boxes) ── */
+  .status-code {
+    padding: 18px 20px;
+    margin: 10px 0;
+    border-radius: 0 10px 10px 0;
+    border: 1px solid var(--border);
+    border-left: 3px solid transparent;
+  }
+  .status-code.success {
+    background: rgba(110,231,183,0.05);
+    border-left-color: var(--accent);
+  }
+  .status-code.success h4 { color: var(--accent); }
+  .status-code.error {
+    background: rgba(244,114,182,0.05);
+    border-left-color: var(--accent3);
+  }
+  .status-code.error h4 { color: var(--accent3); }
+
+  /* ── JSON EXAMPLE ── */
+  .json-example {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 20px;
+    border-radius: 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    margin: 15px 0;
+    border: 1px solid var(--border);
+    white-space: pre-wrap;
+  }
+  .json-key { color: var(--accent); }
+  .json-string { color: #fbbf24; }
+  .json-number { color: var(--accent2); }
+
+  /* ── GRID ── */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 15px 0;
+  }
+  .card {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+  .card:hover { transform: translateY(-4px); border-color: var(--accent); background: var(--card-hover-bg); }
+
+  /* ── DIAGRAM ── */
+  .sc-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    margin: 40px 0;
+    flex-wrap: wrap;
+  }
+  .sc-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    min-width: 180px;
+    transition: all 0.3s;
+  }
+  .sc-box:hover { transform: translateY(-5px); border-color: var(--accent); }
+  .sc-box h3 { margin-top: 15px; margin-bottom: 5px; color: var(--text); }
+  .sc-arrow { font-size: 40px; color: var(--accent); }
+
+  /* ── VS CONTAINER ── */
+  .vs-container {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+    margin: 30px 0;
+  }
+  .vs-box {
+    flex: 1;
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 15px;
+    border: 1px solid var(--border);
+  }
+  .vs-divider {
+    display: flex;
+    align-items: center;
+    font-weight: 900;
+    font-size: 24px;
+    color: var(--accent3);
+  }
+
+  /* ── URL STRUCTURE ── */
+  .url-part {
+    margin-bottom: 12px;
+    padding: 15px;
+    background: var(--card-bg);
+    border-radius: 10px;
+    border-left: 3px solid var(--accent2);
+  }
+  .url-part strong { color: var(--accent2); display: block; margin-bottom: 5px; }
+
+  .url-example {
+    text-align: center;
+    font-size: clamp(14px, 4.5vw, 22px);
+    font-weight: 700;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    background: var(--code-bg);
+    padding: 24px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    color: var(--code-text);
+    margin: 20px 0;
+    line-height: 1.4;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+    position: relative;
+  }
+  .url-example::after {
+    content: 'URL EXAMPLE';
+    position: absolute;
+    top: -10px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    background: var(--accent2);
+    color: white;
+    border-radius: 4px;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── NAV ARROWS ── */
+  .nav-arrows {
+    position: fixed;
+    bottom: 28px;
+    right: 36px;
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+  .nav-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--nav-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+  .nav-btn:hover { background: rgba(110,231,183,0.1); border-color: var(--accent); color: var(--accent); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+  .key-hint {
+    position: fixed;
+    bottom: 32px; left: calc(var(--sidebar-w) + 20px);
+    font-size: 14px;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .key-hint kbd {
+    padding: 1px 5px;
+    background: var(--kbd-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* ── CODE BLOCK ENHANCEMENTS ── */
+  .code-block-container {
+    position: relative;
+    margin: 14px 0;
+    overflow: visible;
+  }
+  .code-block {
+    margin: 0 !important;
+    padding-top: 36px !important;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-lang-tag {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: var(--accent2);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 9px 0 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 5;
+    pointer-events: none;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  }
+  .copy-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .copy-btn:hover {
+    background: rgba(110,231,183,0.15);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .copy-btn.copied {
+    background: rgba(110,231,183,0.2);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  html.light .copy-btn {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.1);
+  }
+  html.light .copy-btn:hover {
+    background: rgba(5,150,105,0.1);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── MOBILE ── */
+  .menu-toggle {
+    display: none;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 300;
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 20px;
+    align-items: center; justify-content: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    backdrop-filter: blur(8px);
+  }
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 150;
+  }
+  @media (max-width: 768px) {
+    .menu-toggle { display: flex; }
+    #sidebar {
+      position: fixed;
+      left: 0; top: 0;
+      height: 100vh;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease !important;
+      z-index: 200;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+    }
+    body.sidebar-open #sidebar { transform: translateX(0); }
+    body.sidebar-open .sidebar-overlay { display: block; }
+    .slide { padding: 56px 20px 80px; }
+    .key-hint { display: none; }
+    .vs-container { flex-direction: column; }
+    .vs-divider { justify-content: center; padding: 10px 0; }
+  }
+  @media (max-width: 480px) {
+    .slide { padding: 56px 14px 80px; }
+    .nav-btn { width: 44px; height: 44px; font-size: 16px; }
+  }
+
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .highlight { color: var(--accent); font-weight: bold; }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="toggleSidebar()" aria-label="메뉴 열기">☰</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- ── SIDEBAR ── -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🌐</div>
+      <div>
+        <div class="brand-text">Server & Client</div>
+        <div class="brand-sub">Web Architecture</div>
+      </div>
+    </div>
+    <a class="home-btn" href="../" title="홈으로">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      홈으로
+    </a>
+    <div class="theme-toggle" onclick="toggleTheme()">
+      <span class="theme-label" id="themeLabel">🌙 다크 모드</span>
+      <div class="toggle-track"><div class="toggle-thumb">🌙</div></div>
+    </div>
+  </div>
+
+  <div class="toc-label">목 차</div>
+  <div class="toc-list" id="tocList"></div>
+
+  <div class="sidebar-footer">
+    <div class="slide-counter"><span id="curNum">1</span> / <span id="totNum">1</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</nav>
+
+<main id="main">
+
+  <!-- 0. HOME -->
+  <section class="slide slide-home" data-title="서버와 클라이언트 시작하기">
+    <div class="eyebrow">— Web Development 2026 · Client-Server Foundation</div>
+    <h1>🌐 <em>서버와 클라이언트</em></h1>
+    <p class="subtitle">웹 통신의 기본 원리부터 HTTP 상태 코드, 메서드, 그리고 FastAPI로 실제 서버 구현까지 한 번에</p>
+    <div class="meta-row">
+      <div class="meta-chip"><span class="dot"></span> 2026 DevOps</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 16 슬라이드</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent3)"></span> 웹 통신 기초 + FastAPI</div>
+    </div>
+  </section>
+
+  <!-- 1. 서버와 클라이언트란? -->
+  <section class="slide" data-title="서버와 클라이언트란?">
+    <div class="slide-label">01 — 기초 개념</div>
+    <h1>서버와 클라이언트란?</h1>
+    
+    <div class="sc-diagram">
+      <div class="sc-box">
+        <div style="font-size: 50px;">💻</div>
+        <h3>클라이언트</h3>
+        <p>(Client)</p>
+      </div>
+      <div class="sc-arrow">⇄</div>
+      <div class="sc-box">
+        <div style="font-size: 50px;">🖥️</div>
+        <h3>서버</h3>
+        <p>(Server)</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>클라이언트 (Client)</h3>
+        <p>서비스를 <span class="highlight">요청</span>하는 주체입니다. 웹 브라우저, 모바일 앱 등이 여기에 해당합니다.</p>
+      </div>
+      <div class="card">
+        <h3>서버 (Server)</h3>
+        <p>클라이언트의 요청을 받아 서비스를 <span class="highlight">제공</span>하는 주체입니다. 데이터를 저장하고 처리합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. 실생활 비유 -->
+  <section class="slide" data-title="실생활 비유">
+    <div class="slide-label">02 — 쉬운 이해</div>
+    <h1>🏪 실생활 비유</h1>
+    
+    <div class="grid-2">
+      <div class="highlight-box">
+        <h4>☕ 카페에서 커피 주문하기</h4>
+        <p><strong>손님 (클라이언트)</strong> → 주문서에 "아메리카노 1잔" 작성</p>
+        <p><strong>바리스타 (서버)</strong> → 커피를 만들어서 제공</p>
+        <p><strong>결과</strong> → 손님이 커피를 받음</p>
+      </div>
+
+      <div class="highlight-box">
+        <h4>🍕 배달 앱 사용하기</h4>
+        <p><strong>앱 사용자 (클라이언트)</strong> → "피자 주문" 버튼 클릭</p>
+        <p><strong>배달앱 서버</strong> → 주문 정보를 저장하고 가게에 전달</p>
+        <p><strong>결과</strong> → 주문 확인 메시지 + 배달 진행</p>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <h4>💰 ATM에서 돈 찾기</h4>
+      <p><strong>ATM 기기 (클라이언트)</strong> → 은행 서버에 출금 요청</p>
+      <p><strong>은행 서버</strong> → 잔액 확인 후 승인/거부</p>
+      <p><strong>결과</strong> → 현금 출금 또는 오류 메시지</p>
+    </div>
+  </section>
+
+  <!-- 3. 성공 상태 코드 (2xx) -->
+  <section class="slide" data-title="성공 상태 코드 (2xx)">
+    <div class="slide-label">03 — 상태 코드</div>
+    <h1>✅ 성공 상태 코드 (2xx)</h1>
+    <p>요청이 성공적으로 처리되었을 때 받는 코드입니다.</p>
+
+    <div class="grid-2">
+      <div class="status-code success">
+        <h4>200 OK</h4>
+        <p>요청이 성공적으로 처리됨</p>
+        <small style="color: var(--text-muted);">가장 일반적인 성공 응답</small>
+      </div>
+
+      <div class="status-code success">
+        <h4>201 Created</h4>
+        <p>새로운 리소스가 생성됨</p>
+        <small style="color: var(--text-muted);">POST 요청 성공 시</small>
+      </div>
+
+      <div class="status-code success">
+        <h4>204 No Content</h4>
+        <p>성공했지만 반환할 내용 없음</p>
+        <small style="color: var(--text-muted);">DELETE 요청 성공 시</small>
+      </div>
+
+      <div class="status-code success">
+        <h4>202 Accepted</h4>
+        <p>요청이 접수되어 처리 중</p>
+        <small style="color: var(--text-muted);">비동기 처리 시작</small>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top: 20px; text-align: center;">
+      <p style="font-weight: bold; margin-bottom: 0;">💡 2xx 코드는 모두 성공을 의미합니다!</p>
+    </div>
+  </section>
+
+  <!-- 4. 오류 상태 코드 (4xx, 5xx) -->
+  <section class="slide" data-title="오류 상태 코드 (4xx, 5xx)">
+    <div class="slide-label">04 — 에러 처리</div>
+    <h1>❌ 오류 상태 코드 (4xx, 5xx)</h1>
+    
+    <h3>클라이언트 오류 (4xx)</h3>
+    <div class="grid-2">
+      <div class="status-code error">
+        <h4>400 Bad Request</h4>
+        <p>잘못된 요청 문법</p>
+      </div>
+      <div class="status-code error">
+        <h4>401 Unauthorized</h4>
+        <p>인증이 필요함</p>
+      </div>
+      <div class="status-code error">
+        <h4>403 Forbidden</h4>
+        <p>접근 권한 없음</p>
+      </div>
+      <div class="status-code error">
+        <h4>404 Not Found</h4>
+        <p>요청한 자원이 없음</p>
+      </div>
+    </div>
+
+    <h3>서버 오류 (5xx)</h3>
+    <div class="grid-2">
+      <div class="status-code error">
+        <h4>500 Internal Server Error</h4>
+        <p>서버 내부 오류</p>
+      </div>
+      <div class="status-code error">
+        <h4>503 Service Unavailable</h4>
+        <p>서비스 이용 불가</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. HTTP 메서드 -->
+  <section class="slide" data-title="HTTP 메서드">
+    <div class="slide-label">05 — 통신 방식</div>
+    <h1>🌐 통신 양식 (HTTP 메서드)</h1>
+    <p>클라이언트와 서버가 데이터를 주고받는 방식입니다.</p>
+
+    <div class="code-block">
+<span style="color: #fbbf24;">GET</span>    - 데이터 조회 요청 (예: 웹페이지 불러오기)
+<span style="color: #6ee7b7;">POST</span>   - 새로운 데이터 생성 (예: 회원가입)
+<span style="color: #818cf8;">PUT</span>    - 데이터 전체 수정 (예: 프로필 업데이트)
+<span style="color: #f472b6;">PATCH</span>  - 데이터 일부 수정 (예: 이름 변경)
+<span style="color: #dc2626;">DELETE</span> - 데이터 삭제 (예: 게시글 삭제)
+    </div>
+
+    <div class="highlight-box">
+      <p>💡 각 메서드는 <span class="highlight">목적에 맞게</span> 사용되어야 시스템의 예측 가능성이 높아집니다.</p>
+    </div>
+  </section>
+
+  <!-- 6. URL 구조 -->
+  <section class="slide" data-title="URL 구조">
+    <div class="slide-label">06 — 주소 체계</div>
+    <h1>🔗 URL 구조 (주소 구성)</h1>
+    
+    <div class="url-example">
+      https://www.example.com:443/api/users?page=1
+    </div>
+
+    <div class="grid-2" style="margin-top: 20px;">
+      <div class="url-part">
+        <strong>1. 프로토콜 (Protocol)</strong>
+        <p>https:// - 통신 규약 (http 또는 https)</p>
+      </div>
+      <div class="url-part">
+        <strong>2. 호스트 (Host) ⭐ 필수</strong>
+        <p>www.example.com - 서버의 도메인 이름 또는 IP</p>
+      </div>
+      <div class="url-part">
+        <strong>3. 포트 (Port) ⭐ 필수</strong>
+        <p>:443 - 서버의 특정 통신 관문 (기본 https=443)</p>
+      </div>
+      <div class="url-part">
+        <strong>4. 경로 (Path) ⭐ 필수</strong>
+        <p>/api/users - 서버 내 리소스 위치</p>
+      </div>
+    </div>
+    <div class="url-part">
+      <strong>5. 쿼리 파라미터 (Query Parameter)</strong>
+      <p>?page=1 - 서버에 전달하는 추가 옵션 정보</p>
+    </div>
+  </section>
+
+  <!-- 7. 요청/응답 구조 -->
+  <section class="slide" data-title="요청/응답 구조">
+    <div class="slide-label">07 — 데이터 구조</div>
+    <h1>📦 요청과 응답의 구조</h1>
+    <p>HTTP 통신은 크게 <span class="highlight">Header</span>와 <span class="highlight">Body</span>로 구성됩니다.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>📤 요청 (Request)</h3>
+        <div class="code-block">
+<span class="code-cmd">[Header]</span>
+- Content-Type
+- Authorization (토큰)
+- Cookie
+
+<span class="code-cmd">[Body]</span>
+- 전송 데이터 (JSON 등)
+        </div>
+      </div>
+      <div class="card">
+        <h3>📥 응답 (Response)</h3>
+        <div class="code-block">
+<span class="code-flag">[Header]</span>
+- Status Code
+- Content-Type
+- Set-Cookie
+
+<span class="code-flag">[Body]</span>
+- 요청한 데이터 (HTML, JSON)
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <h4>🔐 인증 정보는 어디에?</h4>
+      <p>• <strong>쿠키</strong>: Header의 Cookie 또는 Set-Cookie</p>
+      <p>• <strong>토큰</strong>: Header의 Authorization (예: Bearer token)</p>
+    </div>
+  </section>
+
+  <!-- 8. JSON 데이터 형식 -->
+  <section class="slide" data-title="JSON 데이터 형식">
+    <div class="slide-label">08 — 데이터 포맷</div>
+    <h1>📋 JSON 데이터 형식</h1>
+    <p>현대 웹에서 가장 널리 쓰이는 데이터 교환 방식입니다.</p>
+
+    <div class="json-example">
+{
+  <span class="json-key">"id"</span>: <span class="json-number">kb12345</span>,
+  <span class="json-key">"name"</span>: <span class="json-string">"코봉이"</span>,
+  <span class="json-key">"email"</span>: <span class="json-string">"kobong@exmaple.com"</span>,
+  <span class="json-key">"hobbies"</span>: [
+    <span class="json-string">"독서"</span>,
+    <span class="json-string">"운동"</span>,
+    <span class="json-string">"코딩"</span>
+  ],
+  <span class="json-key">"address"</span>: {
+    <span class="json-key">"city"</span>: <span class="json-string">"서울"</span>,
+    <span class="json-key">"zipcode"</span>: <span class="json-string">"42"</span>
+  }
+}
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <p>✅ 사람이 읽기 쉬운 텍스트 형식</p>
+        <p>✅ 키(Key)-값(Value) 쌍 구조</p>
+      </div>
+      <div class="card">
+        <p>✅ 배열과 객체 중첩 가능</p>
+        <p>✅ 모든 언어에서 범용적 지원</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. 동기 vs 비동기 -->
+  <section class="slide" data-title="동기 vs 비동기">
+    <div class="slide-label">09 — 처리 방식</div>
+    <h1>동기 vs 비동기 통신</h1>
+    
+    <div class="vs-container">
+      <div class="vs-box">
+        <h3>⏸️ 동기 (Sync)</h3>
+        <p>응답을 받을 때까지 <span class="highlight">대기</span></p>
+        <div class="code-block">
+1. 요청 📤
+2. 대기... ⏳
+3. 응답 📥
+4. 다음 실행 ▶️
+        </div>
+        <small>예: 은행 입출금, 로그인</small>
+      </div>
+      <div class="vs-divider">VS</div>
+      <div class="vs-box">
+        <h3>⏯️ 비동기 (Async)</h3>
+        <p>요청 후 <span class="highlight">다른 작업 가능</span></p>
+        <div class="code-block">
+1. 요청 📤
+2. 다른 작업 ▶️
+3. 응답 시 처리 📥
+        </div>
+        <small>예: SNS 피드, 알림</small>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="text-align: center;">
+      <p>💡 현대적인 웹 경험(UX)을 위해서는 <span class="highlight">비동기</span> 통신이 필수적입니다.</p>
+    </div>
+  </section>
+
+
+  <!-- 11. FastAPI 소개 -->
+  <section class="slide" data-title="FastAPI 소개">
+    <div class="slide-label">10 — FastAPI</div>
+    <h1>⚡ FastAPI란?</h1>
+    <p>Python으로 서버(API)를 만들 수 있는 <span class="highlight">현대적인 웹 프레임워크</span>입니다.</p>
+
+    <div class="grid-2" style="margin-top: 8px;">
+      <div class="card">
+        <h3>🐍 Python으로 서버를?</h3>
+        <p>지금까지 배운 서버 역할 — 요청을 받고 응답을 돌려주는 것 — 을 Python 코드로 직접 구현할 수 있습니다.</p>
+      </div>
+      <div class="card">
+        <h3>🚀 왜 FastAPI인가?</h3>
+        <p>이름 그대로 <strong>빠르고(Fast)</strong>, 코드 작성도 빠르고, 실행 속도도 빠릅니다. 입문자도 몇 줄로 동작하는 서버를 만들 수 있습니다.</p>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top: 16px;">
+      <h4>💡 FastAPI의 3가지 강점</h4>
+      <p>• <strong>자동 문서화</strong>: 코드를 작성하면 API 문서가 자동으로 생성됩니다</p>
+      <p>• <strong>타입 힌트</strong>: Python의 타입 힌트로 요청/응답 데이터를 검증해줍니다</p>
+      <p>• <strong>비동기 지원</strong>: <code style="font-family:monospace;color:var(--accent);">async/await</code> 문법을 기본으로 지원합니다</p>
+    </div>
+
+    <div class="card" style="margin-top: 14px; background: rgba(110,231,183,0.04); border-color: rgba(110,231,183,0.15);">
+      <p style="font-size:16px; margin:0; color: var(--text-muted);">📦 설치 한 줄: <code style="font-family:monospace; color:var(--accent);">pip install fastapi uvicorn</code></p>
+    </div>
+  </section>
+
+  <!-- 12. FastAPI 서버 -->
+  <section class="slide" data-title="서버 만들기">
+    <div class="slide-label">11 — FastAPI</div>
+    <h1>🛠️ 서버 만들기</h1>
+    <p>단 <span class="highlight">10줄</span>로 동작하는 HTTP 서버를 만들 수 있습니다.</p>
+
+    <div class="code-block">
+<span class="code-cmd">from</span> fastapi <span class="code-cmd">import</span> FastAPI
+
+app = FastAPI()          <span class="code-comment"># ① FastAPI 앱 생성</span>
+
+<span class="code-flag">@app.get</span>(<span class="code-str">"/hello"</span>)       <span class="code-comment"># ② GET /hello 경로 등록</span>
+<span class="code-cmd">def</span> <span class="code-cmd">say_hello</span>():
+    <span class="code-cmd">return</span> {<span class="code-str">"Hello"</span>: <span class="code-str">"FastAPI!"</span>}
+
+<span class="code-comment"># 실행 명령어 (터미널)</span>
+<span class="code-cmd">uvicorn</span> main:app <span class="code-flag">--reload</span>
+    </div>
+
+    <div class="grid-2">
+      <div class="highlight-box">
+        <h4>📤 클라이언트 요청</h4>
+        <p><code style="font-family:monospace;">GET http://localhost:8000/hello</code></p>
+      </div>
+      <div class="highlight-box" style="border-left-color: var(--accent2);">
+        <h4>📥 서버 응답</h4>
+        <p><code style="font-family:monospace;">{"Hello": "FastAPI!"}</code></p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:10px;">
+      <p style="font-size:16px; margin:0;">⚙️ <strong>uvicorn</strong>은 FastAPI 앱을 실제로 실행시켜 주는 <span class="highlight">ASGI 서버</span>입니다. <code style="font-family:monospace; color:var(--accent);">--reload</code> 옵션을 붙이면 코드 수정 시 자동으로 재시작합니다.</p>
+    </div>
+  </section>
+
+  <!-- 13. HTTP 메서드와 FastAPI -->
+  <section class="slide" data-title="HTTP 메서드 구현">
+    <div class="slide-label">12 — FastAPI</div>
+    <h1>🔀 HTTP 메서드 구현하기</h1>
+    <p>앞서 배운 <span class="highlight">GET · POST · PUT · DELETE</span>를 FastAPI로 직접 만들어봅니다.</p>
+
+    <div class="code-block">
+<span class="code-cmd">from</span> fastapi <span class="code-cmd">import</span> FastAPI
+<span class="code-cmd">from</span> pydantic <span class="code-cmd">import</span> BaseModel
+
+app = FastAPI()
+users = {}   <span class="code-comment"># 간단한 메모리 저장소</span>
+
+<span class="code-comment"># 데이터 모델 정의</span>
+<span class="code-cmd">class</span> <span class="code-flag">User</span>(BaseModel):
+    name: str
+    email: str
+
+<span class="code-flag">@app.get</span>(<span class="code-str">"/users/{user_id}"</span>)     <span class="code-comment"># READ   - 조회</span>
+<span class="code-cmd">def</span> <span class="code-cmd">get_user</span>(user_id: int):
+    <span class="code-cmd">return</span> users.get(user_id, <span class="code-str">"없음"</span>)
+
+<span class="code-flag">@app.post</span>(<span class="code-str">"/users/{user_id}"</span>)    <span class="code-comment"># CREATE - 생성</span>
+<span class="code-cmd">def</span> <span class="code-cmd">create_user</span>(user_id: int, user: User):
+    users[user_id] = user
+    <span class="code-cmd">return</span> {<span class="code-str">"result"</span>: <span class="code-str">"저장 완료"</span>}
+
+<span class="code-flag">@app.delete</span>(<span class="code-str">"/users/{user_id}"</span>)  <span class="code-comment"># DELETE - 삭제</span>
+<span class="code-cmd">def</span> <span class="code-cmd">delete_user</span>(user_id: int):
+    users.pop(user_id, <span class="code-cmd">None</span>)
+    <span class="code-cmd">return</span> {<span class="code-str">"result"</span>: <span class="code-str">"삭제 완료"</span>}
+    </div>
+
+    <div class="highlight-box">
+      <p>💡 <code style="font-family:monospace; color:var(--accent);">{user_id}</code>처럼 경로에 <strong>중괄호</strong>를 쓰면 URL에서 값을 자동으로 받아올 수 있습니다.<br>
+      예) <code style="font-family:monospace;">/users/42</code> → <code style="font-family:monospace;">user_id = 42</code></p>
+    </div>
+  </section>
+
+  <!-- 14. 쿼리 파라미터 & 경로 파라미터 -->
+  <section class="slide" data-title="파라미터 종류">
+    <div class="slide-label">13 — FastAPI</div>
+    <h1>📌 파라미터 종류</h1>
+    <p>클라이언트가 서버에 데이터를 전달하는 방법은 크게 3가지입니다.</p>
+
+    <div class="grid-2" style="margin-top: 4px;">
+      <div class="card">
+        <h3>🔑 경로 파라미터</h3>
+        <p>URL 경로 안에 포함된 값</p>
+        <div class="code-block">
+<span class="code-comment"># URL: /users/42</span>
+<span class="code-flag">@app.get</span>(<span class="code-str">"/users/{user_id}"</span>)
+<span class="code-cmd">def</span> <span class="code-cmd">get_user</span>(user_id: int):
+    <span class="code-cmd">return</span> {<span class="code-str">"id"</span>: user_id}
+        </div>
+      </div>
+      <div class="card">
+        <h3>❓ 쿼리 파라미터</h3>
+        <p>URL 뒤 <code style="font-family:monospace;">?key=value</code> 형태</p>
+        <div class="code-block">
+<span class="code-comment"># URL: /users/search?name=코봉이</span>
+<span class="code-flag">@app.get</span>(<span class="code-str">"/users/search"</span>)
+<span class="code-cmd">def</span> <span class="code-cmd">search_user</span>(name: str):
+    <span class="code-cmd">return</span> {<span class="code-str">"search_name"</span>: name}
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 12px;">
+      <h3>📦 Request Body (POST)</h3>
+      <p style="margin-bottom:8px;">JSON 형태로 전달 — Pydantic 모델로 자동 검증</p>
+      <div class="code-block" style="margin:0;">
+<span class="code-comment"># POST /users  Body: {"name":"코봉이","email":"kobong@example.com"}</span>
+<span class="code-cmd">class</span> <span class="code-flag">User</span>(BaseModel):
+    name: str
+    email: str
+
+<span class="code-flag">@app.post</span>(<span class="code-str">"/users"</span>)
+<span class="code-cmd">def</span> <span class="code-cmd">create_user</span>(user: User):
+    <span class="code-cmd">return</span> {<span class="code-str">"name"</span>: user.name, <span class="code-str">"status"</span>: <span class="code-str">"created"</span>}
+      </div>
+    </div>
+  </section>
+
+  <!-- 15. 자동 문서화 (Swagger UI) -->
+  <section class="slide" data-title="자동 문서화 Swagger">
+    <div class="slide-label">14 — FastAPI</div>
+    <h1>📖 자동 문서화 — Swagger UI</h1>
+    <p>FastAPI의 가장 강력한 기능 중 하나 — 코드를 작성하는 순간 <span class="highlight">API 문서가 자동 생성</span>됩니다.</p>
+
+    <div class="grid-2" style="margin-top:12px;">
+      <div class="card">
+        <h3>🌐 접속 주소</h3>
+        <p>서버 실행 후 브라우저에서</p>
+        <div class="code-block" style="margin-top:8px;">
+http://localhost:8000<span class="code-cmd">/docs</span>
+<span class="code-comment"># → Swagger UI (대화형)</span>
+
+http://localhost:8000<span class="code-flag">/redoc</span>
+<span class="code-comment"># → ReDoc (가독성 높은 문서)</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>✅ 문서에서 할 수 있는 것</h3>
+        <ul style="margin-left: 16px; margin-top: 8px;">
+          <li>API 목록 한눈에 확인</li>
+          <li>요청 파라미터 / Body 확인</li>
+          <li>브라우저에서 직접 <strong>API 테스트</strong></li>
+          <li>응답 예시 자동 표시</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top: 16px;">
+      <h4>🎯 왜 중요한가요?</h4>
+      <p>프론트엔드 개발자나 팀원과 협업할 때 "<strong>이 API는 이렇게 쓰면 됩니다</strong>"라고 문서를 따로 작성할 필요가 없습니다. FastAPI가 자동으로 해줍니다!</p>
+    </div>
+  </section>
+
+
+  <!-- 17. 전체 요약 -->
+  <section class="slide" data-title="전체 요약">
+    <div class="slide-label">15 — 마무리</div>
+    <h1>✨ 전체 요약</h1>
+    
+    <div class="grid-2" style="margin-top: 12px;">
+      <div class="card" style="padding: 20px;">
+        <h3 style="margin-top:0; color:var(--accent2); display: flex; align-items: center; gap: 8px;">
+          <span>🌐</span> 서버 & 클라이언트
+        </h3>
+        <ul style="margin-left: 20px; margin-top: 10px; font-size: 16px;">
+          <li><strong>역할</strong>: 클라이언트는 <span class="highlight">요청</span>, 서버는 <span class="highlight">응답</span></li>
+          <li><strong>상태 코드</strong>: 2xx(성공) / 4xx(클라이언트), 5xx(서버) 오류</li>
+          <li><strong>메서드</strong>: GET / POST / PUT / PATCH / DELETE</li>
+          <li><strong>주소</strong>: Host + Port + Path의 조합 (URL)</li>
+          <li><strong>패킷</strong>: Header(설정) + Body(실제 데이터)</li>
+          <li><strong>통신</strong>: <span class="highlight">비동기</span> 처리가 핵심 개념</li>
+        </ul>
+      </div>
+
+      <div class="card" style="padding: 20px;">
+        <h3 style="margin-top:0; color:var(--accent); display: flex; align-items: center; gap: 8px;">
+          <span>⚡</span> FastAPI 프레임워크
+        </h3>
+        <ul style="margin-left: 20px; margin-top: 10px; font-size: 16px;">
+          <li><strong>기능</strong>: 현대적이고 빠른 API 개발 도구</li>
+          <li><strong>라우팅</strong>: <code style="font-family:monospace; color:var(--accent);">@app.get</code> 등으로 경로 설정</li>
+          <li><strong>파라미터</strong>: 경로, 쿼리, Request Body 지원</li>
+          <li><strong>문서화</strong>: 코드를 짜면 <span class="highlight">Swagger UI</span> 자동 생성</li>
+          <li><strong>검증</strong>: Python 타입 힌트로 데이터 자동 검증</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 32px;">
+      <h3 style="font-size: 24px;">🎉 수고하셨습니다!</h3>
+    </div>
+  </section>
+
+</main>
+
+<!-- NAV ARROWS -->
+<div class="nav-arrows">
+  <button class="nav-btn" id="btnPrev" onclick="navigate(-1)">←</button>
+  <button class="nav-btn" id="btnNext" onclick="navigate(1)">→</button>
+</div>
+
+<div class="key-hint">
+  <kbd>←</kbd><kbd>→</kbd> 이동 &nbsp;·&nbsp; <kbd>T</kbd> 테마
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const tocList = document.getElementById('tocList');
+  let current = -1;
+
+  // Build TOC
+  slides.forEach((s, i) => {
+    const title = s.dataset.title || `슬라이드 ${i+1}`;
+    const item = document.createElement('div');
+    item.className = 'toc-item' + (i === 0 ? ' active' : '');
+    item.innerHTML = `
+      <span class="toc-num">${String(i).padStart(2,'0')}</span>
+      <span class="toc-text">${title}</span>
+      <span class="toc-dot"></span>`;
+    item.addEventListener('click', () => goSlide(i));
+    tocList.appendChild(item);
+  });
+
+  document.getElementById('totNum').textContent = slides.length;
+
+  function goSlide(idx) {
+    if (idx < 0 || idx >= slides.length || idx === current) return;
+
+    if (current >= 0) {
+      const prev = slides[current];
+      prev.classList.add('exit');
+      setTimeout(() => prev.classList.remove('exit'), 500);
+      prev.classList.remove('active');
+    }
+
+    current = idx;
+    slides[current].classList.add('active');
+    slides[current].scrollTop = 0;
+
+    document.querySelectorAll('.toc-item').forEach((el, i) => {
+      el.classList.toggle('active', i === current);
+    });
+
+    const activeTocItem = tocList.querySelectorAll('.toc-item')[current];
+    if (activeTocItem) activeTocItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+    document.getElementById('curNum').textContent = current + 1;
+    const pct = ((current + 1) / slides.length) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+
+    document.getElementById('btnPrev').disabled = current === 0;
+    document.getElementById('btnNext').disabled = current === slides.length - 1;
+
+    if (window.innerWidth <= 768) document.body.classList.remove('sidebar-open');
+  }
+
+  function navigate(dir) { goSlide(current + dir); }
+
+  function toggleSidebar() {
+    document.body.classList.toggle('sidebar-open');
+  }
+
+  // Theme
+  let isDark = localStorage.getItem('devops-theme') !== 'light';
+  function applyTheme() {
+    document.documentElement.classList.toggle('light', !isDark);
+    const label = document.getElementById('themeLabel');
+    label.textContent = isDark ? '🌙 다크 모드' : '☀️ 라이트 모드';
+    document.querySelector('.toggle-thumb').textContent = isDark ? '🌙' : '☀️';
+  }
+  function toggleTheme() {
+    isDark = !isDark;
+    localStorage.setItem('devops-theme', isDark ? 'dark' : 'light');
+    applyTheme();
+  }
+  applyTheme();
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   navigate(-1);
+    if (e.key === 't' || e.key === 'T') toggleTheme();
+  });
+
+  // Init
+  // --- Code Block Enhancements (Copy & Lang Tag) ---
+  document.querySelectorAll('.code-block').forEach(block => {
+    const container = document.createElement('div');
+    container.className = 'code-block-container';
+    block.parentNode.insertBefore(container, block);
+    container.appendChild(block);
+
+    let lang = block.dataset.lang;
+    if (!lang) {
+      const text = block.textContent;
+      if (text.includes('FROM ') || text.includes('RUN ') || text.includes('COPY ')) lang = 'Dockerfile';
+      else if (text.includes('services:') || text.includes('version:') || text.includes('image:')) lang = 'YAML';
+      else if (text.includes('server {') || text.includes('location ')) lang = 'Nginx';
+      else if (text.includes('import ') || text.includes('def ')) lang = 'Python';
+      else if (text.includes('npm ') || text.includes('node ')) lang = 'Node.js';
+      else if (text.includes('[devops@') || text.includes('$ ') || text.includes('sudo ')) lang = 'Bash';
+      else lang = 'Code';
+    }
+
+    const tag = document.createElement('div');
+    tag.className = 'code-lang-tag';
+    tag.textContent = lang;
+    container.appendChild(tag);
+
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> <span>Copy</span>`;
+    btn.onclick = () => {
+      const textToCopy = block.innerText;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const span = btn.querySelector('span');
+        btn.classList.add('copied');
+        span.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          span.textContent = 'Copy';
+        }, 2000);
+      });
+    };
+    container.appendChild(btn);
+  });
+
+  goSlide(0);
+</script>
+</body>
+</html>

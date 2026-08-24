@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Lecture Portal</title>
+    <meta name="description" content="DevOps 기술을 배우는 강의 포털">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --accent: #6ee7b7;
+            --accent2: #818cf8;
+            --accent3: #f472b6;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: rgba(255,255,255,0.07);
+            --card-bg: rgba(255,255,255,0.03);
+            --card-hover-bg: rgba(255,255,255,0.06);
+            --shadow: none;
+        }
+
+        html.light {
+            --bg: #f5f5f0;
+            --accent: #059669;
+            --accent2: #4f46e5;
+            --accent3: #db2777;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: rgba(0,0,0,0.09);
+            --card-bg: rgba(255,255,255,0.7);
+            --card-hover-bg: rgba(255,255,255,0.95);
+            --shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: radial-gradient(ellipse at 25% 50%, rgba(110,231,183,0.06) 0%, transparent 55%),
+                        radial-gradient(ellipse at 78% 18%, rgba(129,140,248,0.08) 0%, transparent 50%),
+                        var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background 0.35s ease, color 0.35s ease;
+        }
+
+        html.light body {
+            background: radial-gradient(ellipse at 25% 50%, rgba(5,150,105,0.07) 0%, transparent 55%),
+                        radial-gradient(ellipse at 78% 18%, rgba(79,70,229,0.07) 0%, transparent 50%),
+                        var(--bg);
+        }
+
+        /* --- Container --- */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 100px 30px 40px;
+        }
+
+        /* --- Theme & Shortcuts Navigation --- */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 30px;
+            position: absolute;
+            top: 0; right: 0; left: 0;
+            z-index: 100;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            user-select: none;
+            gap: 12px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .theme-toggle:hover { 
+            background: var(--card-hover-bg); 
+            transform: translateY(-1px);
+        }
+        .theme-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-family: 'Noto Sans KR', sans-serif;
+            font-weight: 500;
+        }
+        .toggle-track {
+            width: 32px; height: 18px;
+            border-radius: 9px;
+            background: var(--accent2);
+            position: relative;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+        html.light .toggle-track { background: #f59e0b; }
+        .toggle-thumb {
+            position: absolute;
+            top: 2px; left: 2px;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+            font-size: 8px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        html.light .toggle-thumb { transform: translateX(14px); }
+
+        .top-shortcuts {
+            display: flex;
+            gap: 8px;
+        }
+
+        .shortcut-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            transition: all 0.3s;
+            user-select: none;
+            cursor: pointer;
+        }
+        .shortcut-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text);
+            transform: translateY(-1px);
+        }
+        .shortcut-item:active {
+            transform: translateY(0);
+        }
+        .shortcut-key {
+            background: var(--accent2);
+            color: white;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 10px;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+        }
+        html.light .shortcut-key { background: var(--accent); }
+        html.light .shortcut-item { background: rgba(0,0,0,0.02); }
+
+        /* --- Contact Modal --- */
+        .contact-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(10, 10, 15, 0.72);
+            backdrop-filter: blur(14px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            z-index: 300;
+        }
+
+        .contact-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .contact-modal {
+            width: min(100%, 480px);
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.28);
+            transform: translateY(12px) scale(0.98);
+            transition: transform 0.25s ease;
+        }
+
+        .contact-overlay.active .contact-modal {
+            transform: translateY(0) scale(1);
+        }
+
+        html.light .contact-modal {
+            background: rgba(255,255,255,0.92);
+        }
+
+        .contact-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .contact-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 18px;
+            color: var(--text);
+            letter-spacing: 0.04em;
+        }
+
+        .contact-close {
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            border-radius: 10px;
+            padding: 8px 10px;
+            cursor: pointer;
+            font-family: 'Space Mono', monospace;
+            transition: all 0.2s ease;
+        }
+
+        .contact-close:hover {
+            color: var(--text);
+            background: var(--card-hover-bg);
+        }
+
+        .contact-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .contact-item {
+            display: block;
+            width: 100%;
+            padding: 16px 18px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: inherit;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            text-align: left;
+            font: inherit;
+            appearance: none;
+        }
+
+        .contact-item:hover {
+            transform: translateY(-2px);
+            background: var(--card-hover-bg);
+            border-color: rgba(110,231,183,0.35);
+        }
+
+        html.light .contact-item:hover {
+            border-color: rgba(5,150,105,0.35);
+        }
+
+        .contact-label {
+            display: block;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            color: var(--accent);
+            margin-bottom: 6px;
+            letter-spacing: 0.08em;
+        }
+
+        .contact-value {
+            display: block;
+            font-size: 15px;
+            line-height: 1.5;
+            color: var(--text);
+            word-break: break-word;
+        }
+
+        .contact-hint {
+            margin-top: 18px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: 'Space Mono', monospace;
+            text-align: right;
+        }
+
+        .contact-item.copied {
+            border-color: rgba(110,231,183,0.55);
+            box-shadow: 0 0 0 1px rgba(110,231,183,0.2) inset;
+        }
+
+        html.light .contact-item.copied {
+            border-color: rgba(5,150,105,0.45);
+            box-shadow: 0 0 0 1px rgba(5,150,105,0.16) inset;
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeUp 0.8s ease;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-badge {
+            display: inline-block;
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            color: var(--accent);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+
+        .hero h1 {
+            font-size: clamp(34px, 4.5vw, 60px);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.025em;
+            margin-bottom: 20px;
+            color: var(--text);
+        }
+
+        .hero h1 em {
+            font-style: normal;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 560px;
+            margin: 0 auto;
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        /* --- Course Grid --- */
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .course-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .course-card:not(.course-devops):not(.course-github):not(.course-docker):not(.course-server-client):not(.course-docker-practice):not(.course-jenkins)::before {
+            background: linear-gradient(90deg, var(--accent2), var(--accent3));
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            background: var(--card-hover-bg);
+            border-color: rgba(110,231,183,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .course-card:not(.course-devops):not(.course-github):not(.course-docker):not(.course-server-client):not(.course-docker-practice):not(.course-jenkins):hover {
+            border-color: rgba(129,140,248,0.3);
+        }
+
+        html.light .course-card:hover {
+            border-color: rgba(5,150,105,0.3);
+        }
+
+        html.light .course-card:not(.course-devops):not(.course-github):not(.course-docker):not(.course-server-client):not(.course-docker-practice):not(.course-jenkins):hover {
+            border-color: rgba(79,70,229,0.3);
+        }
+
+        .course-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            transition: transform 0.3s, background 0.3s, border-color 0.3s;
+        }
+
+        html.light .card-icon { background: rgba(0,0,0,0.03); }
+
+        .course-card:hover .card-icon {
+            transform: scale(1.05) rotate(-3deg);
+            background: rgba(110,231,183,0.1);
+            border-color: rgba(110,231,183,0.3);
+        }
+
+        .course-card:not(.course-devops):not(.course-github):not(.course-docker):not(.course-server-client):not(.course-docker-practice):not(.course-jenkins):hover .card-icon {
+            background: rgba(129,140,248,0.1);
+            border-color: rgba(129,140,248,0.3);
+        }
+        
+        html.light .course-card:hover .card-icon {
+            background: rgba(5,150,105,0.1);
+            border-color: rgba(5,150,105,0.3);
+        }
+
+        html.light .course-card:not(.course-devops):not(.course-github):not(.course-docker):not(.course-server-client):not(.course-docker-practice):not(.course-jenkins):hover .card-icon {
+            background: rgba(79,70,229,0.1);
+            border-color: rgba(79,70,229,0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+
+        .card-arrow {
+            font-family: 'Space Mono', monospace;
+            font-size: 16px;
+            color: var(--text-muted);
+            transition: transform 0.3s, color 0.3s;
+        }
+
+        .course-card:hover .card-arrow {
+            transform: translateX(4px);
+            color: var(--accent);
+        }
+
+        .course-card:not(.course-devops):not(.course-github):not(.course-docker):not(.course-server-client):not(.course-docker-practice):not(.course-jenkins):hover .card-arrow {
+            color: var(--accent2);
+        }
+
+        .card-description {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            background: rgba(110,231,183,0.07);
+            border: 1px solid rgba(110,231,183,0.15);
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .course-card:not(.course-devops):not(.course-github):not(.course-docker):not(.course-server-client):not(.course-docker-practice):not(.course-jenkins) .tag {
+            background: rgba(129,140,248,0.07);
+            border-color: rgba(129,140,248,0.15);
+            color: var(--accent2);
+        }
+
+        html.light .tag {
+            background: rgba(5,150,105,0.07);
+            border-color: rgba(5,150,105,0.15);
+            color: var(--accent);
+        }
+
+        html.light .course-card:not(.course-devops):not(.course-github):not(.course-docker):not(.course-server-client):not(.course-docker-practice):not(.course-jenkins) .tag {
+            background: rgba(79,70,229,0.07);
+            border-color: rgba(79,70,229,0.15);
+            color: var(--accent2);
+        }
+
+
+        /* --- Footer --- */
+        .footer {
+            text-align: center;
+            margin-top: 80px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-family: 'Space Mono', monospace;
+            font-size: 13px;
+        }
+
+        /* --- Section Header inside Grid --- */
+        .section-header {
+            grid-column: 1 / -1;
+            margin-top: 40px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            padding-left: 16px;
+        }
+        .section-header:first-of-type {
+            margin-top: 0;
+        }
+        .section-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 15%;
+            bottom: 15%;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--accent), var(--accent2));
+            border-radius: 2px;
+        }
+        .section-header h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-header h2 .emoji {
+            font-size: 20px;
+            opacity: 0.8;
+        }
+        .section-header h2 .subtitle {
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--text-muted);
+            font-family: 'Space Mono', monospace;
+            margin-left: 8px;
+            border-left: 1px solid var(--border);
+            padding-left: 12px;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .container { padding: 20px 20px 30px; }
+            .hero h1 { font-size: 34px; }
+            .hero p { font-size: 15px; }
+            .courses-grid { grid-template-columns: 1fr; gap: 16px; }
+            .hero { margin-bottom: 40px; }
+            .top-bar {
+                position: static;
+                padding: 16px 20px;
+            }
+            .theme-label { font-size: 13px; }
+            .nav-controls {
+                width: 100%;
+                flex-wrap: wrap;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .top-shortcuts {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .shortcut-item {
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 16px 16px 24px; }
+            .hero h1 { font-size: 28px; }
+            .hero p { font-size: 14px; }
+            .hero-badge { font-size: 12px; }
+            .course-card { padding: 22px 18px; }
+            .card-title { font-size: 17px; }
+            .card-description { font-size: 14px; }
+            .top-bar {
+                padding: 14px 16px;
+            }
+            .theme-toggle {
+                width: 100%;
+            }
+            .top-shortcuts {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 6px;
+            }
+            .shortcut-item {
+                justify-content: center;
+                min-width: 0;
+                padding: 7px 8px;
+            }
+        }
+
+        /* --- Chicken Game Easter Egg --- */
+        #chicken-game-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        #chicken-game-overlay.active { display: flex; }
+        #chicken-game-overlay canvas {
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            background: #f7f7f7;
+            image-rendering: pixelated;
+        }
+        .chicken-hud {
+            color: #fff;
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            margin-bottom: 12px;
+            text-align: center;
+            opacity: 0.7;
+        }
+
+        /* --- Stagger animation for all children of grid --- */
+        .courses-grid > * { animation: fadeUp 0.6s ease both; }
+        .courses-grid > *:nth-child(1) { animation-delay: 0.1s; }
+        .courses-grid > *:nth-child(2) { animation-delay: 0.15s; }
+        .courses-grid > *:nth-child(3) { animation-delay: 0.2s; }
+        .courses-grid > *:nth-child(4) { animation-delay: 0.25s; }
+        .courses-grid > *:nth-child(5) { animation-delay: 0.3s; }
+        .courses-grid > *:nth-child(6) { animation-delay: 0.35s; }
+        .courses-grid > *:nth-child(7) { animation-delay: 0.4s; }
+        .courses-grid > *:nth-child(8) { animation-delay: 0.45s; }
+        .courses-grid > *:nth-child(9) { animation-delay: 0.5s; }
+        .courses-grid > *:nth-child(10) { animation-delay: 0.55s; }
+        .courses-grid > *:nth-child(11) { animation-delay: 0.6s; }
+        .courses-grid > *:nth-child(12) { animation-delay: 0.65s; }
+        .courses-grid > *:nth-child(13) { animation-delay: 0.7s; }
+    </style>
+</head>
+<body>
+    
+    <div class="top-bar">
+        <div class="nav-controls">
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <span class="theme-label" id="themeLabel">🌙 다크 모드</span>
+                <div class="toggle-track"><div class="toggle-thumb">🌙</div></div>
+            </div>
+            <div class="top-shortcuts">
+                <div class="shortcut-item" onclick="toggleTheme()">
+                    <span class="shortcut-key">T</span> Theme
+                </div>
+                <div class="shortcut-item" onclick="startChickenGame()">
+                    <span class="shortcut-key">E</span> 🐔 Secret
+                </div>
+                <div class="shortcut-item" onclick="openContactModal()">
+                    <span class="shortcut-key">C</span> Contact
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-badge">— Tech Stack Overview</div>
+            <h1><em>DevOps</em> Lecture Notes by Kobong</h1>
+            <p>DevOps, Linux, Git, Docker, Kubernetes 등<br>소프트웨어 개발 및 운영의 기술을 학습합니다.</p>
+        </div>
+
+        <!-- Course Cards -->
+        <div class="courses-grid">
+
+            <!-- Section 1: Intro & Basics -->
+            <div class="section-header">
+                <h2><span class="emoji">🚀</span> 기획 및 기초 역량 <span class="subtitle">Core Fundamentals</span></h2>
+            </div>
+
+            <!-- DevOps -->
+            <a href="lecture_note/devops.html" class="course-card course-devops" id="course-devops">
+                <div class="card-icon">🔄</div>
+                <div class="card-header">
+                    <span class="card-title">DevOps 개론</span>
+                    <span class="card-arrow">→</span>
+                </div>
+                <p class="card-description">
+                    DevOps의 철학과 문화, CI/CD 파이프라인, 인프라 자동화 등 현대 소프트웨어 개발 운영의 핵심 원칙을 학습합니다.
+                </p>
+                <div class="card-tags">
+                    <span class="tag">CI/CD</span>
+                    <span class="tag">자동화</span>
+                    <span class="tag">IaC</span>
+                    <span class="tag">모니터링</span>
+                </div>
+            </a>
+
+            <!-- Linux 기초 -->
+            <a href="lecture_note/linux.html" class="course-card course-linux-basic" id="course-linux-basic">
+                <div class="card-icon">🐧</div>
+                <div class="card-header">
+                    <span class="card-title">Linux 기초</span>
+                    <span class="card-arrow">→</span>
+                </div>
+                <p class="card-description">
+                    리눅스 기초부터 파일 시스템 탐색, 패키지 관리(APT/DNF), 텍스트 에디터 및 서버 모니터링 실무 명령어를 학습합니다.
+                </p>
+                <div class="card-tags">
+                    <span class="tag">Linux</span>
+                    <span class="tag">CLI</span>
+                    <span class="tag">APT/DNF</span>
+                    <span class="tag">실무 명령어</span>
+                </div>
+            </a>
+
+            <!-- Server & Client -->
+            <a href="lecture_note/server-client.html" class="course-card course-server-client" id="course-server-client">
+                <div class="card-icon">🌐</div>
+                <div class="card-header">
+                    <span class="card-title">서버와 클라이언트</span>
+                    <span class="card-arrow">→</span>
+                </div>
+                <p class="card-description">
+                    웹 통신의 기본 원리, HTTP 프로토콜, 상태 코드 및 메서드 등 현대 웹 아키텍처의 기초를 학습합니다.
+                </p>
+                <div class="card-tags">
+                    <span class="tag">HTTP</span>
+                    <span class="tag">네트워크</span>
+                    <span class="tag">JSON</span>
+                    <span class="tag">CORS</span>
+                </div>
+            </a>
+
+            <!-- Section 2: Code & Containers -->
+            <div class="section-header">
+                <h2><span class="emoji">📦</span> 코드 관리 및 컨테이너 <span class="subtitle">Source & Containers</span></h2>
+            </div>
+
+            <!-- GitHub -->
+            <a href="lecture_note/github.html" class="course-card course-github" id="course-github">
+                <div class="card-icon">🐙</div>
+                <div class="card-header">
+                    <span class="card-title">Git & GitHub</span>
+                    <span class="card-arrow">→</span>
+                </div>
+                <p class="card-description">
+                    버전 관리와 협업의 핵심 도구인 Git과 GitHub를 학습합니다. 브랜치 전략, PR, 코드 리뷰 등 실무 워크플로우를 익힙니다.
+                </p>
+                <div class="card-tags">
+                    <span class="tag">Git</span>
+                    <span class="tag">버전 관리</span>
+                    <span class="tag">협업</span>
+                    <span class="tag">CI/CD</span>
+                </div>
+            </a>
+
+            <!-- Docker -->
+            <a href="lecture_note/docker-intro.html" class="course-card course-docker" id="course-docker">
+                <div class="card-icon">🐳</div>
+                <div class="card-header">
+                    <span class="card-title">Docker 기초</span>
+                    <span class="card-arrow">→</span>
+                </div>
+                <p class="card-description">
+                    컨테이너 기술의 핵심인 Docker를 학습합니다. 이미지 빌드, 컨테이너 실행, Docker Compose까지 실무에 필요한 전반을 다룹니다.
+                </p>
+                <div class="card-tags">
+                    <span class="tag">컨테이너</span>
+                    <span class="tag">Dockerfile</span>
+                    <span class="tag">Compose</span>
+                    <span class="tag">MSA</span>
+                </div>
+            </a>
+            
+            <!-- Docker 실무 -->
+            <a href="lecture_note/docker-practice.html" class="course-card course-docker-practice" id="course-docker-practice">
+                <div class="card-icon">🛠️</div>
+                <div class="card-header">
+                    <span class="card-title">Docker 실무 (수정 중)</span>
+                    <span class="card-arrow">→</span>
+                </div>
+                <p class="card-description">
+                    Multi-stage Build를 통한 이미지 최적화, Nginx 활용, Docker Compose를 이용한 다중 컨테이너 오케스트레이션 실무를 학습합니다.
+                </p>
+                <div class="card-tags">
+                    <span class="tag">Multi-stage</span>
+                    <span class="tag">최적화</span>
+                    <span class="tag">Compose</span>
+                    <span class="tag">실무 활용</span>
+                </div>
+            </a>
+
+            <!-- Section 3: Orchestration & Automation -->
+            <div class="section-header">
+                <h2><span class="emoji">⚙️</span> 운영 및 자동화 <span class="subtitle">Cloud Native & Automation</span></h2>
+            </div>
+
+            <!-- Kubernetes -->
+            <a href="lecture_note/kubernetes.html" class="course-card course-kubernetes" id="course-kubernetes">
+                <div class="card-icon">☸️</div>
+                <div class="card-header">
+                    <span class="card-title">Kubernetes 기초</span>
+                    <span class="card-arrow">→</span>
+                </div>
+                <p class="card-description">
+                    컨테이너 오케스트레이션의 표준인 Kubernetes를 학습합니다. Pod, Service, Deployment 등 핵심 개념과 실습을 진행합니다.
+                </p>
+                <div class="card-tags">
+                    <span class="tag">K8s</span>
+                    <span class="tag">Pod</span>
+                    <span class="tag">오케스트레이션</span>
+                    <span class="tag">클러스터</span>
+                </div>
+            </a>
+
+            <!-- Jenkins -->
+            <a href="lecture_note/jenkins.html" class="course-card course-jenkins" id="course-jenkins">
+                <div class="card-icon">🔧</div>
+                <div class="card-header">
+                    <span class="card-title">Jenkins (수정 중)</span>
+                    <span class="card-arrow">→</span>
+                </div>
+                <p class="card-description">
+                    Jenkins를 활용한 CI/CD 파이프라인 구축을 학습합니다. Jenkinsfile 작성, GitHub Webhook 연동, 자동화 워크플로우를 다룹니다.
+                </p>
+                <div class="card-tags">
+                    <span class="tag">CI/CD</span>
+                    <span class="tag">Pipeline</span>
+                    <span class="tag">자동화</span>
+                    <span class="tag">Jenkinsfile</span>
+                </div>
+            </a>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>DevOps Lecture Portal &copy; 2026</p>
+        </div>
+    </div>
+
+
+    <!-- Chicken Game Easter Egg -->
+    <div id="chicken-game-overlay">
+        <div class="chicken-hud">Press SPACE or UP to jump &middot; ESC to quit</div>
+        <canvas id="chicken-canvas" width="800" height="250"></canvas>
+    </div>
+
+    <div class="contact-overlay" id="contactOverlay" aria-hidden="true">
+        <div class="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
+            <div class="contact-header">
+                <h2 class="contact-title" id="contactTitle">Contact</h2>
+                <button class="contact-close" type="button" onclick="closeContactModal()" aria-label="Close contact popup">ESC</button>
+            </div>
+            <div class="contact-list">
+                <button class="contact-item" type="button" data-copy-value="fblsj90@gmail.com" data-copy-label="EMAIL">
+                    <span class="contact-label">EMAIL</span>
+                    <span class="contact-value">EMAIL: fblsj90@gmail.com</span>
+                </button>
+                <button class="contact-item" type="button" data-copy-value="https://github.com/kobong8" data-copy-label="GITHUB">
+                    <span class="contact-label">GITHUB</span>
+                    <span class="contact-value">GITHUB: https://github.com/kobong8</span>
+                </button>
+            </div>
+            <div class="contact-hint">Click to copy · Press C to open · ESC to close</div>
+        </div>
+    </div>
+
+    <script>
+        // Theme Toggle Logic with localStorage persistence
+        let isDark = localStorage.getItem('devops-theme') !== 'light';
+        const themeLabel = document.getElementById('themeLabel');
+        const toggleThumb = document.querySelector('.toggle-thumb');
+        const contactOverlay = document.getElementById('contactOverlay');
+        const contactItems = document.querySelectorAll('.contact-item');
+
+        function applyTheme() {
+            document.documentElement.classList.toggle('light', !isDark);
+            if (isDark) {
+                themeLabel.textContent = '🌙 다크 모드';
+                toggleThumb.textContent = '🌙';
+            } else {
+                themeLabel.textContent = '☀️ 라이트 모드';
+                toggleThumb.textContent = '☀️';
+            }
+        }
+
+        function toggleTheme() {
+            isDark = !isDark;
+            localStorage.setItem('devops-theme', isDark ? 'dark' : 'light');
+            applyTheme();
+        }
+
+        applyTheme();
+
+        // Keyboard Shortcut for Theme Toggle
+        document.addEventListener('keydown', e => {
+            if (e.key === 't' || e.key === 'T') {
+                toggleTheme();
+            }
+        });
+
+        function openContactModal() {
+            contactOverlay.classList.add('active');
+            contactOverlay.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeContactModal() {
+            contactOverlay.classList.remove('active');
+            contactOverlay.setAttribute('aria-hidden', 'true');
+        }
+
+        contactOverlay.addEventListener('click', function(e) {
+            if (e.target === contactOverlay) {
+                closeContactModal();
+            }
+        });
+
+        async function copyContactValue(button) {
+            const value = button.dataset.copyValue;
+            const label = button.dataset.copyLabel;
+            const labelEl = button.querySelector('.contact-label');
+            const originalLabel = labelEl.textContent;
+
+            try {
+                await navigator.clipboard.writeText(value);
+                button.classList.add('copied');
+                labelEl.textContent = label + ' · COPIED';
+
+                window.setTimeout(function() {
+                    button.classList.remove('copied');
+                    labelEl.textContent = originalLabel;
+                }, 1400);
+            } catch (error) {
+                labelEl.textContent = label + ' · FAILED';
+
+                window.setTimeout(function() {
+                    labelEl.textContent = originalLabel;
+                }, 1400);
+            }
+        }
+
+        contactItems.forEach(function(button) {
+            button.addEventListener('click', function() {
+                copyContactValue(button);
+            });
+        });
+
+        document.addEventListener('keydown', function(e) {
+            const tag = document.activeElement && document.activeElement.tagName;
+            const isTyping = tag === 'INPUT' || tag === 'TEXTAREA';
+
+            if ((e.key === 'c' || e.key === 'C') && !isTyping) {
+                e.preventDefault();
+                openContactModal();
+                return;
+            }
+
+            if (e.key === 'Escape' && contactOverlay.classList.contains('active')) {
+                e.preventDefault();
+                closeContactModal();
+            }
+        });
+
+
+        // ── Chicken Game Easter Egg ──
+        (function() {
+            const overlay = document.getElementById('chicken-game-overlay');
+            const canvas  = document.getElementById('chicken-canvas');
+            const ctx     = canvas.getContext('2d');
+            let gameRunning = false;
+            let animFrame   = null;
+
+            // Game constants
+            const GROUND_Y  = 200;
+            const GRAVITY   = 0.6;
+            const JUMP_FORCE = -12;
+            const GAME_SPEED_INIT = 5;
+            const SPEED_INCREMENT = 0.002;
+
+            // Game state
+            let chicken, obstacles, score, gameSpeed, gameOver, clouds;
+
+            function resetGame() {
+                chicken = { x: 60, y: GROUND_Y, w: 30, h: 36, vy: 0, grounded: true, frame: 0 };
+                obstacles = [];
+                clouds = [];
+                score = 0;
+                gameSpeed = GAME_SPEED_INIT;
+                gameOver = false;
+                for (let i = 0; i < 3; i++) {
+                    clouds.push({ x: 200 + Math.random() * 600, y: 30 + Math.random() * 60 });
+                }
+            }
+
+            function drawChicken() {
+                const x = chicken.x;
+                const y = chicken.y;
+
+                // body (round-ish, white)
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(x + 4, y - 28, 22, 20);
+                // belly highlight
+                ctx.fillStyle = '#f5f0e0';
+                ctx.fillRect(x + 8, y - 22, 14, 12);
+
+                // head
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(x + 8, y - 40, 18, 14);
+
+                // comb (빨간 볏)
+                ctx.fillStyle = '#e03030';
+                ctx.fillRect(x + 14, y - 46, 4, 6);
+                ctx.fillRect(x + 19, y - 44, 4, 4);
+                ctx.fillRect(x + 10, y - 44, 4, 4);
+
+                // beak (부리)
+                ctx.fillStyle = '#f0a020';
+                ctx.fillRect(x + 26, y - 36, 8, 4);
+                ctx.fillRect(x + 26, y - 32, 6, 3);
+
+                // wattle (턱밑 고기)
+                ctx.fillStyle = '#e03030';
+                ctx.fillRect(x + 20, y - 28, 4, 5);
+
+                // eye
+                ctx.fillStyle = '#000';
+                ctx.fillRect(x + 20, y - 38, 3, 3);
+
+                // wing
+                ctx.fillStyle = '#e0ddd0';
+                if (chicken.grounded) {
+                    chicken.frame = (chicken.frame + 1) % 20;
+                    if (chicken.frame < 10) {
+                        ctx.fillRect(x + 2, y - 24, 6, 10);
+                    } else {
+                        ctx.fillRect(x + 0, y - 28, 6, 10);
+                    }
+                } else {
+                    // wings up when jumping
+                    ctx.fillRect(x - 2, y - 34, 6, 10);
+                }
+
+                // legs (animate)
+                ctx.fillStyle = '#f0a020';
+                if (chicken.grounded) {
+                    if (chicken.frame < 10) {
+                        ctx.fillRect(x + 8, y - 8, 3, 10);
+                        ctx.fillRect(x + 6, y + 2, 6, 2);
+                        ctx.fillRect(x + 18, y - 8, 3, 6);
+                    } else {
+                        ctx.fillRect(x + 8, y - 8, 3, 6);
+                        ctx.fillRect(x + 18, y - 8, 3, 10);
+                        ctx.fillRect(x + 16, y + 2, 6, 2);
+                    }
+                } else {
+                    ctx.fillRect(x + 10, y - 8, 3, 8);
+                    ctx.fillRect(x + 18, y - 8, 3, 8);
+                }
+
+                // tail feathers
+                ctx.fillStyle = '#e0ddd0';
+                ctx.fillRect(x - 4, y - 24, 8, 4);
+                ctx.fillRect(x - 6, y - 28, 6, 4);
+            }
+
+            function drawBird(ob) {
+                const x = ob.x;
+                const y = ob.y;
+                ob.frame = (ob.frame + 1) % 20;
+
+                ctx.fillStyle = '#555'; 
+                // body
+                ctx.fillRect(x + 8, y - 18, 16, 10);
+                // head
+                ctx.fillRect(x, y - 20, 8, 8);
+                // beak
+                ctx.fillStyle = '#f0a020';
+                ctx.fillRect(x - 6, y - 16, 6, 3);
+
+                // wings
+                ctx.fillStyle = '#333';
+                if (ob.frame < 10) {
+                    // wing up
+                    ctx.beginPath();
+                    ctx.moveTo(x + 15, y - 14);
+                    ctx.lineTo(x + 25, y - 26);
+                    ctx.lineTo(x + 20, y - 14);
+                    ctx.fill();
+                } else {
+                    // wing down
+                    ctx.beginPath();
+                    ctx.moveTo(x + 15, y - 14);
+                    ctx.lineTo(x + 25, y - 2);
+                    ctx.lineTo(x + 20, y - 14);
+                    ctx.fill();
+                }
+            }
+
+            function drawCactus(ob) {
+                ctx.fillStyle = '#2d8a4e';
+                // main trunk
+                ctx.fillRect(ob.x + ob.w / 2 - 4, ob.y - ob.h, 8, ob.h);
+                // left branch
+                if (ob.w > 15) {
+                    ctx.fillRect(ob.x, ob.y - ob.h + 10, ob.w / 2, 6);
+                    ctx.fillRect(ob.x, ob.y - ob.h, 6, 16);
+                }
+                // right branch
+                ctx.fillRect(ob.x + ob.w - 6, ob.y - ob.h + 16, 6, 14);
+                ctx.fillRect(ob.x + ob.w / 2, ob.y - ob.h + 16, ob.w / 2, 6);
+            }
+
+            function drawCloud(c) {
+                ctx.fillStyle = '#ddd';
+                ctx.fillRect(c.x, c.y, 30, 8);
+                ctx.fillRect(c.x + 6, c.y - 6, 18, 6);
+            }
+
+            function spawnObstacle() {
+                const isBird = Math.random() > 0.7; // 30% chance for bird
+                if (isBird) {
+                    const birdHeights = [GROUND_Y - 20, GROUND_Y - 70]; 
+                    const y = birdHeights[Math.floor(Math.random() * birdHeights.length)];
+                    obstacles.push({ type: 'bird', x: canvas.width + 20, y: y, w: 34, h: 26, frame: 0 });
+                } else {
+                    const h = 25 + Math.random() * 25;
+                    const w = 14 + Math.random() * 16;
+                    obstacles.push({ type: 'cactus', x: canvas.width + 20, y: GROUND_Y, w: w, h: h });
+                }
+            }
+
+            function checkCollision(ob) {
+                const pad = 6;
+                // Chicken bounding box (approx)
+                const cX = chicken.x + 4;
+                const cW = 22;
+                const cY = chicken.y - 36;
+                const cH = 36;
+
+                // Obstacle bounding box
+                const oX = ob.x + pad;
+                const oW = ob.w - pad * 2;
+                const oY = ob.y - ob.h + pad;
+                const oH = ob.h - pad * 2;
+
+                return (
+                    cX < oX + oW &&
+                    cX + cW > oX &&
+                    cY < oY + oH &&
+                    cY + cH > oY
+                );
+            }
+
+            function loop() {
+                if (!gameRunning) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // ground
+                ctx.strokeStyle = '#999';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(0, GROUND_Y + 10);
+                ctx.lineTo(canvas.width, GROUND_Y + 10);
+                ctx.stroke();
+
+                // clouds
+                clouds.forEach(c => {
+                    c.x -= gameSpeed * 0.3;
+                    if (c.x < -40) { c.x = canvas.width + Math.random() * 100; c.y = 30 + Math.random() * 60; }
+                    drawCloud(c);
+                });
+
+                if (!gameOver) {
+                    // chicken physics
+                    chicken.vy += GRAVITY;
+                    chicken.y += chicken.vy;
+                    if (chicken.y >= GROUND_Y) { chicken.y = GROUND_Y; chicken.vy = 0; chicken.grounded = true; }
+
+                    // obstacles
+                    if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - (200 + Math.random() * 200)) {
+                        spawnObstacle();
+                    }
+                    obstacles.forEach(ob => { ob.x -= gameSpeed; });
+                    obstacles = obstacles.filter(ob => ob.x + ob.w > -20);
+
+                    // collision
+                    for (const ob of obstacles) {
+                        if (checkCollision(ob)) {
+                            gameOver = true;
+                            break;
+                        }
+                    }
+
+                    score++;
+                    // gameSpeed += SPEED_INCREMENT; // Speed remains constant
+                }
+
+                // draw obstacles
+                obstacles.forEach(ob => {
+                    if (ob.type === 'bird') drawBird(ob);
+                    else drawCactus(ob);
+                });
+
+                // draw chicken
+                drawChicken();
+
+                // score
+                ctx.fillStyle = '#535353';
+                ctx.font = '16px "Space Mono", monospace';
+                ctx.textAlign = 'right';
+                ctx.fillText('SCORE: ' + Math.floor(score / 5), canvas.width - 20, 30);
+
+                if (gameOver) {
+                    ctx.fillStyle = '#535353';
+                    ctx.font = 'bold 28px "Noto Sans KR", sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('GAME OVER', canvas.width / 2, 100);
+                    ctx.font = '16px "Space Mono", monospace';
+                    ctx.fillText('Press SPACE to restart', canvas.width / 2, 135);
+                }
+
+                animFrame = requestAnimationFrame(loop);
+            }
+
+            function startGame() {
+                if (gameRunning) return;
+                gameRunning = true;
+                overlay.classList.add('active');
+                resetGame();
+                loop();
+            }
+
+            window.startChickenGame = startGame;
+
+            function stopGame() {
+                gameRunning = false;
+                overlay.classList.remove('active');
+                if (animFrame) cancelAnimationFrame(animFrame);
+            }
+
+            document.addEventListener('keydown', function(e) {
+                // Start game with 'E' key (only when not in an input/textarea)
+                if ((e.key === 'e' || e.key === 'E') && !gameRunning) {
+                    const tag = document.activeElement.tagName;
+                    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+                    e.preventDefault();
+                    startGame();
+                    return;
+                }
+
+                if (!gameRunning) return;
+
+                // Prevent page interactions while game is active
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (e.key === 'Escape') {
+                    stopGame();
+                    return;
+                }
+
+                if (e.key === ' ' || e.key === 'ArrowUp') {
+                    if (gameOver) {
+                        resetGame();
+                        return;
+                    }
+                    if (chicken.grounded) {
+                        chicken.vy = JUMP_FORCE;
+                        chicken.grounded = false;
+                    }
+                }
+            }, true);
+        })();
+    </script>
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "403d66d8aa9e4d8e9c2370d257f0c9b6"}'></script>
+</body>
+</html>

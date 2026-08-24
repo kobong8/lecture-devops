@@ -1,0 +1,2427 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux 기초</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&family=Google+Sans+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --sidebar-bg: #0f0f1a;
+    --sidebar-w: 280px;
+    --accent: #6ee7b7;
+    --accent2: #818cf8;
+    --accent3: #f472b6;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --border: rgba(255,255,255,0.07);
+    --slide-transition: 0.5s cubic-bezier(0.4,0,0.2,1);
+    --card-bg: rgba(255,255,255,0.03);
+    --card-hover-bg: rgba(255,255,255,0.055);
+    --toc-hover: rgba(255,255,255,0.04);
+    --toc-active: rgba(110,231,183,0.08);
+    --stat-bg: rgba(255,255,255,0.025);
+    --bar-track: rgba(255,255,255,0.05);
+    --kbd-bg: rgba(255,255,255,0.06);
+    --nav-bg: rgba(255,255,255,0.06);
+    --shadow: none;
+    --code-bg: #0d1117;
+    --code-text: #e6edf3;
+    --highlight-bg: rgba(110,231,183,0.05);
+    --highlight-border: rgba(110,231,183,0.3);
+    --table-header: rgba(255,255,255,0.05);
+    --table-row-alt: rgba(255,255,255,0.02);
+    --table-border: rgba(255,255,255,0.08);
+  }
+
+  html.light {
+    --bg: #f5f5f0;
+    --sidebar-bg: #eeeee8;
+    --accent: #059669;
+    --accent2: #4f46e5;
+    --accent3: #db2777;
+    --text: #1e293b;
+    --text-muted: #94a3b8;
+    --border: rgba(0,0,0,0.09);
+    --card-bg: rgba(255,255,255,0.7);
+    --card-hover-bg: rgba(255,255,255,0.95);
+    --toc-hover: rgba(0,0,0,0.04);
+    --toc-active: rgba(5,150,105,0.08);
+    --stat-bg: rgba(255,255,255,0.6);
+    --bar-track: rgba(0,0,0,0.07);
+    --kbd-bg: rgba(0,0,0,0.06);
+    --nav-bg: rgba(255,255,255,0.7);
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --code-bg: #1e2530;
+    --code-text: #e6edf3;
+    --highlight-bg: rgba(5,150,105,0.06);
+    --highlight-border: rgba(5,150,105,0.3);
+    --table-header: rgba(0,0,0,0.05);
+    --table-row-alt: rgba(0,0,0,0.02);
+    --table-border: rgba(0,0,0,0.1);
+  }
+
+  *, *::before, *::after {
+    transition-property: background, background-color, border-color, color, box-shadow;
+    transition-duration: 0.35s;
+    transition-timing-function: ease;
+  }
+  .slide { transition: opacity var(--slide-transition), transform var(--slide-transition) !important; }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+  }
+
+  /* SIDEBAR */
+  #sidebar {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 10;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .brand-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, rgba(110,231,183,0.2), rgba(129,140,248,0.2));
+    border: 1px solid rgba(110,231,183,0.3);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .brand-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .brand-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .home-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(110,231,183,0.07);
+    border: 1px solid rgba(110,231,183,0.18);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--accent);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    text-decoration: none;
+    transition: all 0.2s;
+    margin-bottom: 8px;
+  }
+  .home-btn:hover {
+    background: rgba(110,231,183,0.14);
+    border-color: rgba(110,231,183,0.35);
+    transform: translateX(2px);
+  }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .theme-toggle:hover { background: var(--toc-hover); }
+  .theme-label {
+    font-size: 16px;
+    color: var(--text-muted);
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .toggle-track {
+    width: 32px; height: 18px;
+    border-radius: 9px;
+    background: var(--accent2);
+    position: relative;
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  html.light .toggle-track { background: #f59e0b; }
+  .toggle-thumb {
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    font-size: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  html.light .toggle-thumb { transform: translateX(14px); }
+
+  .toc-label {
+    padding: 20px 20px 10px;
+    font-size: 16px;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .toc-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 10px 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 1px;
+    position: relative;
+  }
+  .toc-item:hover { background: var(--toc-hover); }
+  .toc-item.active { background: var(--toc-active); }
+  .toc-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 2px; height: 55%;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .toc-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--text-muted);
+    min-width: 22px;
+    transition: color 0.2s;
+  }
+  .toc-item.active .toc-num { color: var(--accent); }
+
+  .toc-text {
+    font-size: 15px;
+    color: #94a3b8;
+    line-height: 1.35;
+    transition: color 0.2s;
+    flex: 1;
+  }
+  .toc-item.active .toc-text,
+  .toc-item:hover .toc-text { color: var(--text); }
+
+  .toc-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .toc-item.active .toc-dot { background: var(--accent); box-shadow: 0 0 5px var(--accent); }
+
+  .sidebar-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .slide-counter {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .slide-counter span { color: var(--accent); font-weight: 700; }
+
+  .progress-bar {
+    width: 70px; height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 1px;
+    transition: width 0.4s ease !important;
+  }
+
+  /* MAIN */
+  #main {
+    flex: 1;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 52px 68px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity var(--slide-transition), transform var(--slide-transition);
+    pointer-events: none;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateY(-28px);
+  }
+
+  /* HOME SLIDE */
+  .slide-home {
+    background: radial-gradient(ellipse at 25% 50%, rgba(110,231,183,0.06) 0%, transparent 55%),
+                radial-gradient(ellipse at 78% 18%, rgba(129,140,248,0.08) 0%, transparent 50%),
+                var(--bg);
+    justify-content: center;
+  }
+
+  .slide-home .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .slide-home h1 {
+    font-size: clamp(34px, 4.5vw, 60px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.35s forwards;
+  }
+
+  .slide-home h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .slide-home p.subtitle {
+    font-size: 18px;
+    color: #94a3b8;
+    max-width: 560px;
+    line-height: 1.75;
+    margin-bottom: 36px;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.5s forwards;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.65s forwards;
+  }
+
+  .meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 16px;
+    color: var(--text-muted);
+  }
+  .meta-chip .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .deco-grid {
+    position: absolute;
+    right: 60px; top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    opacity: 0;
+    animation: fadeIn 1s 0.8s forwards;
+    pointer-events: none;
+  }
+  .deco-cell {
+    width: 44px; height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .deco-cell:nth-child(3n) { background: rgba(110,231,183,0.05); border-color: rgba(110,231,183,0.15); }
+  .deco-cell:nth-child(5n) { background: rgba(129,140,248,0.05); border-color: rgba(129,140,248,0.15); }
+
+  /* SLIDE COMMON */
+  .slide-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--accent2);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .slide h1 {
+    font-size: clamp(26px, 3vw, 42px);
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+    color: var(--text);
+  }
+
+  .slide h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 28px;
+    margin-bottom: 12px;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .slide h2::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 18px;
+    background: var(--accent2);
+    margin-right: 10px;
+    border-radius: 2px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+  }
+
+  .slide h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+
+  .slide h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 16px;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .slide p {
+    font-size: 18px;
+    line-height: 1.8;
+    color: #94a3b8;
+    margin-bottom: 14px;
+  }
+  html.light .slide p { color: #475569; }
+
+  .slide ul, .slide ol {
+    margin-left: 20px;
+    margin-bottom: 18px;
+  }
+
+  .slide li {
+    font-size: 18px;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+  html.light .slide li { color: #475569; }
+  .slide li strong { color: var(--text); }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 18px 20px;
+    border-radius: 10px;
+    margin: 14px 0;
+    font-family: 'Google Sans Code', 'Courier New', monospace;
+    font-size: 16px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    overflow: visible;
+    flex-shrink: 0;
+  }
+  .code-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+    border-radius: 10px 10px 0 0;
+    opacity: 0.4;
+  }
+  .code-comment { color: #6e7681; }
+  .code-cmd { color: var(--accent); font-weight: 700; }
+  .code-flag { color: var(--accent2); }
+  .code-str { color: #a5d6ff; }
+
+  /* SPLIT LAYOUT */
+  .split-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 4px;
+  }
+
+  @media (max-width: 768px) {
+    .split-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: var(--highlight-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 18px 20px;
+    margin: 16px 0;
+    border-radius: 0 10px 10px 0;
+  }
+
+  .highlight-box h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+
+  .highlight-box p, .highlight-box li {
+    font-size: 18px;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+  html.light .highlight-box p, html.light .highlight-box li { color: #475569; }
+
+  /* DETAILS */
+  details.highlight-box { cursor: pointer; }
+  details.highlight-box summary {
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  details.highlight-box summary::-webkit-details-marker { display: none; }
+  details.highlight-box summary h3 { margin: 0; font-size: 20px; pointer-events: none; }
+  details.highlight-box summary::after {
+    content: '▾';
+    color: var(--accent);
+    font-size: 18px;
+    transition: transform 0.3s;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+  details.highlight-box[open] summary::after { transform: rotate(180deg); }
+  details.highlight-box[open] summary {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  details.highlight-box div { animation: fadeIn 0.3s ease; }
+
+  /* KEYWORD */
+  .keyword {
+    background: rgba(110,231,183,0.12);
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.95em;
+    border: 1px solid rgba(110,231,183,0.2);
+  }
+
+  .important {
+    color: var(--accent3);
+    font-weight: 700;
+  }
+
+  /* TABLE */
+  .slide table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 16px;
+    box-shadow: none;
+  }
+
+  .slide table th {
+    padding: 11px 14px;
+    background: var(--table-header);
+    border: 1px solid var(--table-border);
+    color: var(--text);
+    font-weight: 600;
+    text-align: center;
+    font-size: 16px;
+    letter-spacing: 0.03em;
+  }
+
+  .slide table td {
+    padding: 10px 14px;
+    border: 1px solid var(--table-border);
+    color: #94a3b8;
+    font-size: 16px;
+    line-height: 1.6;
+    vertical-align: top;
+  }
+  html.light .slide table td { color: #475569; }
+  .slide table tr:nth-child(even) td { background: var(--table-row-alt); }
+  .slide table tr:hover td { background: var(--toc-hover); }
+  .slide table td strong { color: var(--text); font-weight: 600; }
+
+  /* IMAGE GRID */
+  .img-grid {
+    display: flex;
+    gap: 16px;
+    margin: 16px 0;
+    flex-wrap: wrap;
+  }
+  .img-grid > div {
+    flex: 1;
+    min-width: 160px;
+    border: 1px solid var(--border);
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    background: var(--card-bg);
+  }
+  .img-grid > div p { margin-top: 8px; font-size: 16px; margin-bottom: 0; }
+  .img-grid img { width: 100%; border-radius: 6px; transition: transform 0.3s; cursor: pointer; }
+  .img-grid img:hover { transform: scale(1.03); }
+
+  /* CARD IMG */
+  .card-img {
+    width: 100%;
+    max-width: 280px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    transition: transform 0.3s;
+    cursor: pointer;
+  }
+
+  /* NAV ARROWS */
+  .nav-arrows {
+    position: fixed;
+    bottom: 28px;
+    right: 36px;
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+  .nav-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--nav-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-size: 14px;
+    box-shadow: var(--shadow);
+  }
+  .nav-btn:hover {
+    background: rgba(110,231,183,0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+
+  .key-hint {
+    position: fixed;
+    bottom: 32px; left: calc(var(--sidebar-w) + 20px);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 16px;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .key-hint kbd {
+    padding: 1px 5px;
+    background: var(--kbd-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+  }
+
+  /* IMAGE MODAL */
+  .image-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    animation: fadeIn 0.25s;
+  }
+  .modal-content {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 92%;
+    max-width: 1300px;
+    max-height: 88%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 0 40px rgba(110,231,183,0.1);
+    animation: zoomIn 0.25s;
+  }
+  @keyframes zoomIn {
+    from { transform: translate(-50%, -50%) scale(0.85); opacity: 0; }
+    to   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
+  .close-modal {
+    position: absolute;
+    top: 18px; right: 28px;
+    color: #e2e8f0;
+    font-size: 36px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 2001;
+    transition: color 0.2s;
+  }
+  .close-modal:hover { color: var(--accent); }
+
+  html.light .slide-home {
+    background: radial-gradient(ellipse at 25% 50%, rgba(5,150,105,0.07) 0%, transparent 55%),
+                radial-gradient(ellipse at 78% 18%, rgba(79,70,229,0.07) 0%, transparent 50%),
+                var(--bg);
+  }
+  html.light .slide-home p.subtitle { color: #475569; }
+  html.light .toc-text { color: #64748b; }
+  html.light .toc-item.active .toc-text,
+  html.light .toc-item:hover .toc-text { color: var(--text); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  /* ── THEME-AWARE COMPONENTS ── */
+  .theme-aware-box {
+    background: var(--stat-bg) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .img-wrapper {
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s, filter 0.3s;
+  }
+
+  html.light .img-wrapper {
+    background: rgba(0,0,0,0.03);
+  }
+
+  html:not(.light) .img-wrapper {
+    background: #e2e8f0;
+  }
+
+  .card-img {
+    width: 100%;
+    border-radius: 6px;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+
+  .card-img:hover {
+    transform: scale(1.05);
+  }
+
+  /* ── CODE BLOCK ENHANCEMENTS ── */
+  .code-block-container {
+    position: relative;
+    margin: 14px 0;
+    overflow: visible;
+  }
+  .code-block {
+    margin: 0 !important;
+    padding-top: 36px !important;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-lang-tag {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: var(--accent2);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 9px 0 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 5;
+    pointer-events: none;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  }
+  .copy-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .copy-btn:hover {
+    background: rgba(110,231,183,0.15);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .copy-btn.copied {
+    background: rgba(110,231,183,0.2);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  html.light .copy-btn {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.1);
+  }
+  html.light .copy-btn:hover {
+    background: rgba(5,150,105,0.1);
+  }
+
+  /* ── MOBILE ── */
+  .menu-toggle {
+    display: none;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 300;
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 20px;
+    align-items: center; justify-content: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    backdrop-filter: blur(8px);
+  }
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 150;
+  }
+  @media (max-width: 768px) {
+    .menu-toggle { display: flex; }
+    #sidebar {
+      position: fixed;
+      left: 0; top: 0;
+      height: 100vh;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease !important;
+      z-index: 200;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+    }
+    body.sidebar-open #sidebar { transform: translateX(0); }
+    body.sidebar-open .sidebar-overlay { display: block; }
+    .slide { padding: 56px 20px 80px; }
+    .nav-arrows { right: 16px; bottom: 16px; }
+    .key-hint { display: none; }
+  }
+  @media (max-width: 480px) {
+    .slide { padding: 56px 14px 80px; }
+    .slide h2 { font-size: 22px !important; }
+    .nav-btn { width: 44px; height: 44px; font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="toggleSidebar()" aria-label="메뉴 열기">☰</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🐧</div>
+      <div>
+        <div class="brand-text">Linux 기초</div>
+        <div class="brand-sub">General Linux Guide</div>
+      </div>
+    </div>
+    <a class="home-btn" href="../" title="홈으로">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      홈으로
+    </a>
+    <div class="theme-toggle" onclick="toggleTheme()">
+      <span class="theme-label" id="themeLabel">🌙 다크 모드</span>
+      <div class="toggle-track"><div class="toggle-thumb">🌙</div></div>
+    </div>
+  </div>
+
+  <div class="toc-label">목 차</div>
+  <div class="toc-list" id="tocList">
+      <div class="toc-item active" onclick="goSlide(0)">
+        <span class="toc-num">00</span>
+        <span class="toc-text">Linux 시작하기</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(1)">
+        <span class="toc-num">01</span>
+        <span class="toc-text">리눅스란?</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(2)">
+        <span class="toc-num">02</span>
+        <span class="toc-text">왜 리눅스를 사용할까?</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(3)">
+        <span class="toc-num">03</span>
+        <span class="toc-text">윈도우와의 차이</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(4)">
+        <span class="toc-num">04</span>
+        <span class="toc-text">리눅스와 친해지는 법</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(5)">
+        <span class="toc-num">05</span>
+        <span class="toc-text">학습용 리눅스 준비하기</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(6)">
+        <span class="toc-num">06</span>
+        <span class="toc-text"> 함께 쓰는 프로그램</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(7)">
+        <span class="toc-num">07</span>
+        <span class="toc-text">시작하기 전에 확인할 것들</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(8)">
+        <span class="toc-num">08</span>
+        <span class="toc-text">계정 정보 확인</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(9)">
+        <span class="toc-num">09</span>
+        <span class="toc-text">Superuser란?</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(10)">
+        <span class="toc-num">10</span>
+        <span class="toc-text">필수 패키지 설치</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(11)">
+        <span class="toc-num">11</span>
+        <span class="toc-text">파일 탐색 명령어</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(12)">
+        <span class="toc-num">12</span>
+        <span class="toc-text">폴더 이동하기 및 구조 확인</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(13)">
+        <span class="toc-num">13</span>
+        <span class="toc-text">실습: 루트 디렉토리 탐색하기</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(14)">
+        <span class="toc-num">14</span>
+        <span class="toc-text">파일과 폴더 만들기</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(15)">
+        <span class="toc-num">15</span>
+        <span class="toc-text">파일 복사하기</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(16)">
+        <span class="toc-num">16</span>
+        <span class="toc-text">이동 및 이름 변경</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(17)">
+        <span class="toc-num">17</span>
+        <span class="toc-text">파일 혹은 폴더 삭제하기 (주의필요)</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(18)">
+        <span class="toc-num">18</span>
+        <span class="toc-text">실습: 프로젝트 구조 만들고 삭제하기</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(19)">
+        <span class="toc-num">19</span>
+        <span class="toc-text">프로세스 & 시스템</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(20)">
+        <span class="toc-num">20</span>
+        <span class="toc-text">패키지 관리자 (APT vs DNF)</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(21)">
+        <span class="toc-num">21</span>
+        <span class="toc-text">텍스트 에디터 (nano & vim)</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(22)">
+        <span class="toc-num">22</span>
+        <span class="toc-text">nano 에디터 사용법</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(23)">
+        <span class="toc-num">23</span>
+        <span class="toc-text">vim 에디터 사용법</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(24)">
+        <span class="toc-num">24</span>
+        <span class="toc-text">네트워크 명령어</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(25)">
+        <span class="toc-num">25</span>
+        <span class="toc-text">텍스트 처리 명령어</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(26)">
+        <span class="toc-num">26</span>
+        <span class="toc-text">권한 & 사용자</span>
+        <span class="toc-dot"></span>
+      </div>
+      <div class="toc-item" onclick="goSlide(27)">
+        <span class="toc-num">27</span>
+        <span class="toc-text">핵심 정리 & 실습 시나리오</span>
+        <span class="toc-dot"></span>
+      </div>
+
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="slide-counter"><span id="curNum">1</span> / <span id="totNum">28</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</nav>
+
+<!-- SLIDES -->
+<main id="main">
+
+  <!-- 00. HOME -->
+  <section class="slide slide-home" data-title="Linux 기초 강의 홈">
+    <div class="eyebrow">— DevOps Lecture 2026 · Introduction to Linux</div>
+    <h1>🐧 <em>Linux</em> 기초</h1>
+    <p class="subtitle">리눅스 입문부터 파일 시스템, 패키지 관리, 텍스트 에디터까지.</p>
+    <div class="meta-row">
+      <div class="meta-chip"><span class="dot"></span> 2026 DevOps</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 27 슬라이드</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent3)"></span>Ubuntu : I am because we are</div>
+    </div>
+    <div class="deco-grid">
+      <div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div>
+      <div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div>
+      <div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div>
+      <div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div>
+    </div>
+  </section>
+  <!-- 01. 🐧 리눅스란? -->
+  <section class="slide" data-title="🐧 리눅스란?">
+    <div class="slide-label">01 — 리눅스란</div>
+    <h1>🐧 리눅스란?</h1>
+            
+            <p>리눅스는 <span class="keyword">오픈 소스 운영체제 커널</span>입니다. 리누스 토르발스(Linus Torvalds)가 1991년에 개발하였으며, 누구나 자유롭게 사용·수정·배포할 수 있습니다.</p>
+            
+            <div class="highlight-box">
+                <h3>📚 용어 정리: 커널 vs 배포판</h3>
+                <ul>
+                    <li><span class="important">커널(Kernel)</span>: 하드웨어와 소프트웨어를 연결하는 운영체제의 핵심 엔진. 리눅스 자체는 이 커널을 의미합니다.</li>
+                    <li><span class="keyword">배포판(Distribution)</span>: 리눅스 커널 + 각종 소프트웨어·도구를 묶어 사용하기 편하게 만든 패키지입니다.</li>
+                </ul>
+                <table>
+                    <tr>
+                        <th>배포판</th>
+                        <th>특징</th>
+                    </tr>
+                    <tr>
+                        <td>Ubuntu</td>
+                        <td>입문자 친화적, 데스크탑·서버 모두 인기</td>
+                    </tr>
+                    <tr>
+                        <td>CentOS / RHEL</td>
+                        <td>기업용 서버에 특화, 안정성 중시</td>
+                    </tr>
+                    <tr>
+                        <td>Fedora</td>
+                        <td>최신 기술을 빠르게 도입하는 개발자 배포판</td>
+                    </tr>
+                    <tr>
+                        <td>Debian</td>
+                        <td>Ubuntu의 모태, 안정성과 자유 소프트웨어 철학</td>
+                    </tr>
+                </table>
+            </div>
+  </section>
+  <!-- 02. 🐧 왜 리눅스를 사용할까? -->
+  <section class="slide" data-title="🐧 왜 리눅스를 사용할까?">
+    <div class="slide-label">02 — 왜 리눅스를 사용할까</div>
+    <h1>🐧 왜 리눅스를 사용할까?</h1>
+
+            <div class="highlight-box" style="border-left-color: #60a5fa; background: rgba(96,165,250,0.05);">
+                <ul>
+                    <li>🏆 <strong>서버 점유율 1위</strong>: 전 세계 서버의 약 90% 이상이 리눅스 기반으로 운영됩니다.</li>
+                    <li>☁️ <strong>클라우드 표준</strong>: AWS, Azure, GCP 등 주요 클라우드 플랫폼의 기본 OS입니다.</li>
+                    <li>🔓 <strong>오픈 소스의 자유도</strong>: 소스 코드를 자유롭게 수정·배포할 수 있어, 원하는 대로 커스터마이징이 가능합니다.</li>
+                    <li>⌨️ <strong>강력한 CLI(명령어 환경)</strong>: 텍스트 명령어를 통해 시스템을 빠르고 정밀하게 제어할 수 있습니다. 자동화와 스크립팅에 매우 유리합니다.</li>
+                </ul>
+            </div>
+
+
+            <h2>🐳 Docker · Kubernetes도 리눅스 위에서 동작한다</h2>
+            <div class="highlight-box">
+                <p>앞으로 배울 <span class="keyword">Docker</span>, <span class="keyword">Kubernetes</span>, <span class="keyword">Jenkins</span> 등 DevOps 핵심 도구들은 <strong>모두 리눅스를 기반으로 동작</strong>합니다. 명령어, 파일 경로, 권한 체계가 리눅스 그대로입니다.</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px;">
+                    <div style="flex: 1; min-width: 200px; background: var(--card-bg); border-radius: 10px; padding: 15px; border: 1px solid var(--border);">
+                        <p style="font-size: 15px; margin: 0; font-weight: bold; color: var(--accent2);">🐳 Docker</p>
+                        <p style="font-size: 14px; margin: 6px 0 0 0; color: var(--text-muted);">컨테이너는 리눅스 커널의 <strong>namespaces</strong>와 <strong>cgroups</strong>를 이용합니다. Dockerfile의 명령어도 리눅스 쉘 명령어입니다.</p>
+                    </div>
+                    <div style="flex: 1; min-width: 200px; background: var(--card-bg); border-radius: 10px; padding: 15px; border: 1px solid var(--border);">
+                        <p style="font-size: 15px; margin: 0; font-weight: bold; color: var(--accent2);">☸️ Kubernetes</p>
+                        <p style="font-size: 14px; margin: 6px 0 0 0; color: var(--text-muted);">노드(서버)는 리눅스 기반이며, Pod 안에서 실행되는 컨테이너도 리눅스 환경입니다. <code>kubectl exec</code>로 접속하면 리눅스 쉘이 열립니다.</p>
+                    </div>
+                    <div style="flex: 1; min-width: 200px; background: var(--card-bg); border-radius: 10px; padding: 15px; border: 1px solid var(--border);">
+                        <p style="font-size: 15px; margin: 0; font-weight: bold; color: var(--accent2);">🔧 Jenkins / CI 서버</p>
+                        <p style="font-size: 14px; margin: 6px 0 0 0; color: var(--text-muted);">빌드·배포 파이프라인의 쉘 스크립트(<code>sh</code>)는 리눅스 명령어로 구성됩니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="border-left-color: #60a5fa; background: rgba(96,165,250,0.05);">
+                <p>💡 <strong>리눅스 명령어에 익숙해지면</strong> Docker 이미지 디버깅, Kubernetes Pod 접속, CI/CD 스크립트 작성이 훨씬 수월해집니다. 리눅스는 DevOps의 <span class="keyword">공통 언어</span>입니다.</p>
+            </div>
+  </section>
+  <!-- 03. 🪟 윈도우와의 차이 -->
+  <section class="slide" data-title="🪟 윈도우와의 차이">
+    <div class="slide-label">03 — 윈도우와의 차이</div>
+    <h1>🪟 윈도우와의 차이</h1>
+            <p>리눅스를 처음 접할 때 가장 낯선 부분은 윈도우와의 근본적인 철학 차이입니다.</p>
+
+            <div class="highlight-box">
+                <h3>📂 "Everything is a File" (모든 것은 파일이다)</h3>
+                <p>리눅스의 가장 핵심적인 철학입니다. 윈도우와 달리 리눅스에서는 <span class="important">거의 모든 것이 파일</span>로 취급됩니다.</p>
+                <table>
+                    <tr>
+                        <th>대상</th>
+                        <th>윈도우</th>
+                        <th>리눅스</th>
+                    </tr>
+                    <tr>
+                        <td>하드디스크</td>
+                        <td>C:, D: 드라이브</td>
+                        <td><span class="keyword">/dev/sda</span> (파일)</td>
+                    </tr>
+                    <tr>
+                        <td>USB 장치</td>
+                        <td>장치 관리자에서 관리</td>
+                        <td><span class="keyword">/dev/usb</span> (파일)</td>
+                    </tr>
+                    <tr>
+                        <td>프로세스 정보</td>
+                        <td>작업 관리자(GUI)</td>
+                        <td><span class="keyword">/proc/[PID]</span> (파일)</td>
+                    </tr>
+                    <tr>
+                        <td>시스템 설정</td>
+                        <td>레지스트리(GUI)</td>
+                        <td><span class="keyword">/etc/</span> 디렉토리의 텍스트 파일</td>
+                    </tr>
+                </table>
+                <p style="margin-top: 15px;">이 철학 덕분에 리눅스에서는 <strong>텍스트 명령어 하나로</strong> 장치 확인, 설정 변경, 프로세스 관리를 모두 할 수 있습니다.</p>
+            </div>
+  </section>
+  <!-- 04. 🤝 리눅스와 친해지는 법 -->
+  <section class="slide" data-title="🤝 리눅스와 친해지는 법">
+    <div class="slide-label">04 — 리눅스와 친해지는 법</div>
+    <h1>🤝 리눅스와 친해지는 법</h1>
+
+            <div class="theme-aware-box" style="text-align: center;">
+                <div style="display: flex; justify-content: space-around; align-items: flex-start; flex-wrap: wrap; gap: 20px; margin-top: 10px;">
+                    
+                    <!-- Step 1 -->
+                    <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center;">
+                        <div class="img-wrapper">
+                            <img src="../images/images_linux/linux_vm_01_virtualbox.png" class="card-img" onclick="showImage(this.src)" alt="VirtualBox">
+                        </div>
+                        <p style="font-weight: bold; color: var(--accent2);">1. 직접 설치해보기</p>
+                        <p style="font-size: 14px; color: var(--text-muted);">가상머신(VirtualBox, VMWare 등)이나<br>WSL(Windows Subsystem for Linux)로 리눅스를 설치해봅니다.</p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center;">
+                        <div class="img-wrapper">
+                            <img src="../images/images_linux/linux_vm_03_login.png" class="card-img" onclick="showImage(this.src)" alt="Login">
+                        </div>
+                        <p style="font-weight: bold; color: var(--accent3);">2. 윈도우처럼 사용해보기</p>
+                        <p style="font-size: 14px; color: var(--text-muted);">두려움 없이 리눅스 환경에<br>발을 들여보는 것이 중요합니다.</p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center;">
+                        <div class="img-wrapper">
+                            <img src="../images/images_linux/linux_vm_02_terminal.png" class="card-img" onclick="showImage(this.src)" alt="Terminal">
+                        </div>
+                        <p style="font-weight: bold; color: var(--accent);">3. 터미널에 익숙해지기</p>
+                        <p style="font-size: 14px; color: var(--text-muted);">GUI 대신 터미널로<br>파일 탐색, 편집을 연습합니다.</p>
+                    </div>
+
+                </div>
+            </div>
+  </section>
+  <!-- 05. 💻 학습용 리눅스 준비하기 -->
+  <section class="slide" data-title="💻 학습용 리눅스 준비하기">
+    <div class="slide-label">05 — 학습용 리눅스 준비하기</div>
+    <h1>💻 학습용 리눅스 준비하기</h1>
+    <p>실습을 위해 가장 대중적인 <span class="keyword">Ubuntu</span> 혹은 기업용 표준인 <span class="keyword">RHEL</span> 중 하나를 준비합니다.</p>
+
+    <div class="highlight-box">
+        <h3>1️⃣ Ubuntu (입문자 추천)</h3>
+        <p>가장 범용적이고 커뮤니티가 활성화되어 있어 실습에 가장 편리합니다.</p>
+        <ul>
+            <li><strong>WSL2</strong> (Windows 사용자 추천): Windows에서 리눅스를 앱처럼 실행 — 가장 빠르고 간편함</li>
+            <li><strong>VirtualBox</strong>: 가상 머신에 Ubuntu 설치</li>
+        </ul>
+    </div>
+
+    <div class="highlight-box">
+        <h3>2️⃣ RHEL (Red Hat Enterprise Linux)</h3>
+        <p>기업용 유료 OS이지만, 개인 개발자는 계정 등록 시 <span class="keyword">무료</span>로 사용 가능합니다.</p>
+        <p>👉 등록: <a href="https://developers.redhat.com" target="_blank" style="color: #667eea;">developers.redhat.com</a></p>
+    </div>
+
+    <div class="highlight-box">
+        <h3>3️⃣ 클라우드 VM</h3>
+        <p>AWS EC2, GCP, Azure 등에서 Ubuntu 또는 RHEL 인스턴스를 생성하여 실습할 수 있습니다.</p>
+    </div>
+  </section>
+  <!-- 06. 🛠️ 함께 쓰는 프로그램 -->
+  <section class="slide" data-title="🛠️ 함께 쓰는 프로그램">
+    <div class="slide-label">06 — 함께 쓰는 프로그램</div>
+    <h1>🛠️ 함께 쓰는 프로그램</h1>
+            <p>리눅스 서버를 효율적으로 사용하기 위해 Windows에서 함께 활용하는 필수 도구들을 소개합니다.</p>
+
+            <h2>PuTTY — SSH 원격 접속 도구</h2>
+            <p><span class="keyword">PuTTY</span>는 Windows에서 리눅스 서버에 <strong>SSH(Secure Shell)</strong>로 원격 접속할 때 가장 많이 사용하는 무료 프로그램입니다.</p>
+
+            <div class="highlight-box">
+                <h3>⚙️ 추천 설정</h3>
+                <ul>
+                    <li><strong>Font 변경</strong>: Window → Appearance → Font settings에서 <span class="keyword">Consolas</span>로 변경하면 코드 가독성이 크게 향상됩니다.</li>
+                    <li><strong>Font 사이즈</strong>: 12~14pt를 추천합니다.</li>
+                </ul>
+            </div>
+
+            <div style="display: flex; gap: 20px; margin: 20px 0; justify-content: center; align-items: flex-start; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center;">
+                    <div class="img-wrapper">
+                        <img src="../images/images_linux/linux_putty_01_main.png" class="card-img" onclick="showImage(this.src)" alt="PuTTY Main">
+                    </div>
+                    <p style="font-weight: bold; color: var(--accent2);">PuTTY 접속 화면</p>
+                </div>
+                <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center;">
+                    <div class="img-wrapper">
+                        <img src="../images/images_linux/linux_putty_02_font.png" class="card-img" onclick="showImage(this.src)" alt="PuTTY Font Settings">
+                    </div>
+                    <p style="font-weight: bold; color: var(--accent3);">PuTTY 설정 화면 (Font: Consolas)</p>
+                </div>
+            </div>
+  </section>
+  <!-- 07. ✅ 시작하기 전에 확인할 것들 -->
+  <section class="slide" data-title="✅ 시작하기 전에 확인할 것들">
+    <div class="slide-label">07 — 시작하기 전에 확인할 것들</div>
+    <h1>✅ 시작하기 전에 확인할 것들</h1>
+            <p>본격적인 실습에 앞서, 필요한 도구들이 정상적으로 설치되어 있는지 확인합니다. 아래 명령어들을 순서대로 실행하여 버전 정보가 출력되면 정상입니다.</p>
+
+            <h2>🔍 설치 확인 명령어</h2>
+
+            <h3>1. Git — 버전 관리 도구</h3>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">git</span> <span class="code-flag">--version</span>
+git version 2.47.3
+            </div>
+
+            <h3>2. Docker(Podman) — 컨테이너 런타임</h3>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">docker</span> <span class="code-flag">--version</span>
+Docker version 5.3.2, build 23624bc737
+            </div>
+            <p style="font-size: 14px; color: #888;">※ RHEL에서는 <code>podman-docker</code>가 설치되어 있으면 <code>docker</code> 명령어가 podman으로 연결됩니다.</p>
+
+            <h3>3. pip3 — Python 패키지 관리자</h3>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">pip3</span> <span class="code-flag">--version</span>
+pip 21.3.1 from /usr/lib/python3.9/site-packages/pip (python 3.9)
+            </div>
+
+            <h3>4. Screen — 세션 관리 도구</h3>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">screen</span> <span class="code-flag">--version</span>
+Screen version 4.08.00 (GNU) 05-Feb-20
+            </div>
+
+            <div class="highlight-box">
+                <h3>💡 설치가 안 되어 있다면?</h3>
+                <p>위 명령어 실행 시 <code>command not found</code>가 나오면 해당 패키지가 설치되지 않은 것입니다. 8번 슬라이드(필수 패키지 설치)를 참고하여 설치해주세요.</p>
+            </div>
+  </section>
+  <!-- 08. 👤 계정 정보 확인 -->
+  <section class="slide" data-title="👤 계정 정보 확인">
+    <div class="slide-label">08 — 계정 정보 확인</div>
+    <h1>👤 계정 정보 확인</h1>
+            <p>리눅스에 접속한 후 가장 먼저 해야 할 일은 <strong>내가 누구이고, 어디에 접속했는지</strong> 확인하는 것입니다.</p>
+
+            <h2>🔍 현재 사용자 확인 (whoami)</h2>
+            <p><code>whoami</code>는 "Who am I?"의 약자로, 현재 로그인한 사용자의 이름을 출력합니다.</p>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">whoami</span>
+devops
+            </div>
+
+            <h2>🌐 호스트명 확인 (hostname)</h2>
+            <p><code>hostname</code>은 현재 접속한 서버(컴퓨터)의 이름을 출력합니다.</p>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">hostname</span>
+localhost.localdomain
+            </div>
+
+            <h2>🔑 사용자 ID 정보 확인 (id)</h2>
+            <p><code>id</code>는 현재 사용자의 UID(사용자 ID), GID(그룹 ID), 소속 그룹 목록을 보여줍니다.</p>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">id</span>
+uid=1000(devops) gid=1000(devops) groups=1000(devops),10(wheel)
+
+[devops@localhost ~]$ <span class="code-cmd">id</span> devops
+uid=1000(devops) gid=1000(devops) groups=1000(devops),10(wheel)
+            </div>
+
+            <details class="highlight-box">
+                <summary><h3>💡 출력 결과 해석</h3></summary>
+                <div>
+                    <ul>
+                        <li><strong>uid=1000(devops)</strong>: 사용자 고유 번호(UID)가 1000이고, 이름이 devops입니다.</li>
+                        <li><strong>gid=1000(devops)</strong>: 기본 그룹 ID(GID)가 1000입니다.</li>
+                        <li><strong>groups=1000(devops),10(wheel)</strong>: devops 그룹과 <span class="keyword">wheel</span> 그룹에 속해 있습니다. wheel 그룹은 <code>sudo</code> 명령어 사용 권한과 관련됩니다.</li>
+                    </ul>
+                </div>
+            </details>
+  </section>
+  <!-- 09. 🔐 Superuser란? -->
+  <section class="slide" data-title="🔐 Superuser란?">
+    <div class="slide-label">09 — Superuser란</div>
+    <h1>🔐 Superuser란?</h1>
+            <p>리눅스에는 일반 사용자와 <span class="keyword">Superuser(관리자)</span>라는 두 가지 권한 레벨이 있습니다.</p>
+
+            <h2>👥 User vs Superuser (root)</h2>
+            <table>
+                <tr>
+                    <th>구분</th>
+                    <th>일반 사용자 (User)</th>
+                    <th>슈퍼유저 (root)</th>
+                </tr>
+                <tr>
+                    <td><strong>권한</strong></td>
+                    <td>자기 파일만 읽기/쓰기/실행</td>
+                    <td>시스템 전체에 대한 모든 권한</td>
+                </tr>
+                <tr>
+                    <td><strong>위험도</strong></td>
+                    <td>시스템 손상 가능성 낮음</td>
+                    <td>잘못된 명령으로 시스템 파괴 가능</td>
+                </tr>
+                <tr>
+                    <td><strong>프롬프트</strong></td>
+                    <td><code>$</code> (달러 기호)</td>
+                    <td><code>#</code> (해시 기호)</td>
+                </tr>
+            </table>
+
+            <h2>🔑 sudo와 관리자 그룹</h2>
+            <p><code>sudo</code>는 일반 사용자가 <strong>일시적으로 root 권한</strong>을 빌려 명령을 실행할 수 있게 해주는 명령어입니다. 배포판에 따라 관리자 권한을 가진 그룹 명칭이 다릅니다.</p>
+            
+            <ul>
+                <li><strong>Ubuntu / Debian</strong>: <span class="keyword">sudo</span> 그룹</li>
+                <li><strong>RHEL / CentOS</strong>: <span class="keyword">wheel</span> 그룹</li>
+            </ul>
+
+            <h3 style="margin-top:20px;">사용자에게 관리자 권한 부여하기</h3>
+            <div class="code-block">
+<span class="code-comment"># Ubuntu/Debian 계열</span>
+[devops@ubuntu ~]$ <span class="code-cmd">sudo usermod</span> <span class="code-flag">-aG</span> sudo devops
+
+<span class="code-comment"># RHEL/CentOS 계열</span>
+[devops@rhel ~]$ <span class="code-cmd">sudo usermod</span> <span class="code-flag">-aG</span> wheel devops
+            </div>
+
+            <div class="highlight-box">
+                <h3>💡 왜 root 대신 sudo를 사용할까?</h3>
+                <ul>
+                    <li><strong>안전성</strong>: 항상 root로 작업하면 실수 한 번에 시스템이 망가질 수 있습니다.</li>
+                    <li><strong>추적 가능</strong>: <code>sudo</code>를 사용하면 누가, 언제, 어떤 명령을 실행했는지 로그가 남습니다.</li>
+                    <li><strong>최소 권한 원칙</strong>: 필요한 순간에만 높은 권한을 사용하는 것이 보안의 기본입니다.</li>
+                </ul>
+            </div>
+
+            <div class="highlight-box">
+                <h3>🔒 비밀번호 입력 시 화면에 표시되지 않는 이유</h3>
+                <p>Linux 계열 시스템에서는 비밀번호와 같은 <span class="keyword">민감한 정보를 입력할 때 화면에 아무것도 표시되지 않습니다.</span> 커서가 움직이거나 <code>*</code> 같은 문자가 나타나지 않아 처음에는 입력이 안 되는 것처럼 느껴질 수 있지만, 실제로는 정상적으로 입력되고 있습니다.</p>
+                <ul>
+                    <li><strong>보안 목적</strong>: 입력 중인 문자 수조차 노출되지 않아 어깨 너머로 비밀번호를 훔쳐보는 것을 방지합니다.</li>
+                    <li><strong>정상 동작</strong>: 비밀번호를 입력한 후 <kbd>Enter</kbd>를 누르면 명령이 실행됩니다.</li>
+                </ul>
+                <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">sudo apt</span> update
+[sudo] password for devops: <span class="code-comment">← 입력해도 화면에 아무것도 표시되지 않음 (정상)</span>
+                </div>
+            </div>
+  </section>
+  <!-- 10. 📦 필수 패키지 설치 -->
+  <section class="slide" data-title="📦 필수 패키지 설치">
+    <div class="slide-label">10 — 필수 패키지 설치</div>
+    <h1>📦 필수 패키지 설치</h1>
+    <p>리눅스 설치 후, 개발 및 운영에 필요한 기본 패키지들을 설치합니다. 배포판에 맞는 명령어를 사용하세요.</p>
+    
+    <div class="highlight-box">
+        <h3>🌐 Ubuntu / Debian (APT 사용)</h3>
+        <div class="code-block">
+[devops@ubuntu ~]$ <span class="code-cmd">sudo apt</span> <span class="code-flag">update</span>
+[devops@ubuntu ~]$ <span class="code-cmd">sudo apt</span> <span class="code-flag">install</span> <span class="code-flag">-y</span> git docker.io python3-pip screen
+        </div>
+    </div>
+
+    <div class="highlight-box">
+        <h3>🐧 RHEL / CentOS (DNF 사용)</h3>
+        <div class="code-block">
+[devops@rhel ~]$ <span class="code-cmd">sudo dnf</span> <span class="code-flag">install</span> <span class="code-flag">-y</span> git podman podman-docker python3-pip screen
+        </div>
+    </div>
+
+    <div class="highlight-box">
+        <h3>📚 주요 도구 설명</h3>
+        <ul>
+            <li><strong>Git</strong>: 소스 코드 버전 관리 필수 도구</li>
+            <li><strong>Docker</strong>: 컨테이너 실행 및 관리</li>
+            <li><strong>pip3</strong>: Python 패키지 관리자</li>
+            <li><strong>Screen</strong>: 터미널 세션 유지 (연결 끊김 방지)</li>
+        </ul>
+    </div>
+  </section>
+  <!-- 11. 📂 파일 탐색 명령어 -->
+  <section class="slide" data-title="📂 파일 탐색 명령어">
+    <div class="slide-label">11 — 파일 탐색 명령어</div>
+    <h1>📂 파일 탐색 명령어</h1>
+            <p>리눅스에 접속하자마자 가장 먼저 해야 할 일은 "내가 어디에 있고, 무엇이 있는지" 확인하는 것입니다.</p>
+            <div class="split-layout">
+              <div>
+                <h2>📍 내 위치 확인 (pwd)</h2>
+                <p><code>pwd</code>는 "Print Working Directory"의 약자로, 현재 내가 위치한 폴더의 절대 경로를 보여줍니다.</p>
+                <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">pwd</span>
+/home/devops
+                </div>
+                <h2>🔍 목록 확인 (ls)</h2>
+                <ul>
+                    <li><code>ls -l</code>: 상세 정보(권한, 크기 등)</li>
+                    <li><code>ls -a</code>: 숨겨진 파일 포함</li>
+                </ul>
+                <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">ls</span> <span class="code-flag">-al</span>
+total 28
+drwx------. 14 devops devops 4096 Feb 14 18:18 .
+drwxr-xr-x.  3 root   root     20 Apr  2  2025 ..
+-rw-------.  1 devops devops  160 Feb 16 22:26 .bash_history
+...
+                </div>
+              </div>
+              <div>
+                <h2>🔎 파일 검색 (find)</h2>
+                <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">find</span> . <span class="code-flag">-name</span> <span class="code-str">"*.txt"</span>
+                </div>
+                <h2>📖 파일 읽기 (cat, less)</h2>
+                <p><code>cat</code>은 보통 파일 전체를 빠르게 출력할 때, <code>less</code>는 긴 로그나 파일을 천천히 읽을 때 씨니다.</p>
+                <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">cat</span> sample.txt
+[devops@localhost ~]$ <span class="code-cmd">less</span> /var/log/messages
+                </div>
+              </div>
+            </div>
+  </section>
+  <!-- 12. 🚶 폴더 이동하기 및 구조 확인 -->
+  <section class="slide" data-title="🚶 폴더 이동하기 및 구조 확인">
+    <div class="slide-label">12 — 폴더 이동하기 및 구조 확인</div>
+    <h1>🚶 폴더 이동하기 및 구조 확인</h1>
+            
+            <div class="split-layout">
+              <div>
+                <h2>📂 폴더 이동 (cd)</h2>
+                <p><code>cd</code>는 "Change Directory"의 약자로, 작업 디렉토리를 변경할 때 사용합니다.</p>
+                <ul>
+                    <li><code>cd [경로]</code>: 해당 경로로 이동합니다.</li>
+                    <li><code>cd ..</code>: 현재 위치에서 한 단계 위(부모) 폴더로 이동합니다.</li>
+                    <li><code>cd ~</code>: 현재 사용자의 홈 디렉토리로 즉시 이동합니다.</li>
+                </ul>
+                <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">cd</span> ..
+
+[devops@localhost ~]$ <span class="code-cmd">pwd</span>
+/home
+
+[devops@localhost ~]$ <span class="code-cmd">cd</span> devops/
+
+[devops@localhost ~]$ <span class="code-cmd">pwd</span>
+/home/devops
+                </div>
+              </div>
+
+              <div>
+                <h2>🌳 구조 시각화 (tree)</h2>
+                <p><code>tree</code> 명령어는 디렉토리 구조를 나무 모양으로 보기 좋게 시각화하여 계층 구조를 한눈에 파악할 수 있게 해줍니다.</p>
+                <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">tree</span>
+.
+├── Desktop
+├── Documents
+├── Downloads
+├── Music
+├── Pictures
+├── Public
+├── Templates
+└── Videos
+                </div>
+
+                <details class="highlight-box">
+                    <summary><h3>💡 tree 명령어 직접 설치해보기</h3></summary>
+                    <div>
+                        <p>Linux 기본 설치 시 <code>tree</code>가 없을 수 있습니다. 이럴 때는 관리자 권한을 사용하여 직접 설치할 수 있습니다.</p>
+                        <div class="code-block">
+<span class="code-comment"># Ubuntu 계열 (APT)</span>
+$ <span class="code-cmd">sudo apt install</span> <span class="code-flag">tree</span> <span class="code-flag">-y</span>
+
+<span class="code-comment"># RHEL 계열 (DNF)</span>
+$ <span class="code-cmd">sudo dnf install</span> <span class="code-flag">tree</span> <span class="code-flag">-y</span>
+                        </div>
+                        <p>설치 후에 <code>tree</code>를 입력하여 결과를 확인해 보세요! 패키지 관리자의 편리함을 체험해 볼 수 있습니다.</p>
+                    </div>
+                </details>
+              </div>
+            </div>
+  </section>
+  <!-- 13. 🧹 실습: 루트 디렉토리 탐색하기 -->
+  <section class="slide" data-title="🧹 실습: 루트 디렉토리 탐색하기">
+    <div class="slide-label">13 — 실습 루트 디렉토리 탐색하기</div>
+    <h1>🧹 실습: 루트 디렉토리 탐색하기</h1>
+            <p>지금까지 배운 <code>pwd</code>, <code>cd</code>, <code>ls</code> 명령어를 종합해서 리눅스의 전체 파일시스템 구조를 첫 탐색해봅니다.</p>
+
+            <div class="highlight-box" style="border-left-color: #34d399; background: rgba(52,211,153,0.05);">
+                <p>✅ <strong>목표:</strong> 현재 위치 확인 → 루트(/) 이동 → 리눅스 시스템 콘텐츠 확인 → 원래 위치로 복귀</p>
+            </div>
+
+            <h2>💻 실습 명령어 시퀀스</h2>
+
+            <h3>Step 1. 현재 위치 확인</h3>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">pwd</span>
+/home/devops
+            </div>
+
+            <h3>Step 2. 루트 디렉토리로 이동</h3>
+            <p><code>cd /</code> 명령어로 리눅스 파일시스템의 최상단, 즉 <span class="keyword">루트(root) 디렉토리</span>(≠ root 계정)로 이동합니다.</p>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">cd</span> /
+
+[devops@localhost /]$ <span class="code-cmd">pwd</span>
+/
+            </div>
+
+            <h3>Step 3. 루트 디렉토리 안의 목록 확인</h3>
+            <p><code>ls -l</code>로 리눅스의 핵심 시스템 디렉토리들을 확인합니다.</p>
+            <div class="code-block">
+[devops@localhost /]$ ls -l
+total 8
+dr-xr-xr-x.  2 root root    6 Oct  9 07:57 afs
+lrwxrwxrwx.  1 root root    7 Oct  9 07:57 bin -&gt; usr/bin
+dr-xr-xr-x.  6 root root 4096 Apr  2  2025 boot
+drwxr-xr-x. 19 root root 3180 Mar  4 13:12 dev
+drwxr-xr-x. 93 root root 8192 Mar  4 22:01 etc
+drwxr-xr-x.  3 root root   20 Apr  2  2025 home
+lrwxrwxrwx.  1 root root    7 Oct  9 07:57 lib -&gt; usr/lib
+lrwxrwxrwx.  1 root root    9 Oct  9 07:57 lib64 -&gt; usr/lib64
+drwxr-xr-x.  2 root root    6 Oct  9 07:57 media
+drwxr-xr-x.  2 root root    6 Oct  9 07:57 mnt
+drwxr-xr-x.  3 root root   20 Apr  2  2025 opt
+dr-xr-xr-x. 271 root root    0 Mar  4 13:12 proc
+dr-xr-x---.  4 root root  244 Mar  4 22:01 root
+drwxr-xr-x. 35 root root  980 Mar  4 22:01 run
+lrwxrwxrwx.  1 root root    8 Oct  9 07:57 sbin -&gt; usr/sbin
+drwxr-xr-x.  2 root root    6 Oct  9 07:57 srv
+dr-xr-xr-x. 13 root root    0 Mar  4 13:12 sys
+drwxrwxrwt.  8 root root  200 Mar  4 22:09 tmp
+drwxr-xr-x. 12 root root  144 Apr  2  2025 usr
+drwxr-xr-x. 20 root root 4096 Apr  2  2025 var
+            </div>
+
+            <div class="highlight-box">
+                <h3>📁 주요 디렉토리 한눈에 보기</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 10px;">
+                    <div style="background: white; border-radius: 8px; padding: 12px; border: 1px solid #e0e0ff;">
+                        <p style="margin: 0; font-weight: bold; color: #667eea; font-size: 15px;">/home</p>
+                        <p style="margin: 4px 0 0; font-size: 14px; color: #555;">일반 사용자들의 홈 폴더</p>
+                    </div>
+                    <div style="background: white; border-radius: 8px; padding: 12px; border: 1px solid #e0e0ff;">
+                        <p style="margin: 0; font-weight: bold; color: #667eea; font-size: 15px;">/etc</p>
+                        <p style="margin: 4px 0 0; font-size: 14px; color: #555;">시스템 설정 파일 모음</p>
+                    </div>
+                    <div style="background: white; border-radius: 8px; padding: 12px; border: 1px solid #e0e0ff;">
+                        <p style="margin: 0; font-weight: bold; color: #667eea; font-size: 15px;">/dev</p>
+                        <p style="margin: 4px 0 0; font-size: 14px; color: #555;">장치 파일 (디스크, USB 등)</p>
+                    </div>
+                    <div style="background: white; border-radius: 8px; padding: 12px; border: 1px solid #e0e0ff;">
+                        <p style="margin: 0; font-weight: bold; color: #667eea; font-size: 15px;">/proc</p>
+                        <p style="margin: 4px 0 0; font-size: 14px; color: #555;">실행 중인 프로세스 정보 (가상 파일)</p>
+                    </div>
+                    <div style="background: white; border-radius: 8px; padding: 12px; border: 1px solid #e0e0ff;">
+                        <p style="margin: 0; font-weight: bold; color: #667eea; font-size: 15px;">/usr/bin</p>
+                        <p style="margin: 4px 0 0; font-size: 14px; color: #555;">일반 명령어 실행 파일 (git, python3 등)</p>
+                    </div>
+                    <div style="background: white; border-radius: 8px; padding: 12px; border: 1px solid #e0e0ff;">
+                        <p style="margin: 0; font-weight: bold; color: #667eea; font-size: 15px;">/tmp</p>
+                        <p style="margin: 4px 0 0; font-size: 14px; color: #555;">임시 파일 저장소 (재부팅 시 삭제)</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Step 4. 원래 위치로 복귀</h3>
+            <p><code>cd ~</code> 또는 <code>cd</code>만 입력해도 홈 디렉토리로 돌아옵니다.</p>
+            <div class="code-block">
+[devops@localhost /]$ <span class="code-cmd">cd</span> ~
+
+[devops@localhost ~]$ <span class="code-cmd">pwd</span>
+/home/devops
+            </div>
+
+            <div class="highlight-box" style="border-left-color: #60a5fa; background: rgba(96,165,250,0.05);">
+                <p>💡 <strong>프롬프트를 확인하세요!</strong> <code>[devops@localhost <span style="color: #dc3545; font-weight: bold;">/</span>]$</code>와 <code>[devops@localhost <span style="color: #28a745; font-weight: bold;">~</span>]$</code>는 현재 위치가 다름을 보여줍니다. <code>/</code>는 루트, <code>~</code>는 홈 디렉토리입니다.</p>
+            </div>
+  </section>
+  <!-- 14. 🛠️ 파일과 폴더 만들기 -->
+  <section class="slide" data-title="🛠️ 파일과 폴더 만들기">
+    <div class="slide-label">14 — 파일과 폴더 만들기</div>
+    <h1>🛠️ 파일과 폴더 만들기</h1>
+            
+            <p>리눅스 환경에서 새로운 작업 공간을 확보하고 파일을 생성하는 실습입니다.</p>
+
+            <h2>📁 폴더 만들기 (mkdir)</h2>
+            <p><code>mkdir</code>은 "Make Directory"의 약자로, 새로운 디렉토리를 생성합니다.</p>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">mkdir</span> project
+
+[devops@localhost ~]$ <span class="code-cmd">ls</span> <span class="code-flag">-l</span>
+drwxr-xr-x. 2 devops devops 6 Feb 22 17:27 project
+            </div>
+
+            <h2>📄 파일 만들기 (touch)</h2>
+            <p><code>touch</code>는 빈 파일을 빠르게 생성하거나, 이미 존재하는 파일의 접근/수정 시간을 현재 시간으로 업데이트할 때 사용합니다.</p>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">cd</span> project/
+
+[devops@localhost ~]$ <span class="code-cmd">touch</span> sample.txt
+
+[devops@localhost ~]$ <span class="code-cmd">ls</span> <span class="code-flag">-l</span>
+total 0
+-rw-r--r--. 1 devops devops 0 Feb 22 17:06 sample.txt
+            </div>
+  </section>
+  <!-- 15. 📋 파일 복사하기 -->
+  <section class="slide" data-title="📋 파일 복사하기">
+    <div class="slide-label">15 — 파일 복사하기</div>
+    <h1>📋 파일 복사하기</h1>
+            
+            <p><code>cp</code>는 "Copy"의 약자로, 기존 파일이나 디렉토리를 복사하여 동일한 내용의 새로운 파일을 만듭니다. <strong>원본을 유지하면서 복제본을 만들 때</strong> 사용합니다.</p>
+            <ul>
+                <li><span class="keyword">cp [원본] [대상]</span>: 파일을 복사합니다.</li>
+                <li><span class="important">cp -r [원본디렉토리] [대상디렉토리]</span>: 디렉토리를 복사할 때는 반드시 <code>-r</code> (Recursive) 옵션을 사용해야 내부 파일들까지 함께 복사됩니다.</li>
+            </ul>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">touch</span> copy.txt
+
+[devops@localhost ~]$ <span class="code-cmd">cp</span> copy.txt copy_backup.txt
+
+[devops@localhost ~]$ <span class="code-cmd">ls</span> <span class="code-flag">-l</span>
+total 0
+-rw-r--r--. 1 devops devops 0 Feb 22 17:28 copy_backup.txt
+-rw-r--r--. 1 devops devops 0 Feb 22 17:27 copy.txt
+drwxr-xr-x. 2 devops devops 6 Feb 22 17:27 project
+
+[devops@localhost ~]$ <span class="code-cmd">cp</span> copy.txt ./project/copy_project.txt
+
+[devops@localhost ~]$ <span class="code-cmd">cd</span> project/
+
+[devops@localhost ~]$ <span class="code-cmd">ls</span> <span class="code-flag">-l</span>
+total 0
+-rw-r--r--. 1 devops devops 0 Feb 22 17:28 copy_project.txt
+            </div>
+  </section>
+  <!-- 16. 📦 이동 및 이름 변경 -->
+  <section class="slide" data-title="📦 이동 및 이름 변경">
+    <div class="slide-label">16 — 이동 및 이름 변경</div>
+    <h1>📦 이동 및 이름 변경</h1>
+            <p><code>mv</code>는 "Move"의 약자로, 파일이나 폴더의 <strong>위치를 이동</strong>시키거나 <strong>이름을 변경</strong>할 때 사용합니다. 윈도우의 '잘라내기(Cut) 후 붙여넣기'와 같은 원리입니다.</p>
+            
+            <div class="highlight-box" style="border-left-color: #60a5fa; background: rgba(96,165,250,0.05);">
+                <p>💡 <strong>리눅스에서의 이름 변경:</strong> 리눅스에는 일반적인 파일 이름 변경을 위한 별도의 <code>rename</code> 명령어가 따로 있는 것이 아니라, <code>mv</code> 명령어를 통해 <span class="keyword">현재 위치에서 다른 이름으로 이동</span>시키는 개념으로 파일명을 변경합니다.</p>
+            </div>
+
+            <h3>이름 변경하기 (Rename)</h3>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">touch</span> move.txt
+
+[devops@localhost ~]$ <span class="code-cmd">ls</span> <span class="code-flag">-l</span>
+total 0
+-rw-r--r--. 1 devops devops 0 Feb 22 17:30 move.txt
+drwxr-xr-x. 2 devops devops 6 Feb 22 17:30 project
+
+[devops@localhost ~]$ <span class="code-cmd">mv</span> move.txt new_move.txt
+
+[devops@localhost ~]$ <span class="code-cmd">ls</span> <span class="code-flag">-l</span>
+total 0
+-rw-r--r--. 1 devops devops 0 Feb 22 17:30 new_move.txt
+drwxr-xr-x. 2 devops devops 6 Feb 22 17:30 project
+            </div>
+
+            <h3>파일 위치 옮기기 (Move)</h3>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">mv</span> new_move.txt ./project/new_move.txt
+
+[devops@localhost ~]$ <span class="code-cmd">ls</span> <span class="code-flag">-l</span>
+total 0
+drwxr-xr-x. 2 devops devops 26 Feb 22 17:31 project
+
+[devops@localhost ~]$ <span class="code-cmd">cd</span> project/
+
+[devops@localhost ~]$ <span class="code-cmd">ls</span> <span class="code-flag">-l</span>
+total 0
+-rw-r--r--. 1 devops devops 0 Feb 22 17:30 new_move.txt
+            </div>
+  </section>
+  <!-- 17. 🗑️ 파일 혹은 폴더 삭제하기 (주의필요) -->
+  <section class="slide" data-title="🗑️ 파일 혹은 폴더 삭제하기 (주의필요)">
+    <div class="slide-label">17 — 파일 혹은 폴더 삭제하기 주의필요</div>
+    <h1>🗑️ 파일 혹은 폴더 삭제하기 (주의필요)</h1>
+            
+            <p>리눅스에는 윈도우의 '휴지통' 개념이 없습니다. 명령어를 실행하면 즉시 지워지므로 숙달될 때까지 주의가 필요합니다.</p>
+
+            <h2>📄 파일 삭제 (rm)</h2>
+            <p><code>rm</code>은 "Remove"의 약자로, 파일을 삭제합니다.</p>
+
+            <h2>📁 폴더 강제 삭제 (rm -rf)</h2>
+            <p>비어있지 않은 폴더를 삭제하려면 <code>-r</code> (Recursive)과 <code>-f</code> (Force) 옵션을 조합한 <code>rm -rf</code>를 사용합니다.</p>
+
+            <h3>💻 삭제 실습</h3>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">rm</span> sample.txt
+
+[devops@localhost ~]$ <span class="code-cmd">cd</span> ..
+
+[devops@localhost ~]$ <span class="code-cmd">rm</span> project
+rm: cannot remove 'project': Is a directory
+
+[devops@localhost ~]$ <span class="code-cmd">rm</span> <span class="code-flag">-rf</span> project
+            </div>
+
+            <details class="highlight-box">
+                <summary><h3>⚠️ 절대 금기 명령어: rm -rf /</h3></summary>
+                <div>
+                    <p><span class="important">rm -rf /</span>는 루트(/) 경로 아래의 모든 파일을 강제로 삭제하는 명령어로, 운영체제를 회생 불능 상태로 만듭니다.</p>
+                    <div class="code-block"><span class="code-comment"># 절대로 실행하지 마세요!</span>
+<span class="code-cmd">sudo rm</span> <span class="code-flag">-rf</span> / <span class="code-flag">--no-preserve-root</span></div>
+                    <p>호기심에라도 연습하지 마세요. 실제 서버에서 이 명령어를 실행하는 것은 시스템 파괴 행위입니다.</p>
+                </div>
+            </details>
+  </section>
+  <!-- 18. 🧹 실습: 프로젝트 구조 만들고 삭제하기 -->
+  <section class="slide" data-title="🧹 실습: 프로젝트 구조 만들고 삭제하기">
+    <div class="slide-label">18 — 실습 프로젝트 구조 만들고 삭제하기</div>
+    <h1>🧹 실습: 프로젝트 구조 만들고 삭제하기</h1>
+            <p>지금까지 배운 <code>mkdir</code>, <code>touch</code>, <code>tree</code>, <code>rm -rf</code>를 종합하여 실제 프로젝트를 늮은 폴더 구조를 만들고, 확인하고, 삭제하는 컨플릿 실습입니다.</p>
+
+            <div class="highlight-box" style="border-left-color: #34d399; background: rgba(52,211,153,0.05);">
+                <p>✅ <strong>목표 구조:</strong></p>
+                <div class="code-block" style="margin-top: 10px; font-size: 15px;">
+~/myproject/
+├── docker/
+│   ├── dockerfile.prod
+│   └── dockerfile.dev
+└── app/
+    ├── app.py
+    └── requirements.txt
+                </div>
+            </div>
+
+            <h2>💻 실습 명령어 시퀀스</h2>
+
+            <h3>Step 1. 프로젝트 루트 폴더 생성</h3>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">mkdir</span> myproject
+[devops@localhost ~]$ <span class="code-cmd">cd</span> myproject/
+            </div>
+
+            <h3>Step 2. 하위 폴더 생성</h3>
+            <div class="code-block">
+[devops@localhost myproject]$ <span class="code-cmd">mkdir</span> docker app
+
+[devops@localhost myproject]$ <span class="code-cmd">ls</span> <span class="code-flag">-l</span>
+total 0
+drwxr-xr-x. 2 devops devops 6 Mar  4 21:50 app
+drwxr-xr-x. 2 devops devops 6 Mar  4 21:50 docker
+            </div>
+
+            <h3>Step 3. 파일 생성</h3>
+            <div class="code-block">
+[devops@localhost myproject]$ <span class="code-cmd">touch</span> docker/dockerfile.prod docker/dockerfile.dev
+[devops@localhost myproject]$ <span class="code-cmd">touch</span> app/app.py app/requirements.txt
+            </div>
+
+            <h3>Step 4. tree로 구조 확인</h3>
+            <div class="code-block">
+[devops@localhost myproject]$ <span class="code-cmd">tree</span>
+.
+├── app
+│   ├── app.py
+│   └── requirements.txt
+└── docker
+    ├── dockerfile.dev
+    └── dockerfile.prod
+
+2 directories, 4 files
+            </div>
+
+            <h3>Step 5. 상위 폴더로 이동 후 전체 삭제</h3>
+            <div class="code-block">
+[devops@localhost myproject]$ <span class="code-cmd">cd</span> ..
+
+[devops@localhost ~]$ <span class="code-cmd">rm</span> <span class="code-flag">-rf</span> myproject
+
+[devops@localhost ~]$ <span class="code-cmd">ls</span> <span class="code-flag">-l</span>
+total 0
+<span class="code-comment"># myproject 폴더가 사라졌습니다</span>
+            </div>
+
+            <div class="highlight-box" style="border-left-color: #fbbf24; background: rgba(251,191,36,0.05);">
+                <p>⚠️ <code>rm -rf</code>는 되돌릴 수 없습니다. 삭제 전에 <span class="keyword">pwd</span>로 위치를 확인하고, <span class="keyword">ls</span>로 대상을 다시 한 번 확인하는 습관을 가집니다.</p>
+            </div>
+  </section>
+  <!-- 19. ⚙️ 프로세스 & 시스템 -->
+  <section class="slide" data-title="⚙️ 프로세스 & 시스템">
+    <div class="slide-label">19 — 프로세스 & 시스템</div>
+    <h1>⚙️ 프로세스 & 시스템</h1>
+            <p>시스템 자원 상태와 실행 중인 프로세스를 관리하는 핵심 명령어입니다.</p>
+            <div class="split-layout">
+              <div>
+                <h2>📊 프로세스 확인 (ps, top/htop)</h2>
+                <div class="code-block">
+<span class="code-comment"># 현재 실행 중인 모든 프로세스 상세 정보 확인</span>
+[devops@localhost ~]$ <span class="code-cmd">ps</span> <span class="code-flag">aux</span>
+
+<span class="code-comment"># 실시간 시스템 모니터링 (종료: q)</span>
+[devops@localhost ~]$ <span class="code-cmd">top</span>
+<span class="code-comment"># (설치: sudo apt install htop 또는 sudo dnf install htop)</span>
+[devops@localhost ~]$ <span class="code-cmd">htop</span>
+                </div>
+              </div>
+              <div>
+                <h2>🛑 프로세스 종료 (kill)</h2>
+                <p>비정상 동작하는 프로세스를 강제 종료합니다. <code>ps aux</code>로 PID(Process ID)를 확인 후 사용합니다.</p>
+                <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">kill</span> <span class="code-flag">-9</span> [PID]
+                </div>
+                <h2>💾 디스크 및 메모리 확인 (df, free)</h2>
+                <div class="code-block">
+<span class="code-comment"># 디스크 용량 확인 (Human-readable)</span>
+[devops@localhost ~]$ <span class="code-cmd">df</span> <span class="code-flag">-h</span>
+
+<span class="code-comment"># 메모리 용량 확인</span>
+[devops@localhost ~]$ <span class="code-cmd">free</span> <span class="code-flag">-h</span>
+                </div>
+              </div>
+            </div>
+  </section>
+  <!-- 20. 📦 패키지 관리자 (APT vs DNF) -->
+  <section class="slide" data-title="📦 패키지 관리자 (APT vs DNF)">
+    <div class="slide-label">20 — 패키지 관리자 APT vs DNF</div>
+    <h1>📦 패키지 관리자 (APT vs DNF)</h1>
+    
+    <p>리눅스 배포판에 따라 사용하는 패키지 관리자가 다릅니다. 현재 사내(또는 실습) OS에 맞는 명령어를 선택하세요.</p>
+
+    <h2>📦 주요 패키지 관리자 비교</h2>
+    <table>
+        <tr>
+            <th>구분</th>
+            <th>APT (Advanced Package Tool)</th>
+            <th>DNF (Dandified YUM)</th>
+        </tr>
+        <tr>
+            <td><strong>주요 배포판</strong></td>
+            <td>Ubuntu, Debian, Linux Mint</td>
+            <td>RHEL, CentOS, Fedora</td>
+        </tr>
+        <tr>
+            <td><strong>설치 명령어</strong></td>
+            <td><code>sudo apt install [패키지]</code></td>
+            <td><code>sudo dnf install [패키지]</code></td>
+        </tr>
+        <tr>
+            <td><strong>업데이트</strong></td>
+            <td><code>sudo apt update && upgrade</code></td>
+            <td><code>sudo dnf update</code></td>
+        </tr>
+    </table>
+
+    <div class="highlight-box">
+        <h3>🛠️ 실습 (git 설치 기준)</h3>
+        <p><strong>Ubuntu 계열:</strong></p>
+        <div class="code-block"><span class="code-cmd">sudo apt</span> <span class="code-flag">update</span> && <span class="code-cmd">sudo apt install</span> git <span class="code-flag">-y</span></div>
+        <p><strong>RHEL 계열:</strong></p>
+        <div class="code-block"><span class="code-cmd">sudo dnf install</span> git <span class="code-flag">-y</span></div>
+    </div>
+  </section>
+  <!-- 21. 📝 텍스트 에디터 (nano & vim) -->
+  <section class="slide" data-title="📝 텍스트 에디터 (nano & vim)">
+    <div class="slide-label">21 — 텍스트 에디터 nano  vim</div>
+    <h1>📝 텍스트 에디터 (nano & vim)</h1>
+            
+            <p>리눅스 터미널 환경에서 파일 내용을 수정하기 위해 사용되는 도구들입니다.</p>
+
+            <div style="display: flex; gap: 20px; align-items: stretch;">
+                <!-- nano -->
+                <div class="highlight-box" style="flex: 1; margin: 0;">
+                    <h3>🌱 입문용: nano</h3>
+                    <p>메모장처럼 직관적이고 사용법이 쉽습니다. 하단에 단축키 안내가 표시되어 초보자에게 권장됩니다.</p>
+                    <img src="../images/images_linux/linux_editor_01_nano.png" style="width: 100%; border-radius: 8px; margin-top: 10px; cursor: pointer;" onclick="showImage(this.src)">
+                </div>
+
+                <!-- vim -->
+                <div class="highlight-box" style="flex: 1; margin: 0;">
+                    <h3>⚡ 표준/전문가용: vi/vim</h3>
+                    <p>거의 모든 리눅스에 내장되어 있습니다. 매우 강력하지만 '모드(Mode)' 개념이 있어 학습이 필요합니다.</p>
+                    <img src="../images/images_linux/linux_editor_02_vim.png" style="width: 100%; border-radius: 8px; margin-top: 10px; cursor: pointer;" onclick="showImage(this.src)">
+                </div>
+            </div>
+
+            <details class="highlight-box" style="margin-top: 20px;">
+                <summary><h3>💡 에디터 설치하기</h3></summary>
+                <div>
+                    <p>만약 해당 에디터들이 설치되어 있지 않다면 아래 명령어로 설치할 수 있습니다.</p>
+                    <div class="code-block" style="margin-top: 10px;">
+<span class="code-comment"># Ubuntu (APT)</span>
+<span class="code-cmd">sudo apt install</span> nano vim <span class="code-flag">-y</span>
+
+<span class="code-comment"># RHEL (DNF)</span>
+<span class="code-cmd">sudo dnf install</span> nano vim <span class="code-flag">-y</span>
+                    </div>
+                </div>
+            </details>
+
+            <details class="highlight-box" style="margin-top: 20px;">
+                <summary><h3>💡 VI/VIM 핵심 모드 안내</h3></summary>
+                <div>
+                    <ul>
+                        <li><span class="keyword">명령 모드(Normal Mode)</span>: 기본 상태. 커서 이동, 삭제, 복사 가능</li>
+                        <li><span class="important">입력 모드(Insert Mode)</span>: <code>i</code>를 눌러 진입. 글자 입력 가능</li>
+                        <li><span class="keyword">명령어 라인 모드(Command Line Mode)</span>: <code>:</code>를 눌러 진입. 저장(w), 종료(q) 등 수행</li>
+                    </ul>
+                </div>
+            </details>
+  </section>
+  <!-- 22. 📝 nano 에디터 사용법 -->
+  <section class="slide" data-title="📝 nano 에디터 사용법">
+    <div class="slide-label">22 — nano 에디터 사용법</div>
+    <h1>📝 nano 에디터 사용법</h1>
+            <p>가장 직관적이고 쉬운 터미널 에디터입니다.</p>
+
+            <h3>주요 단축키 (화면 하단 참고)</h3>
+            <ul>
+                <li><span class="keyword">Ctrl + O</span>: 저장 (WriteOut)</li>
+                <li><span class="keyword">Ctrl + X</span>: 종료 (Exit)</li>
+                <li><span class="keyword">Ctrl + K</span>: 한 줄 잘라내기 (Cut)</li>
+                <li><span class="keyword">Ctrl + U</span>: 붙여넣기 (Uncut)</li>
+                <li><span class="keyword">Ctrl + W</span>: 찾기 (Where is)</li>
+            </ul>
+
+            <h3 style="margin-top: 30px;">🛠️ 실습 예시</h3>
+            <div class="code-block" style="margin-top: 10px;">
+<span class="code-comment"># 1. 파일 열기</span>
+[devops@localhost ~]$ <span class="code-cmd">nano</span> <span class="code-str">nano_sample.txt</span>
+
+<span class="code-comment"># 2. 내용 입력 (편집기 내부에서 작성)</span>
+devops!
+
+Hello World!
+
+<span class="code-comment"># 3. 저장 및 종료</span>
+<span class="code-comment"># Ctrl + O (WriteOut) -> Enter (파일명 확인) -> Ctrl + X (Exit)</span>
+
+<span class="code-comment"># 4. 저장된 내용 확인</span>
+[devops@localhost ~]$ <span class="code-cmd">cat</span> <span class="code-str">nano_sample.txt</span>
+devops!
+
+Hello World!
+            </div>
+            <details class="highlight-box" style="margin-top: 20px;">
+                <summary><h3>💡 nano 단축키 표기 읽는 법</h3></summary>
+                <div>
+                    <p><code>nano</code> 하단에 표시되는 <code>^O</code>, <code>^X</code> 기호에서 <code>^</code>는 <span class="keyword">Ctrl</span> 키를 의미합니다. 즉, <code>^O</code>는 <code>Ctrl + O</code>를 함께 누르라는 뜻입니다.</p>
+                </div>
+            </details>
+  </section>
+  <!-- 23. ⚡ vim 에디터 사용법 -->
+  <section class="slide" data-title="⚡ vim 에디터 사용법">
+    <div class="slide-label">23 — vim 에디터 사용법</div>
+    <h1>⚡ vim 에디터 사용법</h1>
+            <p>'모드'를 전환하며 사용하는 강력한 에디터입니다.</p>
+
+            <div style="display: flex; gap: 20px;">
+                <div class="highlight-box" style="flex: 1; margin: 0;">
+                    <h3>🛠️ 핵심 커맨드</h3>
+                    <ul>
+                        <li><span class="keyword">i</span>: 입력 모드로 전환</li>
+                        <li><span class="keyword">Esc</span>: 다시 명령 모드로 복귀</li>
+                        <li><span class="keyword">:w</span>: 파일 저장</li>
+                        <li><span class="keyword">:q</span>: 종료 (저장 안됐으면 에러)</li>
+                        <li><span class="important">:wq</span>: 저장하고 종료</li>
+                        <li><span class="important">:q!</span>: 저장하지 않고 강제 종료</li>
+                    </ul>
+                </div>
+                <div class="highlight-box" style="flex: 1; margin: 0;">
+                    <h3>⌨️ 편집 편의 기능</h3>
+                    <ul>
+                        <li><span class="keyword">dd</span>: 현재 줄 삭제 (명령 모드)</li>
+                        <li><span class="keyword">yy</span>: 현재 줄 복사 (명령 모드)</li>
+                        <li><span class="keyword">p</span>: 아래 줄에 붙여넣기 (명령 모드)</li>
+                        <li><span class="keyword">u</span>: 실행 취소 (Undo)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-box" style="margin-top: 20px;">
+                <p>💡 <strong>기억하세요!</strong> 처음 vim을 켜면 아무 글자도 써지지 않습니다. 반드시 <span class="important">i</span>를 눌러 <strong>-- INSERT --</strong> 상태가 되었는지 확인하세요.</p>
+            </div>
+
+            <h3 style="margin-top: 30px;">🛠️ 실습 예시</h3>
+            <div class="code-block" style="margin-top: 10px;">
+<span class="code-comment"># 1. 파일 열기</span>
+[devops@localhost ~]$ <span class="code-cmd">vi</span> <span class="code-str">vim_sample.txt</span>
+<span class="code-comment"># 혹은</span>
+[devops@localhost ~]$ <span class="code-cmd">vim</span> <span class="code-str">vim_sample.txt</span>
+
+<span class="code-comment"># 2. 입력 모드 전환 및 내용 입력</span>
+<span class="code-comment"># 'i' 키 누르기 -> 아래에 -- INSERT -- 확인</span>
+devops!
+
+Hello World!
+
+<span class="code-comment"># 3. 저장 및 종료</span>
+<span class="code-comment"># Esc 키 누르기 (명령 모드) -> :wq 입력 -> Enter</span>
+
+<span class="code-comment"># 4. 저장된 내용 확인</span>
+[devops@localhost ~]$ <span class="code-cmd">cat</span> <span class="code-str">vim_sample.txt</span>
+devops!
+
+Hello World!
+            </div>
+  </section>
+  <!-- 24. 🌐 네트워크 명령어 -->
+  <section class="slide" data-title="🌐 네트워크 명령어">
+    <div class="slide-label">24 — 네트워크 명령어</div>
+    <h1>🌐 네트워크 명령어</h1>
+            <p>서버 연동 상태와 API 응답을 터미널에서 직접 테스트하고 포트 상태를 점검합니다.</p>
+            <div class="split-layout">
+              <div>
+                <h2>📡 웹 요청 (curl, wget)</h2>
+                <p>API 응답 테스트 및 파일 다운로드 도구입니다.</p>
+                <div class="code-block">
+<span class="code-comment"># 1. API 응답 확인 (헤더 포함)</span>
+[devops@localhost ~]$ <span class="code-cmd">curl</span> <span class="code-flag">-i</span> <span class="code-str">https://jsonplaceholder.typicode.com/users/1</span>
+
+<span class="code-comment"># 2. 웹상 파일 다운로드</span>
+[devops@localhost ~]$ <span class="code-cmd">wget</span> <span class="code-str">https://example.com/file.tar.gz</span>
+                </div>
+              </div>
+              <div>
+                <h2>🔌 포트 및 통신 상태 확인 (netstat, ss)</h2>
+                <p>어떤 프로그램이 몇 번 포트에서 대기(Listen) 중인지 확인합니다.</p>
+                <div class="code-block">
+<span class="code-comment"># 사용 중인 포트와 프로그램 목록</span>
+[devops@localhost ~]$ <span class="code-cmd">netstat</span> <span class="code-flag">-tlnp</span>
+
+<span class="code-comment"># netstat의 최신 대안 (빠르고 간결함)</span>
+[devops@localhost ~]$ <span class="code-cmd">ss</span> <span class="code-flag">-tlnp</span>
+                </div>
+                <div class="highlight-box">
+                    <p>💡 <code>-tlnp</code> 옵션: <strong>t</strong>(TCP), <strong>l</strong>(Listening state), <strong>n</strong>(숫자로 표시), <strong>p</strong>(프로세스 ID 표시)의 조합입니다.</p>
+                </div>
+              </div>
+            </div>
+  </section>
+  <!-- 25. 🔎 텍스트 처리 명령어 -->
+  <section class="slide" data-title="🔎 텍스트 처리 명령어">
+    <div class="slide-label">25 — 텍스트 처리 명령어</div>
+    <h1>🔎 텍스트 처리 명령어 (로그 분석)</h1>
+            <p>서버 로그를 분석하거나 엄청난 양의 텍스트 속에서 원하는 내용만 뽑아낼 때 사용하는 필수 조합입니다.</p>
+
+            <h2>🔍 텍스트 필터링 (grep)</h2>
+            <p>내가 원하는 패턴이 포함된 줄만 골라냅니다.</p>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">grep</span> <span class="code-str">"ERROR"</span> /var/log/messages
+<span class="code-comment"># 대소문자 구분 없이 검색 (-i)</span>
+[devops@localhost ~]$ <span class="code-cmd">grep</span> <span class="code-flag">-i</span> <span class="code-str">"failed"</span> /var/log/secure
+            </div>
+
+            <h2>📝 실시간 로그 추적 (tail -f)</h2>
+            <p>파일의 마지막 부분만 출력하는 <code>tail</code> 명령어에 <code>-f</code> (follow) 옵션을 붙여 실시간 업데이트를 모니터링합니다. (종료: Ctrl + C)</p>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">tail</span> <span class="code-flag">-f</span> /var/log/syslog
+            </div>
+
+            <h2>🔗 파이프라인 (|) 활용</h2>
+            <p>앞 명령어의 출력을 뒤 명령어의 입력으로 전달하여 조합합니다.</p>
+            <div class="code-block">
+[devops@localhost ~]$ <span class="code-cmd">cat</span> /var/log/messages | <span class="code-cmd">grep</span> <span class="code-str">"kernel"</span>
+[devops@localhost ~]$ <span class="code-cmd">ps</span> <span class="code-flag">aux</span> | <span class="code-cmd">grep</span> <span class="code-str">"nginx"</span>
+            </div>
+  </section>
+  <!-- 26. 🚀 권한 & 사용자 및 실습 -->
+  <section class="slide" data-title="🚀 권한 & 사용자">
+    <div class="slide-label">26 — 권한 & 사용자</div>
+    <h1>🚀 권한 & 사용자</h1>
+            <div class="split-layout">
+              <div>
+                <h2>🔑 관리자 권한 (sudo)</h2>
+                <p>보안을 위해 <strong>강한 권한이 필요한 순간에만</strong> 관리자(root) 권한을 빌려 패키지 설치나 관리 작업을 수행합니다.</p>
+                <div class="code-block" style="padding:10px; font-size:15px;">
+<span class="code-comment"># Ubuntu (APT)</span>
+$ <span class="code-cmd">sudo apt install</span> git <span class="code-flag">-y</span>
+
+<span class="code-comment"># RHEL (DNF)</span>
+$ <span class="code-cmd">sudo dnf install</span> git <span class="code-flag">-y</span>
+                </div>
+                <div class="highlight-box" style="margin-top:20px; padding:15px;">
+                    <h3 style="margin-top:0;">🛡️ 권한의 3요소 (r, w, x)</h3>
+                    <ul style="font-size:16px;">
+                        <li><code>r</code> (Read, 4) - 읽기 권한</li>
+                        <li><code>w</code> (Write, 2) - 쓰기 권한</li>
+                        <li><code>x</code> (Execute, 1) - 실행 권한</li>
+                        <li>예: <code>chmod 755 file</code></li>
+                    </ul>
+                </div>
+              </div>
+              <div>
+                <h2>🔐 권한 및 소유권 변경</h2>
+                <p>리눅스 파일의 권한을 변경하거나 소유자를 바꿉니다.</p>
+                <div class="code-block" style="padding:10px; font-size:15px;">
+<span class="code-comment"># 실행 권한 부여 (chmod)</span>
+[devops@localhost ~]$ <span class="code-cmd">chmod</span> <span class="code-flag">+x</span> script.sh
+
+<span class="code-comment"># 소유자 변경 (chown)</span>
+[devops@localhost ~]$ <span class="code-cmd">sudo chown</span> user:group file.txt
+                </div>
+              </div>
+            </div>
+  </section>
+  <!-- 27. 🎯 핵심 정리 & 실습 시나리오 -->
+  <section class="slide" data-title="🎯 핵심 정리 & 실습 시나리오">
+    <div class="slide-label">27 — 핵심 정리 & 실습 시나리오</div>
+    <h1>🎯 핵심 정리 & 실습 시나리오</h1>
+    
+    <h2>✅ 리눅스 생존 명령어 체크리스트</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+        <div class="highlight-box" style="flex: 1; min-width: 280px; margin: 0;">
+            <h3>📂 파일 탐색 & 제어</h3>
+            <ul>
+                <li><strong>목록/위치:</strong> <code>ls -la</code>, <code>pwd</code>, <code>cd</code></li>
+                <li><strong>검색/보기:</strong> <code>find</code>, <code>cat</code>, <code>less</code></li>
+                <li><strong>관리:</strong> <code>mkdir</code>, <code>touch</code>, <code>cp</code>, <code>mv</code>, <code>rm -rf</code></li>
+            </ul>
+        </div>
+        <div class="highlight-box" style="flex: 1; min-width: 280px; margin: 0;">
+            <h3>⚙️ 프로세스 & 시스템</h3>
+            <ul>
+                <li><strong>확인:</strong> <code>ps aux</code>, <code>top</code>/<code>htop</code></li>
+                <li><strong>강제종료:</strong> <code>kill -9 [PID]</code></li>
+                <li><strong>자원:</strong> <code>df -h</code>(디스크), <code>free -h</code>(메모리)</li>
+            </ul>
+        </div>
+        <div class="highlight-box" style="flex: 1; min-width: 280px; margin: 0;">
+            <h3>🌐 네트워크 & 텍스트</h3>
+            <ul>
+                <li><strong>통신:</strong> <code>curl</code>, <code>wget</code>, <code>netstat -tlnp</code>, <code>ss -tlnp</code></li>
+                <li><strong>필터:</strong> <code>grep</code>, <code>tail -f</code>, <code>|</code>(파이프)</li>
+                <li><strong>권한:</strong> <code>chmod</code>, <code>chown</code>, <code>sudo</code></li>
+            </ul>
+        </div>
+        <div class="highlight-box" style="flex: 1; min-width: 280px; margin: 0;">
+            <h3>📦 패키지 관리</h3>
+            <ul>
+                <li><strong>Ubuntu:</strong> <code>apt install [패키지]</code></li>
+                <li><strong>RHEL:</strong> <code>dnf install [패키지]</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:20px; border-left-color: #f472b6;">
+        <p>💡 <strong>DevOps 엔지니어의 습관:</strong> 명령어를 실행하기 전 <code>pwd</code>를 확인하고, 긴 로그는 <code>grep</code>이나 <code>less</code>로 필요한 부분만 봅니다. 모든 것은 파일이며, 텍스트가 곧 설정입니다.</p>
+    </div>
+  </section>
+</main>
+
+<!-- NAV -->
+<div class="nav-arrows">
+  <button class="nav-btn" id="btnPrev" onclick="navigate(-1)" title="이전 (←)">←</button>
+  <button class="nav-btn" id="btnNext" onclick="navigate(1)" title="다음 (→)">→</button>
+</div>
+
+<div class="key-hint">
+  <kbd>←</kbd><kbd>→</kbd> 이동 &nbsp;·&nbsp; <kbd>T</kbd> 테마
+</div>
+
+<!-- IMAGE MODAL -->
+<div id="imageModal" class="image-modal" onclick="closeImageModal()">
+  <span class="close-modal">&times;</span>
+  <img class="modal-content" id="modalImage">
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const tocItems = Array.from(document.querySelectorAll('.toc-item'));
+  let current = -1;
+
+  document.getElementById('totNum').textContent = slides.length;
+
+  function goSlide(idx) {
+    if (idx < 0 || idx >= slides.length || idx === current) return;
+
+    if (current >= 0) {
+      const prev = slides[current];
+      prev.classList.add('exit');
+      setTimeout(() => prev.classList.remove('exit'), 500);
+      prev.classList.remove('active');
+    }
+
+    current = idx;
+    slides[current].classList.add('active');
+    slides[current].scrollTop = 0;
+
+    tocItems.forEach((el, i) => el.classList.toggle('active', i === current));
+    const activeTocItem = tocItems[current];
+    if (activeTocItem) activeTocItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+    document.getElementById('curNum').textContent = current + 1;
+    const pct = ((current + 1) / slides.length) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+
+    document.getElementById('btnPrev').disabled = current === 0;
+    document.getElementById('btnNext').disabled = current === slides.length - 1;
+
+    if (window.innerWidth <= 768) document.body.classList.remove('sidebar-open');
+  }
+
+  function navigate(dir) { goSlide(current + dir); }
+
+  function toggleSidebar() {
+    document.body.classList.toggle('sidebar-open');
+  }
+
+  let isDark = localStorage.getItem('devops-theme') !== 'light';
+  function applyTheme() {
+    document.documentElement.classList.toggle('light', !isDark);
+    const label = document.getElementById('themeLabel');
+    const thumb = document.querySelector('.toggle-thumb');
+    if (isDark) {
+      label.textContent = '🌙 다크 모드';
+      thumb.textContent = '🌙';
+    } else {
+      label.textContent = '☀️ 라이트 모드';
+      thumb.textContent = '☀️';
+    }
+  }
+  function toggleTheme() {
+    isDark = !isDark;
+    localStorage.setItem('devops-theme', isDark ? 'dark' : 'light');
+    applyTheme();
+  }
+  applyTheme();
+
+  function showImage(src) {
+    const modal = document.getElementById('imageModal');
+    document.getElementById('modalImage').src = src;
+    modal.style.display = 'block';
+    document.addEventListener('keydown', handleEscKey);
+  }
+  function closeImageModal() {
+    document.getElementById('imageModal').style.display = 'none';
+    document.removeEventListener('keydown', handleEscKey);
+  }
+  function handleEscKey(e) { if (e.key === 'Escape') closeImageModal(); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   navigate(-1);
+    if (e.key === 't' || e.key === 'T') toggleTheme();
+    if (e.key === 'Escape') closeImageModal();
+  });
+
+  // --- Code Block Enhancements (Copy & Lang Tag) ---
+  document.querySelectorAll('.code-block').forEach(block => {
+    const container = document.createElement('div');
+    container.className = 'code-block-container';
+    block.parentNode.insertBefore(container, block);
+    container.appendChild(block);
+
+    let lang = block.dataset.lang;
+    if (!lang) {
+      const text = block.textContent;
+      if (text.includes('FROM ') || text.includes('RUN ') || text.includes('COPY ')) lang = 'Dockerfile';
+      else if (text.includes('services:') || text.includes('version:') || text.includes('image:')) lang = 'YAML';
+      else if (text.includes('server {') || text.includes('location ')) lang = 'Nginx';
+      else if (text.includes('import ') || text.includes('def ')) lang = 'Python';
+      else if (text.includes('npm ') || text.includes('node ')) lang = 'Node.js';
+      else if (text.includes('[devops@') || text.includes('$ ') || text.includes('sudo ')) lang = 'Bash';
+      else lang = 'Code';
+    }
+
+    const tag = document.createElement('div');
+    tag.className = 'code-lang-tag';
+    tag.textContent = lang;
+    container.appendChild(tag);
+
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> <span>Copy</span>`;
+    btn.onclick = () => {
+      const textToCopy = block.innerText;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const span = btn.querySelector('span');
+        btn.classList.add('copied');
+        span.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          span.textContent = 'Copy';
+        }, 2000);
+      });
+    };
+    container.appendChild(btn);
+  });
+
+  goSlide(0);
+</script>
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "403d66d8aa9e4d8e9c2370d257f0c9b6"}'></script>
+</body>
+</html>

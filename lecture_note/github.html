@@ -1,0 +1,2018 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git & GitHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --sidebar-bg: #0f0f1a;
+    --sidebar-w: 280px;
+    --accent: #6ee7b7;
+    --accent2: #818cf8;
+    --accent3: #f472b6;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --border: rgba(255,255,255,0.07);
+    --slide-transition: 0.5s cubic-bezier(0.4,0,0.2,1);
+    --card-bg: rgba(255,255,255,0.03);
+    --card-hover-bg: rgba(255,255,255,0.055);
+    --toc-hover: rgba(255,255,255,0.04);
+    --toc-active: rgba(110,231,183,0.08);
+    --stat-bg: rgba(255,255,255,0.025);
+    --bar-track: rgba(255,255,255,0.05);
+    --kbd-bg: rgba(255,255,255,0.06);
+    --nav-bg: rgba(255,255,255,0.06);
+    --shadow: none;
+    --code-bg: #0d1117;
+    --code-text: #e6edf3;
+    --highlight-bg: rgba(110,231,183,0.05);
+    --highlight-border: rgba(110,231,183,0.3);
+    --table-header: rgba(255,255,255,0.05);
+    --table-row-alt: rgba(255,255,255,0.02);
+    --table-border: rgba(255,255,255,0.08);
+  }
+
+  html.light {
+    --bg: #f5f5f0;
+    --sidebar-bg: #eeeee8;
+    --accent: #059669;
+    --accent2: #4f46e5;
+    --accent3: #db2777;
+    --text: #1e293b;
+    --text-muted: #94a3b8;
+    --border: rgba(0,0,0,0.09);
+    --card-bg: rgba(255,255,255,0.7);
+    --card-hover-bg: rgba(255,255,255,0.95);
+    --toc-hover: rgba(0,0,0,0.04);
+    --toc-active: rgba(5,150,105,0.08);
+    --stat-bg: rgba(255,255,255,0.6);
+    --bar-track: rgba(0,0,0,0.07);
+    --kbd-bg: rgba(0,0,0,0.06);
+    --nav-bg: rgba(255,255,255,0.7);
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --code-bg: #1e2530;
+    --code-text: #e6edf3;
+    --highlight-bg: rgba(5,150,105,0.06);
+    --highlight-border: rgba(5,150,105,0.3);
+    --table-header: rgba(0,0,0,0.05);
+    --table-row-alt: rgba(0,0,0,0.02);
+    --table-border: rgba(0,0,0,0.1);
+  }
+
+  *, *::before, *::after {
+    transition-property: background, background-color, border-color, color, box-shadow;
+    transition-duration: 0.35s;
+    transition-timing-function: ease;
+  }
+  .slide { transition: opacity var(--slide-transition), transform var(--slide-transition) !important; }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 10;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .brand-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, rgba(110,231,183,0.2), rgba(129,140,248,0.2));
+    border: 1px solid rgba(110,231,183,0.3);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .brand-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .brand-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .home-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(110,231,183,0.07);
+    border: 1px solid rgba(110,231,183,0.18);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--accent);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    text-decoration: none;
+    transition: all 0.2s;
+    margin-bottom: 8px;
+  }
+  .home-btn:hover {
+    background: rgba(110,231,183,0.14);
+    border-color: rgba(110,231,183,0.35);
+    transform: translateX(2px);
+  }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .theme-toggle:hover { background: var(--toc-hover); }
+  .theme-label {
+    font-size: 16px;
+    color: var(--text-muted);
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .toggle-track {
+    width: 32px; height: 18px;
+    border-radius: 9px;
+    background: var(--accent2);
+    position: relative;
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  html.light .toggle-track { background: #f59e0b; }
+  .toggle-thumb {
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    font-size: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  html.light .toggle-thumb { transform: translateX(14px); }
+
+  .toc-label {
+    padding: 20px 20px 10px;
+    font-size: 16px;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .toc-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 10px 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 1px;
+    position: relative;
+  }
+  .toc-item:hover { background: var(--toc-hover); }
+  .toc-item.active { background: var(--toc-active); }
+  .toc-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 2px; height: 55%;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .toc-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--text-muted);
+    min-width: 22px;
+    transition: color 0.2s;
+  }
+  .toc-item.active .toc-num { color: var(--accent); }
+
+  .toc-text {
+    font-size: 15px;
+    color: #94a3b8;
+    line-height: 1.35;
+    transition: color 0.2s;
+  }
+  .toc-item.active .toc-text,
+  .toc-item:hover .toc-text { color: var(--text); }
+
+  .toc-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .toc-item.active .toc-dot { background: var(--accent); box-shadow: 0 0 5px var(--accent); }
+
+  .sidebar-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .slide-counter {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .slide-counter span { color: var(--accent); font-weight: 700; }
+
+  .progress-bar {
+    width: 70px; height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 1px;
+    transition: width 0.4s ease !important;
+  }
+
+  /* ── MAIN ── */
+  #main {
+    flex: 1;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 52px 68px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity var(--slide-transition), transform var(--slide-transition);
+    pointer-events: none;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateY(-28px);
+  }
+
+  /* ── SLIDE: HOME ── */
+  .slide-home {
+    background: radial-gradient(ellipse at 25% 50%, rgba(110,231,183,0.06) 0%, transparent 55%),
+                radial-gradient(ellipse at 78% 18%, rgba(129,140,248,0.08) 0%, transparent 50%),
+                var(--bg);
+    justify-content: center;
+  }
+
+  .slide-home .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .slide-home h1 {
+    font-size: clamp(34px, 4.5vw, 60px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.35s forwards;
+  }
+
+  .slide-home h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .slide-home p.subtitle {
+    font-size: 18px;
+    color: #94a3b8;
+    max-width: 520px;
+    line-height: 1.75;
+    margin-bottom: 36px;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.5s forwards;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.65s forwards;
+  }
+
+  .meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 16px;
+    color: var(--text-muted);
+  }
+  .meta-chip .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .deco-grid {
+    position: absolute;
+    right: 60px; top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    opacity: 0;
+    animation: fadeIn 1s 0.8s forwards;
+    pointer-events: none;
+  }
+  .deco-cell {
+    width: 44px; height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .deco-cell:nth-child(3n) { background: rgba(110,231,183,0.05); border-color: rgba(110,231,183,0.15); }
+  .deco-cell:nth-child(5n) { background: rgba(129,140,248,0.05); border-color: rgba(129,140,248,0.15); }
+
+  /* ── SLIDE: COMMON ── */
+  .slide-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--accent2);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .slide h1 {
+    font-size: clamp(26px, 3vw, 42px);
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+  }
+
+  .slide h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 28px;
+    margin-bottom: 12px;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .slide h2::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 18px;
+    background: var(--accent2);
+    margin-right: 10px;
+    border-radius: 2px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+  }
+
+  .slide h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+
+  .slide p {
+    font-size: 18px;
+    line-height: 1.8;
+    color: #94a3b8;
+    margin-bottom: 14px;
+  }
+  html.light .slide p { color: #475569; }
+
+  .slide ul, .slide ol {
+    margin-left: 20px;
+    margin-bottom: 18px;
+  }
+
+  .slide li {
+    font-size: 18px;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+  html.light .slide li { color: #475569; }
+
+  .slide li strong { color: var(--text); }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 18px 20px;
+    border-radius: 10px;
+    margin: 14px 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    overflow: visible;
+    flex-shrink: 0;
+  }
+  .code-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+    border-radius: 10px 10px 0 0;
+    opacity: 0.4;
+  }
+  .code-comment { color: #6e7681; }
+  .code-cmd { color: var(--accent); font-weight: 700; }
+  .code-flag { color: var(--accent2); }
+  .code-str { color: #a5d6ff; }
+
+  /* ── HIGHLIGHT / INFO / WARNING BOX ── */
+  .highlight-box {
+    background: var(--highlight-bg);
+    border-left: 3px solid var(--accent);
+    padding: 18px 20px;
+    margin: 16px 0;
+    border-radius: 0 10px 10px 0;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+  }
+  .highlight-box h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  .highlight-box p, .highlight-box li {
+    font-size: 18px;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+  html.light .highlight-box p, html.light .highlight-box li { color: #475569; }
+
+  .info-box {
+    background: var(--highlight-bg);
+    padding: 18px 20px;
+    margin: 16px 0;
+    border-radius: 0 10px 10px 0;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+  }
+  .info-box p, .info-box li {
+    font-size: 18px;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+  html.light .info-box p, html.light .info-box li { color: #475569; }
+
+  .warning-box {
+    background: rgba(245, 158, 11, 0.05);
+    padding: 18px 20px;
+    margin: 16px 0;
+    border-radius: 0 10px 10px 0;
+    border: 1px solid var(--border);
+    border-left: 3px solid #f59e0b;
+  }
+  .warning-box p, .warning-box li {
+    font-size: 18px;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+
+  /* ── CMD GRID (2-col command reference) ── */
+  .cmd-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .cmd-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    transition: all 0.2s;
+  }
+  .cmd-card:hover {
+    background: var(--card-hover-bg);
+    border-color: rgba(110,231,183,0.25);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+  .cmd-card h4 {
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .cmd-card p {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.55;
+  }
+
+  /* ── TABLE ── */
+  .slide table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 16px;
+  }
+  .slide table th {
+    padding: 11px 14px;
+    background: var(--table-header);
+    border: 1px solid var(--table-border);
+    color: var(--text);
+    font-weight: 600;
+    text-align: center;
+    font-size: 16px;
+    letter-spacing: 0.03em;
+  }
+  .slide table td {
+    padding: 10px 14px;
+    border: 1px solid var(--table-border);
+    color: #94a3b8;
+    font-size: 16px;
+    line-height: 1.6;
+    vertical-align: top;
+  }
+  html.light .slide table td { color: #475569; }
+  .slide table tr:nth-child(even) td { background: var(--table-row-alt); }
+  .slide table tr:hover td { background: var(--toc-hover); }
+  .slide table td strong { color: var(--text); font-weight: 600; }
+  .slide table td code {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    background: rgba(110,231,183,0.08);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  /* ── KEYWORD / BADGE ── */
+  .keyword {
+    background: rgba(110,231,183,0.12);
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.95em;
+    border: 1px solid rgba(110,231,183,0.2);
+  }
+  .important { color: var(--accent3); font-weight: 700; }
+
+  /* ── STEP LIST ── */
+  .step-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .step-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .step-num {
+    min-width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #0a0a0f;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-content strong { color: var(--text); display: block; font-size: 17px; margin-bottom: 4px; }
+  .step-content span { font-size: 16px; color: var(--text-muted); }
+
+  /* ── NAV ARROWS ── */
+  .nav-arrows {
+    position: fixed;
+    bottom: 28px;
+    right: 36px;
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+  .nav-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--nav-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-size: 14px;
+    box-shadow: var(--shadow);
+  }
+  .nav-btn:hover {
+    background: rgba(110,231,183,0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+
+  .key-hint {
+    position: fixed;
+    bottom: 32px; left: calc(var(--sidebar-w) + 20px);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 16px;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .key-hint kbd {
+    padding: 1px 5px;
+    background: var(--kbd-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+  }
+
+  /* ── CODE BLOCK ENHANCEMENTS ── */
+  .code-block-container {
+    position: relative;
+    margin: 14px 0;
+    overflow: visible;
+  }
+  .code-block {
+    margin: 0 !important;
+    padding-top: 36px !important;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-lang-tag {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: var(--accent2);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 9px 0 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 5;
+    pointer-events: none;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  }
+  .copy-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .copy-btn:hover {
+    background: rgba(110,231,183,0.15);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .copy-btn.copied {
+    background: rgba(110,231,183,0.2);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  html.light .copy-btn {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.1);
+  }
+  html.light .copy-btn:hover {
+    background: rgba(5,150,105,0.1);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* 이미지 확대 모달 */
+  .image-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0; top: 0; width: 100%; height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.85);
+    animation: fadeIn 0.3s;
+  }
+  .image-modal .modal-content {
+    margin: auto;
+    display: block;
+    width: 95%; max-width: 1400px; max-height: 90%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    animation: zoomIn 0.3s;
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  @keyframes zoomIn {
+    from {transform: translate(-50%, -50%) scale(0.8); opacity: 0;}
+    to {transform: translate(-50%, -50%) scale(1); opacity: 1;}
+  }
+  .close-modal {
+    position: absolute; top: 20px; right: 35px;
+    color: #f1f1f1; font-size: 40px; font-weight: bold;
+    transition: 0.3s; cursor: pointer; z-index: 2001;
+  }
+  .card-img {
+    width: 100%; max-width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s; cursor: pointer;
+  }
+  .card-img:hover { transform: scale(1.02); }
+
+  /* ── MOBILE ── */
+  .menu-toggle {
+    display: none;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 300;
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 20px;
+    align-items: center; justify-content: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    backdrop-filter: blur(8px);
+  }
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 150;
+  }
+  @media (max-width: 768px) {
+    .menu-toggle { display: flex; }
+    #sidebar {
+      position: fixed;
+      left: 0; top: 0;
+      height: 100vh;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease !important;
+      z-index: 200;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+    }
+    body.sidebar-open #sidebar { transform: translateX(0); }
+    body.sidebar-open .sidebar-overlay { display: block; }
+    .slide { padding: 56px 20px 80px; }
+    .nav-arrows { right: 16px; bottom: 16px; }
+    .key-hint { display: none; }
+  }
+  @media (max-width: 480px) {
+    .slide { padding: 56px 14px 80px; }
+    .slide h2 { font-size: 22px !important; }
+    .nav-btn { width: 44px; height: 44px; font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="toggleSidebar()" aria-label="메뉴 열기">☰</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🐙</div>
+      <div>
+        <div class="brand-text">Git & GitHub 가이드</div>
+        <div class="brand-sub">General Git & GitHub Guide</div>
+      </div>
+    </div>
+    <a class="home-btn" href="../" title="홈으로">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      홈으로
+    </a>
+    <div class="theme-toggle" onclick="toggleTheme()">
+      <span class="theme-label" id="themeLabel">🌙 다크 모드</span>
+      <div class="toggle-track"><div class="toggle-thumb">🌙</div></div>
+    </div>
+  </div>
+
+  <div class="toc-label">목 차</div>
+  <div class="toc-list" id="tocList"></div>
+
+  <div class="sidebar-footer">
+    <div class="slide-counter"><span id="curNum">1</span> / <span id="totNum">1</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</nav>
+
+<main id="main">
+
+  <!-- 0. HOME -->
+  <section class="slide slide-home" data-title="Git & GitHub 시작하기">
+    <div class="eyebrow">— DevOps Lecture 2026 · Introduction to Git & GitHub</div>
+    <h1>🐙 <em>Git & GitHub</em> 가이드</h1>
+    <p class="subtitle">Git의 기본 원리부터 GitHub를 이용한 실전 협업 워크플로우까지, DevOps 엔지니어의 필수 도구를 학습합니다.</p>
+    <div class="meta-row">
+      <div class="meta-chip"><span class="dot"></span> 2026 DevOps</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 22 슬라이드</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent3)"></span> Version Control System</div>
+    </div>
+    <div class="deco-grid">
+      <div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div>
+      <div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div>
+      <div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div>
+      <div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div>
+    </div>
+  </section>
+
+        <!-- Slide 1: 강의 소개 -->
+
+  <!-- 1. Git이란 무엇인가? -->
+  <section class="slide" data-title="Git이란 무엇인가?">
+    <div class="slide-label">01 — Git이란 무엇인가?</div>
+    <h1>📚 Git이란 무엇인가?</h1>
+    
+    <h2>Git의 정의</h2>
+    <div class="highlight-box">
+      <p><strong>Git</strong>은 컴퓨터 파일의 변경사항을 추적하고 여러 명의 사용자들 간에 해당 파일들의 작업을 조율하기 위한 <span class="important">분산 버전 관리 시스템(DVCS)</span>입니다.</p>
+      <p style="margin-top: 10px; font-size: 16px; color: var(--text-muted);"><strong>DVCS</strong> : Distributed Version Control System</p>
+      <p style="margin-top: 10px; font-size: 16px; color: var(--text-muted);">🐧 2005년 <strong>리누스 토발즈(Linus Torvalds)</strong>가 리눅스 커널 개발을 위해 만들었으며, 현재 세계에서 가장 널리 사용되는 버전 관리 시스템입니다.</p>
+    </div>
+
+    <h2>💡 왜 Git을 사용해야 할까요?</h2>
+    <ul>
+      <li><strong>⏱️ 효율적인 협업:</strong> 누가, 언제, 무엇을 변경했는지 기록하고 충돌을 방지합니다.</li>
+      <li><strong>🔙 과거로의 여행:</strong> 언제든지 이전 버전의 코드로 되돌릴 수 있습니다. (Time Machine)</li>
+      <li><strong>🔀 안전한 실험:</strong> '브랜치'를 만들어 원본 코드에 영향 없이 새로운 기능을 개발할 수 있습니다.</li>
+      <li><strong>🛡️ 데이터 백업:</strong> 원격 저장소(GitHub 등)에 코드를 안전하게 보관합니다.</li>
+    </ul>
+
+    <h2>Git vs GitHub</h2>
+    <table>
+      <tr><th>구분</th><th>Git</th><th>GitHub</th></tr>
+      <tr><td>정의</td><td>버전 관리 소프트웨어 (Tool)</td><td>Git 저장소 호스팅 서비스 (Cloud)</td></tr>
+      <tr><td>설치</td><td>로컬 컴퓨터에 설치 필요</td><td>웹 브라우저로 접속</td></tr>
+      <tr><td>용도</td><td>소스 코드 버전 관리</td><td>협업, 백업, 코드 리뷰, 이슈 트래킹</td></tr>
+    </table>
+
+    <h2>Git의 3가지 영역 (Workflow)</h2>
+    <div class="code-block" style="font-size: 14px; line-height: 1.8;">
+1. Working Directory (작업 공간) : 실제 파일을 수정하는 곳
+        ↓ (git add)
+2. Staging Area (임시 저장소) : 커밋할 파일들을 골라놓는 곳
+        ↓ (git commit)
+3. Repository (저장소) : 버전이 영구적으로 저장되는 곳</div>
+  </section>
+
+  <!-- 2. Git 설치 -->
+  <section class="slide" data-title="Git 설치">
+    <div class="slide-label">02 — Git 설치</div>
+    <h1>⚙️ Git 설치</h1>
+
+    <h2>🐧 Linux (Red Hat 계열)</h2>
+    <div class="highlight-box">
+      <p>Red Hat 계열(RHEL, CentOS, Fedora)에서는 <strong>dnf</strong> 또는 <strong>yum</strong> 패키지 매니저를 사용합니다.</p>
+    </div>
+    <div class="code-block"><span class="code-comment"># 최신 버전 확인</span>
+<span class="code-cmd">sudo dnf install git -y</span>
+
+<span class="code-comment"># 또는 (구버전 OS)</span>
+<span class="code-cmd">sudo yum install git -y</span>
+
+<span class="code-comment"># 설치 확인</span>
+<span class="code-cmd">git --version</span></div>
+
+    <h2>🐧 Linux (Debian 계열)</h2>
+    <div class="highlight-box">
+      <p>Debian 계열(Ubuntu, Debian)에서는 <strong>apt</strong> 패키지 매니저를 사용합니다.</p>
+    </div>
+    <div class="code-block"><span class="code-comment"># 패키지 목록 업데이트</span>
+<span class="code-cmd">sudo apt update</span>
+
+<span class="code-comment"># git 설치</span>
+<span class="code-cmd">sudo apt install git -y</span>
+
+<span class="code-comment"># 설치 확인</span>
+<span class="code-cmd">git --version</span></div>
+
+    <h2>🪟 Windows</h2>
+    <div class="highlight-box">
+      <p>Windows에서는 공식 사이트에서 설치 파일을 다운로드하여 설치합니다.</p>
+      <ol>
+        <li>공식 사이트 접속: <a href="https://git-scm.com/" target="_blank">https://git-scm.com/</a></li>
+        <li><strong>Download for Windows</strong> 버튼 클릭</li>
+        <li>설치 파일 실행 후 기본 옵션으로 설치 진행</li>
+        <li>설치 완료 후 <strong>Git Bash</strong> 또는 <strong>명령 프롬프트</strong>에서 확인</li>
+      </ol>
+    </div>
+    <div class="code-block"><span class="code-comment"># 설치 확인 (Git Bash 또는 CMD)</span>
+<span class="code-cmd">git --version</span></div>
+
+    <div style="text-align: center; margin-top: 20px;">
+      <img src="../images/images_github/git_install.png" class="card-img" onclick="showImage(this.src)" style="max-width: 500px;">
+      <p style="margin-top: 10px; font-size: 14px; color: var(--text-muted);">Git 공식 사이트 다운로드 페이지</p>
+    </div>
+  </section>
+
+  <!-- 3. 초기 설정 및 저장소 초기화 -->
+  <section class="slide" data-title="초기 설정 & 저장소 초기화">
+    <div class="slide-label">03 — 초기 설정 & 저장소</div>
+    <h1>🔧 초기 설정 및 저장소 초기화</h1>
+
+    <h2>Git 저장소 초기화</h2>
+    <p>프로젝트 폴더를 Git으로 관리하려면 <code>git init</code> 명령어로 저장소를 초기화합니다. 이 명령어를 실행하면 해당 폴더에 <code>.git</code> 숨김 폴더가 생성되며, Git이 변경사항을 추적하기 시작합니다.</p>
+    <div class="code-block"><span class="code-comment"># 연습용 폴더 생성</span>
+<span class="code-cmd">mkdir</span> sandbox
+<span class="code-cmd">cd</span> sandbox
+
+<span class="code-comment"># Git 저장소 초기화</span>
+<span class="code-cmd">git init</span></div>
+
+    <div class="highlight-box">
+      <h3>💡 .git 폴더란?</h3>
+      <p><code>.git</code> 폴더에는 저장소의 모든 메타데이터(커밋 이력, 브랜치 정보, 설정 등)가 저장됩니다. 이 폴더를 삭제하면 Git 추적이 완전히 제거됩니다.</p>
+    </div>
+
+    <h2>초기 설정</h2>
+    <p>Git을 설치한 후, 가장 먼저 해야 할 일은 <strong>사용자 정보를 설정</strong>하는 것입니다. 이 정보는 매 커밋에 기록되므로, 협업 시 누가 작업했는지 식별하는 데 사용됩니다.</p>
+    <div class="code-block"><span class="code-cmd">git config</span> <span class="code-flag">--global</span> user.name <span class="code-str">"사용자 이름"</span>
+<span class="code-cmd">git config</span> <span class="code-flag">--global</span> user.email <span class="code-str">"이메일 주소"</span>
+
+<span class="code-comment"># 설정 확인</span>
+<span class="code-cmd">git config</span> <span class="code-flag">--global --list</span></div>
+
+    <div class="info-box">
+      <p>💡 <code>--global</code> 옵션은 시스템 전체에 적용됩니다. 특정 프로젝트에만 다른 설정을 적용하려면 해당 디렉토리에서 <code>--global</code> 없이 실행하세요.</p>
+    </div>
+  </section>
+
+  <!-- 4. SSL 보안 설정 -->
+  <section class="slide" data-title="SSL 보안 설정">
+    <div class="slide-label">04 — SSL 보안 설정</div>
+    <h1>🔒 SSL 보안 설정</h1>
+    <p>사내 네트워크나 사설 인증서를 사용하는 환경에서는 Git이 SSL 인증서를 검증하지 못해 <code>push</code>나 <code>clone</code>이 실패할 수 있습니다. 이런 경우 SSL 검증을 비활성화할 수 있습니다.</p>
+
+    <h2>⚠️ SSL 검증 비활성화</h2>
+    <div class="warning-box">
+      <p>보안 정책에 따라 자체 서명 인증서(Self-signed Certificate)를 사용하는 환경에서는 아래 설정이 필요할 수 있습니다.</p>
+    </div>
+    <div class="code-block"><span class="code-comment"># SSL 인증서 검증 비활성화 (전역 설정)</span>
+<span class="code-cmd">git config</span> <span class="code-flag">--global</span> http.sslverify <span class="code-str">false</span></div>
+
+    <div class="highlight-box">
+      <h3>💡 언제 사용하나요?</h3>
+      <ul>
+        <li>사내 <strong>프록시 서버</strong>를 통해 GitHub에 접속할 때</li>
+        <li><strong>사설 GitLab/GitHub Enterprise</strong> 서버를 사용할 때</li>
+        <li>자체 서명된 <strong>SSL 인증서</strong>를 사용하는 환경일 때</li>
+      </ul>
+    </div>
+
+    <h2>🔓 SSL 검증 다시 활성화 (해제)</h2>
+    <p>보안상 SSL 검증을 비활성화한 상태를 <strong>계속 유지하는 것은 권장하지 않습니다</strong>. 작업이 끝나면 아래 명령어로 설정을 원래대로 되돌려야 합니다.</p>
+    <div class="code-block"><span class="code-comment"># SSL 검증 설정 해제 (기본값인 true로 복원)</span>
+<span class="code-cmd">git config</span> <span class="code-flag">--global --unset</span> http.sslverify</div>
+
+    <div class="info-box">
+      <p>💡 <code>--unset</code>은 설정 자체를 제거합니다. 제거 후에는 Git이 기본 동작(SSL 검증 활성화)으로 돌아갑니다.</p>
+    </div>
+
+    <h2>📋 설정 확인</h2>
+    <div class="code-block"><span class="code-comment"># 현재 http 관련 설정 확인</span>
+<span class="code-cmd">git config</span> <span class="code-flag">--global --list</span> | <span class="code-cmd">grep</span> <span class="code-str">http</span>
+
+<span class="code-comment"># sslverify 값만 확인</span>
+<span class="code-cmd">git config</span> <span class="code-flag">--global</span> http.sslverify</div>
+
+    <div class="warning-box">
+      <h3>⚠️ 주의사항</h3>
+      <p>SSL 검증을 비활성화하면 <strong>중간자 공격(MITM)</strong>에 취약해질 수 있습니다. 반드시 필요한 경우에만 사용하고, 가능하면 올바른 인증서를 설치하는 것이 가장 좋은 방법입니다.</p>
+    </div>
+  </section>
+
+  <!-- 5. 기본 명령어 -->
+  <section class="slide" data-title="기본 명령어">
+    <div class="slide-label">05 — 기본 명령어</div>
+    <h1>🎯 기본 명령어</h1>
+    <h2>Git 워크플로우</h2>
+    <div class="highlight-box">
+      <p>Git에서 파일을 수정하고 원격 저장소에 반영하는 기본 흐름입니다.</p>
+      <div class="code-block" style="text-align: center; font-weight: bold;">파일 수정 → git add → git commit → git push</div>
+    </div>
+
+    <h2>git status - 상태 확인</h2>
+    <p>현재 작업 디렉토리의 상태를 확인합니다. 어떤 파일이 수정되었는지, 스테이징되었는지, 추적되지 않는 파일이 있는지 한눈에 파악할 수 있습니다.</p>
+    <div class="code-block"><span class="code-cmd">git status</span></div>
+
+    <h2>git add - 스테이징</h2>
+    <p>커밋할 파일들을 <span class="keyword">Staging Area</span>에 올리는 명령어입니다. 커밋 전에 반드시 실행해야 하며, 원하는 파일만 선택적으로 스테이징할 수 있습니다.</p>
+    <div class="code-block"><span class="code-comment"># 특정 파일만 스테이징</span>
+<span class="code-cmd">git add</span> [파일명]
+
+<span class="code-comment"># 현재 디렉토리의 모든 변경사항 스테이징 (삭제된 파일 제외될 수 있음)</span>
+<span class="code-cmd">git add .</span>
+
+<span class="code-comment"># 작업 디렉토리의 모든 변경사항 스테이징 (신규, 수정, 삭제 포함)</span>
+<span class="code-cmd">git add -A</span></div>
+    <div class="info-box">
+      <p>💡 <strong>Tip:</strong> <code>git add .</code>은 현재 위치 기준, <code>git add -A</code>는 저장소 전체 기준입니다.</p>
+    </div>
+
+    <h2>git commit - 버전 저장</h2>
+    <p>스테이징된 변경사항을 하나의 <span class="keyword">버전(커밋)</span>으로 저장합니다. 커밋 메시지는 나중에 변경 이력을 확인할 때 중요하므로, 명확하게 작성하는 것이 좋습니다.</p>
+    <div class="code-block"><span class="code-comment"># 메시지와 함께 커밋</span>
+<span class="code-cmd">git commit</span> <span class="code-flag">-m</span> <span class="code-str">"커밋 메시지"</span></div>
+
+    <h2>git push - GitHub에 업로드</h2>
+    <p>로컬 저장소의 커밋들을 <span class="keyword">원격 저장소(GitHub)</span>에 업로드합니다. 처음 push할 때는 <code>-u origin main</code>을 붙여 기본 원격 브랜치를 설정하고, 이후에는 <code>git push</code>만으로 가능합니다.</p>
+    <div class="code-block"><span class="code-comment"># 처음 push (원격 기본 브랜치 설정)</span>
+<span class="code-cmd">git push</span> <span class="code-flag">-u</span> origin main
+
+<span class="code-comment"># 이후 push</span>
+<span class="code-cmd">git push</span></div>
+  </section>
+
+  <!-- 6. GitHub 연동 -->
+  <section class="slide" data-title="GitHub 연동">
+    <div class="slide-label">06 — GitHub 연동</div>
+    <h1>🔗 GitHub 연동하기</h1>
+    <p>GitHub는 Git 저장소를 클라우드에 호스팅하는 서비스입니다. 로컬에서 작업한 내용을 GitHub에 업로드하거나, GitHub의 프로젝트를 로컬로 가져올 수 있습니다.</p>
+
+    <h2>방법 1: 로컬 프로젝트를 GitHub에 연결</h2>
+    <p>이미 로컬에서 작업 중인 프로젝트를 GitHub 저장소에 연결하는 방법입니다. GitHub에서 먼저 빈 저장소를 생성한 후 아래 명령어를 실행합니다.</p>
+    <div class="code-block"><span class="code-comment"># 1. Git 초기화 및 첫 커밋</span>
+<span class="code-cmd">git init</span>
+<span class="code-cmd">git add .</span>
+<span class="code-cmd">git commit</span> <span class="code-flag">-m</span> <span class="code-str">"first commit"</span>
+
+<span class="code-comment"># 2. 기본 브랜치명을 main으로 설정</span>
+<span class="code-cmd">git branch</span> <span class="code-flag">-M</span> main
+
+<span class="code-comment"># 3. 원격 저장소 연결 및 push</span>
+<span class="code-cmd">git remote add</span> origin https://github.com/username/repo.git
+<span class="code-cmd">git push</span> <span class="code-flag">-u</span> origin main</div>
+
+    <h2>방법 2: GitHub 저장소 복제 (clone)</h2>
+    <p>GitHub에 이미 있는 프로젝트를 로컬로 가져오는 방법입니다. <code>git clone</code>은 저장소의 모든 파일과 커밋 이력을 함께 다운로드합니다.</p>
+    <div class="code-block"><span class="code-comment"># 저장소 복제</span>
+<span class="code-cmd">git clone</span> https://github.com/username/repo.git
+
+<span class="code-comment"># 복제된 폴더로 이동</span>
+<span class="code-cmd">cd</span> repo
+
+<span class="code-comment"># 수정 후 커밋 및 푸시</span>
+<span class="code-cmd">git add .</span>
+<span class="code-cmd">git commit</span> <span class="code-flag">-m</span> <span class="code-str">"수정 내용"</span>
+<span class="code-cmd">git push</span></div>
+
+    <h2>pull과 fetch</h2>
+    <p>다른 사람이 원격 저장소에 올린 변경사항을 내 로컬에 반영하는 명령어입니다.</p>
+    <div class="code-block"><span class="code-comment"># pull: 원격 변경사항을 가져와서 자동 병합 (fetch + merge)</span>
+<span class="code-cmd">git pull</span> origin main
+
+<span class="code-comment"># fetch: 원격 변경사항을 가져오기만 함 (병합은 수동)</span>
+<span class="code-cmd">git fetch</span> origin
+<span class="code-cmd">git merge</span> origin/main</div>
+    <div class="info-box">
+      <p>💡 <strong>pull vs fetch:</strong> <code>pull</code>은 자동 병합되어 편리하지만, 충돌이 발생할 수 있습니다. <code>fetch</code>는 먼저 확인 후 병합할 수 있어 더 안전합니다.</p>
+    </div>
+  </section>
+
+  <!-- 7. Token 설정 -->
+  <section class="slide" data-title="GitHub Token 설정">
+    <div class="slide-label">07 — Token 설정</div>
+    <h1>🔑 GitHub Token 설정</h1>
+    <p>GitHub에 push할 때 비밀번호 대신 <span class="keyword">Personal Access Token (PAT)</span>을 사용해야 합니다. 2021년부터 비밀번호 인증이 중단되었습니다.</p>
+
+    <h2>📥 Token 생성 순서</h2>
+    <div class="highlight-box">
+      <ol>
+        <li>GitHub 로그인 → 오른쪽 상단 프로필 클릭 → <strong>Settings</strong></li>
+        <li>왼쪽 메뉴 제일 아래 <strong>Developer settings</strong> 클릭</li>
+        <li><strong>Personal access tokens</strong> → <strong>Tokens (classic)</strong> 선택</li>
+        <li><strong>Generate new token</strong> → <strong>Generate new token (classic)</strong> 클릭</li>
+      </ol>
+    </div>
+
+    <h2>⚙️ Token 옵션 설정</h2>
+    <table>
+      <tr><th>항목</th><th>설정 값</th><th>설명</th></tr>
+      <tr><td><strong>Note</strong></td><td>용도 메모 (예: my-laptop)</td><td>Token의 용도를 구분하기 위한 이름</td></tr>
+      <tr><td><strong>Expiration</strong></td><td>90 days 또는 No expiration</td><td>Token 만료일 설정</td></tr>
+      <tr><td><strong>repo</strong></td><td>✅ 체크</td><td>저장소 접근 권한 (필수)</td></tr>
+      <tr><td><strong>workflow</strong></td><td>✅ 체크</td><td>GitHub Actions 사용 시 필요</td></tr>
+      <tr><td><strong>admin:org</strong></td><td>선택 사항</td><td>조직 관리 권한</td></tr>
+      <tr><td><strong>delete_repo</strong></td><td>선택 사항</td><td>저장소 삭제 권한</td></tr>
+    </table>
+
+    <h2>📝 Token 사용 방법</h2>
+    <p>Token을 생성하면 <span class="important">한 번만 표시</span>되므로 반드시 복사해서 안전한 곳에 보관하세요.</p>
+    <div class="code-block"><span class="code-comment"># push 시 비밀번호 대신 Token 입력</span>
+Username: your-github-username
+Password: ghp_xxxxxxxxxxxxxxxxxxxx  (여기에 Token 붙여넣기)</div>
+
+    <div class="info-box">
+      <p>💡 <strong>Tip:</strong> 매번 Token을 입력하기 귀찮다면, 아래 명령어로 자격 증명을 저장할 수 있습니다.</p>
+      <div class="code-block"><span class="code-comment"># 자격 증명 저장 (한 번만 입력하면 기억)</span>
+<span class="code-cmd">git config</span> <span class="code-flag">--global</span> credential.helper store</div>
+    </div>
+
+    <div class="warning-box">
+      <h3>⚠️ 주의사항</h3>
+      <ul>
+        <li>Token을 코드나 파일에 직접 작성하지 마세요.</li>
+        <li>Token이 노출되면 즉시 삭제하고 새로 생성하세요.</li>
+        <li>필요한 최소한의 권한만 부여하세요.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 8. 브랜치 관리 -->
+  <section class="slide" data-title="브랜치 관리">
+    <div class="slide-label">08 — 브랜치 관리</div>
+    <h1>🌿 브랜치 관리</h1>
+    <h2>브랜치란?</h2>
+    <div class="highlight-box">
+      <p><span class="keyword">브랜치(Branch)</span>는 독립적인 작업 공간입니다. 마치 나무의 가지처럼, 원본 코드(main)에서 뿔어져 나와 독립적으로 작업한 뒤, 다시 원본에 합칠 수 있습니다.</p>
+    </div>
+    <ul>
+      <li><strong>왜 브랜치를 사용할까?</strong> — 여러 명이 동시에 다른 기능을 개발할 때, 서로의 코드에 영향을 주지 않고 독립적으로 작업할 수 있습니다.</li>
+      <li><strong>main 브랜치</strong> — 항상 안정적인 상태를 유지하는 기본 브랜치입니다.</li>
+      <li><strong>feature 브랜치</strong> — 새로운 기능 개발을 위해 만드는 임시 브랜치입니다.</li>
+    </ul>
+
+    <h2>브랜치 기본 명령어</h2>
+    <div class="code-block"><span class="code-comment"># 브랜치 목록 확인</span>
+<span class="code-cmd">git branch</span>
+
+<span class="code-comment"># 원격 브랜치 포함 목록</span>
+<span class="code-cmd">git branch</span> <span class="code-flag">-a</span>
+
+<span class="code-comment"># 브랜치 생성 및 이동</span>
+<span class="code-cmd">git switch</span> <span class="code-flag">-c</span> feature-login
+
+<span class="code-comment"># 브랜치 전환</span>
+<span class="code-cmd">git switch</span> main
+
+<span class="code-comment"># 브랜치 삭제 (병합 완료된 브랜치)</span>
+<span class="code-cmd">git branch</span> <span class="code-flag">-d</span> feature-login
+
+<span class="code-comment"># 브랜치 강제 삭제 (병합되지 않은 브랜치)</span>
+<span class="code-cmd">git branch</span> <span class="code-flag">-D</span> feature-login</div>
+
+    <h2>checkout vs switch</h2>
+    <div class="info-box">
+      <p>💡 Git 2.23부터 <code>checkout</code> 명령어의 역할이 <code>switch</code>와 <code>restore</code>로 분리되었습니다.</p>
+    </div>
+    <table>
+      <tr><th>기능</th><th>checkout (기존)</th><th>switch/restore (새로운)</th></tr>
+      <tr><td>브랜치 전환</td><td><code>git checkout main</code></td><td><code>git switch main</code></td></tr>
+      <tr><td>브랜치 생성+전환</td><td><code>git checkout -b feature</code></td><td><code>git switch -c feature</code></td></tr>
+      <tr><td>파일 복원</td><td><code>git checkout -- file.txt</code></td><td><code>git restore file.txt</code></td></tr>
+    </table>
+    <div class="warning-box">
+      <p>⚠️ <code>checkout</code>은 브랜치 전환과 파일 복원을 모두 처리하여 혼란이 있었습니다. 새로운 <code>switch</code> / <code>restore</code> 사용을 권장합니다.</p>
+    </div>
+
+    <h2>브랜치 작업 흐름</h2>
+    <div class="code-block"><span class="code-comment"># 1. main 브랜치에서 시작</span>
+<span class="code-cmd">git switch</span> main
+
+<span class="code-comment"># 2. 새 기능 브랜치 생성</span>
+<span class="code-cmd">git switch</span> <span class="code-flag">-c</span> feature-payment
+
+<span class="code-comment"># 3. 작업 후 커밋</span>
+<span class="code-cmd">git add .</span>
+<span class="code-cmd">git commit</span> <span class="code-flag">-m</span> <span class="code-str">"feat: 결제 기능 추가"</span>
+
+<span class="code-comment"># 4. 원격 저장소에 푸시</span>
+<span class="code-cmd">git push</span> <span class="code-flag">-u</span> origin feature-payment
+
+<span class="code-comment"># 5. main에 병합</span>
+<span class="code-cmd">git switch</span> main
+<span class="code-cmd">git merge</span> feature-payment</div>
+  </section>
+
+  <!-- 9. Commit에서 브랜치 생성 -->
+  <section class="slide" data-title="Commit에서 브랜치 생성">
+    <div class="slide-label">09 — Commit에서 브랜치 생성</div>
+    <h1>📌 Commit에서 브랜치 생성</h1>
+    <p>가끔 과거의 특정 시점(커밋)으로 돌아가서 새로운 작업을 시작해야 할 때가 있습니다. 이때 특정 커밋 해시를 이용하여 브랜치를 만들 수 있습니다.</p>
+
+    <h2>1. 커밋 해시 확인</h2>
+    <p>이동하고 싶은 지점의 <strong>커밋 해시(Hash)</strong>를 <code>git log</code> 명령어로 확인합니다.</p>
+    <div class="code-block"><span class="code-cmd">git log</span> <span class="code-flag">--oneline</span>
+<span class="code-str">a1b2c3d</span> (HEAD -> main) feat: 최종 기능 완료
+<span class="code-str">e4f5g6h</span> feat: 중간 점검 커밋
+<span class="code-str">i7j8k9l</span> init: 초기 세팅 완료</div>
+
+    <h2>2. 특정 커밋에서 브랜치 생성</h2>
+    <p>확인한 해시값을 사용하여 새 브랜치를 만듭니다.</p>
+    <div class="code-block"><span class="code-comment"># git switch -c [새 브랜치명] [커밋 해시]</span>
+<span class="code-cmd">git switch</span> <span class="code-flag">-c</span> fix-old-bug <span class="code-str">e4f5g6h</span></div>
+
+  </section>
+
+  <!-- 9. 병합하기 -->
+  <section class="slide" data-title="병합하기">
+    <div class="slide-label">10 — Merge</div>
+    <h1>🔀 병합하기</h1>
+
+    <h2>Merge - 병합</h2>
+    <p>Merge는 두 브랜치의 개발 이력을 모두 보존하면서 하나로 합칩니다. <span class="keyword">병합 커밋(Merge Commit)</span>이 생성되며, 누가 언제 병합했는지 기록이 남습니다.</p>
+    <div class="code-block"><span class="code-comment"># feature 브랜치를 main에 병합</span>
+<span class="code-cmd">git switch</span> main
+<span class="code-cmd">git merge</span> feature-login
+
+<span class="code-comment"># 병합 후 원격 저장소에 반영</span>
+<span class="code-cmd">git push</span> origin main</div>
+    <div class="highlight-box">
+      <h3>💡 Fast-Forward Merge vs 3-Way Merge</h3>
+      <ul>
+        <li><strong>Fast-Forward</strong>: main에 새로운 커밋이 없으면, feature 브랜치의 커밋들이 그대로 main에 이어집니다. (병합 커밋 없음)</li>
+        <li><strong>3-Way Merge</strong>: main에도 새로운 커밋이 있으면, 두 브랜치의 변경사항을 합치는 병합 커밋이 생성됩니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 10. 실전 워크플로우 -->
+  <section class="slide" data-title="실전 워크플로우">
+    <div class="slide-label">11 — 실전 워크플로우</div>
+    <h1>💼 실전 워크플로우</h1>
+    
+    <h2>1. 협업 시나리오 (GitHub Flow)</h2>
+    <div class="highlight-box">
+      <p><strong>Scenario:</strong> 팀원들과 함께 '로그인 기능'을 개발하는 상황입니다.</p>
+    </div>
+    
+    <h3>STEP 1: 이슈 확인 및 브랜치 생성</h3>
+    <div class="code-block"><span class="code-comment"># 1. 원격 저장소의 최신 변경사항을 가져옵니다.</span>
+<span class="code-cmd">git switch</span> main
+<span class="code-cmd">git pull</span> origin main
+
+<span class="code-comment"># 2. 새로운 기능 개발을 위한 브랜치를 생성합니다.</span>
+<span class="code-cmd">git switch</span> <span class="code-flag">-c</span> feature/login</div>
+
+    <h3>STEP 2: 개발 및 커밋</h3>
+    <div class="code-block"><span class="code-comment"># 열심히 코딩 후...</span>
+<span class="code-cmd">git add .</span>
+<span class="code-cmd">git commit</span> <span class="code-flag">-m</span> <span class="code-str">"feat: 로그인 UI 구현"</span>
+<span class="code-cmd">git commit</span> <span class="code-flag">-m</span> <span class="code-str">"feat: 로그인 API 연동"</span></div>
+    
+    <h3>STEP 3: Push 및 Pull Request (PR)</h3>
+    <div class="code-block"><span class="code-comment"># 내 브랜치를 원격 저장소에 올립니다.</span>
+<span class="code-cmd">git push</span> <span class="code-flag">-u</span> origin feature/login
+
+<span class="code-comment"># GitHub 웹사이트에서 'Compare & Pull Request' 버튼 클릭!</span>
+<span class="code-comment"># 팀원들에게 코드 리뷰를 요청합니다.</span></div>
+
+    <h3>STEP 4: 코드 리뷰 및 Merge</h3>
+    <ul>
+      <li>팀원들이 코드를 리뷰하고 승인(Approve)합니다.</li>
+      <li>충돌이 없다면 <strong>Merge Pull Request</strong> 버튼을 눌러 main에 합칩니다.</li>
+      <li>작업이 끝난 브랜치는 삭제합니다.</li>
+    </ul>
+    
+    <h2>2. 커밋 메시지 규칙 (Convention)</h2>
+    <div class="info-box">
+      <p>💡 <strong>좋은 커밋 메시지</strong>는 프로젝트의 유지보수성을 높여줍니다.</p>
+      <div class="code-block"><span class="code-str">feat:     새로운 기능 추가
+fix:      버그 수정
+docs:     문서 수정
+style:    코드 포맷팅 (로직 변경 없음)
+refactor: 코드 리팩토링</span></div>
+    </div>
+
+    <h2>3. .gitignore 설정 (필수!)</h2>
+    <p>보안 정보나 불필요한 파일은 절대 올리면 안 됩니다.</p>
+    <div class="code-block"><span class="code-comment"># 의존성 모듈</span>
+node_modules/
+dist/
+
+<span class="code-comment"># 환경 변수 (API Key 등)</span>
+.env
+.env.local
+
+<span class="code-comment"># OS 시스템 파일</span>
+.DS_Store
+Thumbs.db</div>
+  </section>
+
+  <!-- 11. Pull Request -->
+  <section class="slide" data-title="Pull Request (PR)">
+    <div class="slide-label">12 — Pull Request</div>
+    <h1>🚀 Pull Request (PR)</h1>
+    <p><span class="keyword">Pull Request</span>는 내가 작업한 브랜치를 main 브랜치에 병합해달라고 <strong>팀원들에게 요청</strong>하는 GitHub의 핵심 기능입니다.</p>
+
+    <h2>PR이 필요한 이유</h2>
+    <ul>
+      <li><strong>코드 리뷰</strong>: 팀원이 코드를 검토하여 버그를 사전에 발견할 수 있습니다.</li>
+      <li><strong>협업 기록</strong>: 어떤 변경이 왜 이루어졌는지 기록이 남습니다.</li>
+      <li><strong>품질 보장</strong>: 승인 없이는 main에 직접 병합할 수 없도록 보호합니다.</li>
+    </ul>
+
+    <h2>PR 생성 순서</h2>
+    <div class="highlight-box">
+      <ol>
+        <li>feature 브랜치에서 작업 완료 후 <code>git push</code></li>
+        <li>GitHub 웹사이트에서 <strong>"Compare & Pull Request"</strong> 버튼 클릭</li>
+        <li>PR 제목과 설명 작성 (어떤 변경을 했는지)</li>
+        <li>Reviewer(검토자) 지정</li>
+        <li><strong>"Create Pull Request"</strong> 버튼 클릭</li>
+      </ol>
+    </div>
+
+    <h2>PR 리뷰 및 Merge</h2>
+    <table>
+      <tr><th>단계</th><th>담당</th><th>설명</th></tr>
+      <tr><td>1. 코드 리뷰</td><td>Reviewer</td><td>변경된 코드를 확인하고 코멘트 작성</td></tr>
+      <tr><td>2. 수정 요청</td><td>Reviewer</td><td>필요시 수정 사항을 요청 (Request Changes)</td></tr>
+      <tr><td>3. 수정 반영</td><td>작성자</td><td>수정 후 추가 커밋 & push (PR에 자동 반영)</td></tr>
+      <tr><td>4. 승인</td><td>Reviewer</td><td>Approve 버튼 클릭</td></tr>
+      <tr><td>5. Merge</td><td>작성자/관리자</td><td>Merge Pull Request 버튼으로 병합</td></tr>
+    </table>
+
+    <h2>Merge 전략</h2>
+    <div class="info-box">
+      <ul>
+        <li><strong>Merge commit</strong>: 병합 커밋을 생성하여 전체 이력 보존 (기본값)</li>
+        <li><strong>Squash and merge</strong>: 여러 커밋을 하나로 합쳐서 병합 (깔끔한 이력)</li>
+        <li><strong>Rebase and merge</strong>: 커밋을 재배치하여 선형 이력 유지</li>
+      </ul>
+    </div>
+  </section>
+
+        <!-- Slide - PR 협업 실습 -->
+  <!-- 12. 협업 실습 -->
+  <section class="slide" data-title="협업 실습">
+    <div class="slide-label">13 — 협업 실습</div>
+    <h1>💻 협업 실습: Pull Request</h1>
+    <p>팀원과 함께 GitHub에서 브랜치를 만들고 Pull Request를 통해 코드를 병합하는 과정을 실습합니다.</p>
+
+    <h2>👨‍💻 팀장 (저장소 생성 및 멤버 초대)</h2>
+    <div class="highlight-box">
+      <ol>
+        <li>GitHub에서 <strong>Public Repository</strong> 생성 (<code>Add a README file</code> 체크 ✅)</li>
+        <li>저장소 화면 오른쪽 위 <strong>Settings</strong> 클릭</li>
+        <li>왼쪽 메뉴에서 <strong>Collaborators</strong> 클릭 후 <strong>Add people</strong> 버튼 클릭</li>
+        <li>팀원의 GitHub 계정명(또는 이메일)을 검색하여 초대 (초대된 팀원은 이메일 및 알림 확인 후 수락)</li>
+      </ol>
+    </div>
+
+    <h2>👩‍💻 팀원 (작업 및 PR 생성)</h2>
+    <div class="highlight-box">
+      <ol>
+        <li>초대를 수락한 팀원은 팀장의 저장소로 이동하여 로컬로 <strong>Clone</strong> (또는 GitHub 웹에서 직접 작업)</li>
+        <li>새 브랜치 생성: <code>git switch -c feature/add-intro</code></li>
+        <li><code>README.md</code> 파일 하단에 본인의 소개(이름, 역할 등)를 추가</li>
+        <li>수정된 파일을 커밋하고 원격 저장소에 <strong>Push</strong>: <code>git push -u origin feature/add-intro</code></li>
+        <li>저장소 웹페이지에서 <strong>Compare & pull request</strong> 버튼 클릭하여 PR 생성</li>
+      </ol>
+    </div>
+
+    <h2>🤝 함께 (코드 리뷰 및 Merge)</h2>
+    <div class="info-box">
+      <ul>
+        <li><strong>코드 리뷰:</strong> 팀장은 PR의 <strong>Files changed</strong> 탭에서 팀원의 변경사항을 확인하고 피드백 코멘트를 남깁니다.</li>
+        <li><strong>Merge:</strong> <strong>Merge pull request</strong> 클릭 → <strong>Confirm merge</strong></li>
+        <li>병합이 완료되면 팀장은 로컬에서 <code>main</code> 브랜치로 이동 후 <code>git pull origin main</code>하여 최신 상태 동기화!</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 13. GitHub Desktop -->
+  <section class="slide" data-title="GitHub Desktop 개요">
+    <div class="slide-label">14 — GitHub Desktop</div>
+    <h1>🖥️ GitHub Desktop</h1>
+    <p><span class="keyword">GitHub Desktop</span>은 Git과 GitHub를 <strong>GUI(그래픽 인터페이스)</strong>로 사용할 수 있게 해주는 공식 데스크톱 애플리케이션입니다. 명령어 없이도 Git 작업을 수행할 수 있어 입문자에게 특히 유용합니다.</p>
+
+    <h2>💡 왜 GitHub Desktop을 사용할까?</h2>
+    <ul>
+      <li><strong>직관적인 UI</strong>: 커밋, 브랜치, 푸시 등의 작업을 클릭만으로 처리할 수 있습니다.</li>
+      <li><strong>시각적 diff</strong>: 파일 변경사항을 색상으로 구분하여 한눈에 확인 가능합니다.</li>
+      <li><strong>충돌 해결</strong>: Merge 충돌 시 시각적으로 어떤 부분이 충돌했는지 보여줍니다.</li>
+      <li><strong>GitHub 연동</strong>: 로그인만 하면 저장소 목록, PR 생성 등을 바로 사용할 수 있습니다.</li>
+    </ul>
+
+    <h2>📥 설치 방법</h2>
+    <div class="highlight-box">
+      <ol>
+        <li>공식 사이트 접속: <a href="https://desktop.github.com/download/" target="_blank" style="color: var(--accent-color);">https://desktop.github.com/download/</a></li>
+        <li><strong>Download for Windows (64bit)</strong> 버튼 클릭</li>
+        <li>설치 파일 실행 후 GitHub 계정으로 로그인</li>
+        <li>기존 저장소를 Clone하거나 새 저장소를 생성하여 시작</li>
+      </ol>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px;">
+      <img src="../images/images_github/github_desktop_install.png" class="card-img" onclick="showImage(this.src)" style="max-width: 550px;">
+      <p style="margin-top: 10px; font-size: 14px; color: #888;">GitHub Desktop 설치 페이지</p>
+    </div>
+
+    <h2>🔄 주요 기능</h2>
+    <table>
+      <tr><th>기능</th><th>CLI 명령어</th><th>GitHub Desktop</th></tr>
+      <tr><td>저장소 복제</td><td><code>git clone [URL]</code></td><td>File → Clone Repository</td></tr>
+      <tr><td>변경사항 확인</td><td><code>git status / git diff</code></td><td>Changes 탭에서 시각적 확인</td></tr>
+      <tr><td>커밋</td><td><code>git add . && git commit</code></td><td>Summary 작성 후 Commit 버튼</td></tr>
+      <tr><td>Push</td><td><code>git push</code></td><td>Push origin 버튼</td></tr>
+      <tr><td>브랜치 전환</td><td><code>git switch [branch]</code></td><td>상단 Branch 드롭다운</td></tr>
+      <tr><td>PR 생성</td><td>GitHub 웹에서 생성</td><td>Branch → Create Pull Request</td></tr>
+    </table>
+
+    <div class="info-box">
+      <p>💡 <strong>Tip:</strong> GitHub Desktop은 CLI를 완전히 대체하는 것이 아니라, <strong>보조 도구</strong>로 활용하는 것을 추천합니다. 기본적인 CLI 명령어를 익힌 후 GitHub Desktop을 함께 사용하면 생산성이 크게 향상됩니다.</p>
+    </div>
+  </section>
+
+  <!-- 14. Desktop 브랜치 생성 -->
+  <section class="slide" data-title="Desktop 브랜치 생성">
+    <div class="slide-label">15 — Desktop 브랜치</div>
+    <h1>🌿 Desktop: 브랜치 생성하기</h1>
+    <p>GitHub Desktop에서는 명령어 없이 클릭 몇 번으로 새로운 브랜치를 생성할 수 있습니다.</p>
+
+    <h2>🛠️ 브랜치 생성 순서</h2>
+    <div class="highlight-box">
+      <ol>
+        <li>상단 메뉴에서 <strong>Current Branch</strong> 버튼을 클릭합니다.</li>
+        <li>드롭다운에서 <strong>New Branch</strong> 버튼을 클릭합니다.</li>
+        <li>브랜치 이름을 입력합니다. (예: <code>feature/login</code>)</li>
+        <li><strong>Create Branch</strong> 버튼을 클릭하면 새 브랜치가 생성되고 자동으로 전환됩니다.</li>
+      </ol>
+    </div>
+
+    <h2>⌨️ CLI 대응 명령어</h2>
+    <div class="code-block"><span class="code-comment"># CLI에서의 동일한 작업</span>
+<span class="code-cmd">git switch</span> <span class="code-flag">-c</span> feature/login</div>
+
+    <div style="text-align: center; margin: 25px 0;">
+      <img src="../images/images_github/desktop_branch_create.png" class="card-img" onclick="showImage(this.src)" style="max-width: 550px;">
+      <p style="margin-top: 10px; font-size: 14px; color: #888;">GitHub Desktop에서 브랜치 생성하기</p>
+    </div>
+
+    <div class="info-box">
+      <p>💡 <strong>Tip:</strong> 브랜치 이름은 <code>feature/기능명</code>, <code>fix/버그명</code> 형식으로 작성하면 목적을 명확하게 구분할 수 있습니다.</p>
+    </div>
+  </section>
+
+  <!-- 16. Desktop 이력 확인 -->
+  <section class="slide" data-title="Desktop 이력 확인">
+    <div class="slide-label">16 — Desktop 이력 확인</div>
+    <h1>📜 Desktop: 커밋 히스토리 확인</h1>
+    <p>이전에 진행한 커밋들의 내용을 GitHub Desktop에서 시각적으로 확인할 수 있습니다.</p>
+
+    <h2>🛠️ 커밋 히스토리 확인 방법</h2>
+    <div class="highlight-box">
+      <ol>
+        <li>왼쪽 탭에서 <strong>History</strong> 탭을 클릭합니다.</li>
+        <li>커밋 목록이 시간순으로 표시됩니다. (최신 커밋이 상단)</li>
+        <li>특정 커밋을 클릭하면 오른쪽에 <strong>변경된 파일 목록</strong>과 <strong>변경 내용(diff)</strong>이 표시됩니다.</li>
+        <li>추가된 줄은 <span style="color: #28a745; font-weight: bold;">녹색</span>, 삭제된 줄은 <span style="color: #dc3545; font-weight: bold;">빨간색</span>으로 구분됩니다.</li>
+      </ol>
+    </div>
+
+    <h2>⌨️ CLI 대응 명령어</h2>
+    <div class="code-block"><span class="code-comment"># 커밋 이력 확인</span>
+<span class="code-cmd">git log</span> <span class="code-flag">--oneline</span>
+
+<span class="code-comment"># 특정 커밋의 변경 내용 확인</span>
+<span class="code-cmd">git show</span> [커밋해시]
+
+<span class="code-comment"># 변경사항 비교</span>
+<span class="code-cmd">git diff</span></div>
+
+    <div style="text-align: center; margin: 25px 0;">
+      <img src="../images/images_github/desktop_commit_history.png" class="card-img" onclick="showImage(this.src)" style="max-width: 550px;">
+      <p style="margin-top: 10px; font-size: 14px; color: #888;">GitHub Desktop에서 커밋 히스토리 확인하기</p>
+    </div>
+
+    <div class="info-box">
+      <p>💡 <strong>Tip:</strong> History 탭에서 커밋을 우클릭하면 <strong>Revert this commit</strong> (이 커밋 되돌리기) 옵션을 사용할 수 있습니다. 실수로 커밋한 내용을 안전하게 되돌릴 때 유용합니다.</p>
+    </div>
+  </section>
+
+  <!-- 17. Desktop 브랜치 생성 (from Commit) -->
+  <section class="slide" data-title="Desktop 브랜치 생성 (from Commit)">
+    <div class="slide-label">17 — Desktop 브랜치 생성 (from Commit)</div>
+    <h1>🌿 Desktop: 특정 Commit에서 브랜치 생성</h1>
+    <p>GitHub Desktop의 <strong>History</strong> 기능을 사용하면 과거의 특정 시점(커밋)에서 바로 브랜치를 만들 수 있습니다.</p>
+
+    <h2>🛠️ 브랜치 생성 순서</h2>
+    <div class="highlight-box">
+      <ol>
+        <li>왼쪽 상단의 <strong>History</strong> 탭을 클릭합니다.</li>
+        <li>커밋 목록에서 브랜치를 만들고 싶은 <strong>특정 커밋</strong>을 찾아 마우스 우클릭을 합니다.</li>
+        <li>메뉴에서 <strong>Create Branch from Commit...</strong>을 클릭합니다.</li>
+        <li>새로운 브랜치 이름을 입력하고 <strong>Create Branch</strong> 버튼을 누릅니다.</li>
+      </ol>
+    </div>
+
+    <h2>⌨️ CLI 대응 명령어</h2>
+    <div class="code-block"><span class="code-comment"># CLI에서의 동일한 작업</span>
+<span class="code-cmd">git switch</span> <span class="code-flag">-c</span> fix-old-bug <span class="code-str">e4f5g6h</span></div>
+
+    <div style="text-align: center; margin: 25px 0;">
+      <img src="../images/images_github/desktop_branch_create_from_commit.png" class="card-img" onclick="showImage(this.src)" style="max-width: 550px;">
+      <p style="margin-top: 10px; font-size: 14px; color: #888;">GitHub Desktop에서 특정 커밋으로 브랜치 생성하기</p>
+    </div>
+
+    <div class="info-box">
+      <p>💡 <strong>Tip:</strong> 이 기능은 과거 상태의 코드를 기반으로 긴급 수정을 하거나 실험적인 작업을 시작할 때 매우 유용합니다.</p>
+    </div>
+  </section>
+
+  <!-- 18. Desktop 브랜치 전환 -->
+  <section class="slide" data-title="Desktop 브랜치 전환">
+    <div class="slide-label">18 — Desktop 브랜치 전환</div>
+    <h1>🔀 Desktop: 브랜치 전환하기</h1>
+    <p>여러 브랜치 사이를 오가며 작업할 때, GitHub Desktop에서는 클릭 한 번으로 브랜치를 전환할 수 있습니다.</p>
+
+    <h2>🛠️ 브랜치 전환 순서</h2>
+    <div class="highlight-box">
+      <ol>
+        <li>상단 메뉴에서 <strong>Current Branch</strong> 버튼을 클릭합니다.</li>
+        <li>브랜치 목록에서 전환하고 싶은 브랜치를 클릭합니다.</li>
+        <li>클릭하는 순간 해당 브랜치로 자동 전환됩니다.</li>
+      </ol>
+    </div>
+
+    <h2>⌨️ CLI 대응 명령어</h2>
+    <div class="code-block"><span class="code-comment"># CLI에서의 동일한 작업</span>
+<span class="code-cmd">git switch</span> main
+<span class="code-cmd">git switch</span> feature/login</div>
+
+    <div style="text-align: center; margin: 25px 0;">
+      <img src="../images/images_github/desktop_branch_switch.png" class="card-img" onclick="showImage(this.src)" style="max-width: 550px;">
+      <p style="margin-top: 10px; font-size: 14px; color: #888;">GitHub Desktop에서 브랜치 전환하기</p>
+    </div>
+
+    <div class="warning-box">
+      <p>⚠️ <strong>주의:</strong> 브랜치를 전환하기 전에 현재 작업 중인 변경사항을 <strong>커밋하거나 Stash</strong>해야 합니다. 그렇지 않으면 변경사항이 다른 브랜치로 함께 이동될 수 있습니다.</p>
+    </div>
+  </section>
+
+  <!-- 19. Desktop 브랜치 병합 -->
+  <section class="slide" data-title="Desktop 브랜치 병합">
+    <div class="slide-label">19 — Desktop 브랜치 병합</div>
+    <h1>🔀 Desktop: 브랜치 Merge하기</h1>
+    <p>기능 개발이 완료되면, 해당 브랜치를 <strong>main 브랜치에 병합(Merge)</strong>하여 변경사항을 반영합니다.</p>
+
+    <h2>🛠️ Merge 순서</h2>
+    <div class="highlight-box">
+      <ol>
+        <li>먼저 병합 대상인 <strong>main 브랜치</strong>로 전환합니다. (Current Branch → main)</li>
+        <li>상단 메뉴에서 <strong>Branch</strong> → <strong>Merge into Current Branch</strong>를 클릭합니다.</li>
+        <li>병합할 브랜치(예: <code>feature/login</code>)를 선택합니다.</li>
+        <li><strong>Merge feature/login into main</strong> 버튼을 클릭합니다.</li>
+        <li>병합 완료 후 <strong>Push origin</strong>을 눌러 원격 저장소에 반영합니다.</li>
+      </ol>
+    </div>
+
+    <h2>⌨️ CLI 대응 명령어</h2>
+    <div class="code-block"><span class="code-comment"># CLI에서의 동일한 작업</span>
+<span class="code-cmd">git switch</span> main
+<span class="code-cmd">git merge</span> feature/login
+<span class="code-cmd">git push</span> origin main</div>
+
+    <div style="text-align: center; margin: 25px 0;">
+      <img src="../images/images_github/desktop_branch_merge.png" class="card-img" onclick="showImage(this.src)" style="max-width: 550px;">
+      <p style="margin-top: 10px; font-size: 14px; color: #888;">GitHub Desktop에서 브랜치 Merge하기</p>
+    </div>
+
+    <div class="info-box">
+      <p>💡 <strong>Tip:</strong> 충돌(Conflict)이 발생하면 GitHub Desktop이 충돌 파일을 알려줍니다. 해당 파일을 열어 충돌 부분을 수정한 후, 커밋하면 병합이 완료됩니다.</p>
+    </div>
+  </section>
+
+  <!-- 20. Desktop PR 생성 -->
+  <section class="slide" data-title="Desktop PR 생성">
+    <div class="slide-label">20 — Desktop PR 생성</div>
+    <h1>🚀 Desktop: Pull Request 생성하기</h1>
+    <p>브랜치에서 작업이 완료되면, <strong>Pull Request(PR)</strong>를 생성하여 팀원들에게 코드 리뷰를 요청할 수 있습니다. GitHub Desktop에서 간편하게 PR을 생성할 수 있습니다.</p>
+
+    <h2>🛠️ Pull Request 생성 순서</h2>
+    <div class="highlight-box">
+      <ol>
+        <li>작업 브랜치(예: <code>dev</code>)에서 모든 변경사항을 <strong>커밋</strong>하고 <strong>Push</strong>합니다.</li>
+        <li>GitHub Desktop 메인 화면에서 <strong>"Preview Pull Request"</strong> 버튼을 클릭합니다.<br>
+            (또는 Branch 메뉴 → <strong>Create Pull Request</strong> / 단축키 <code>Ctrl + Alt + P</code>)</li>
+        <li>변경사항(추가/삭제된 코드)을 미리 확인합니다.</li>
+        <li><strong>"Create Pull Request"</strong>를 클릭하면 GitHub 웹 페이지가 자동으로 열립니다.</li>
+      </ol>
+    </div>
+
+    <div style="text-align: center; margin: 25px 0;">
+      <img src="../images/images_github/desktop_pull_request_01.png" class="card-img" onclick="showImage(this.src)" style="max-width: 550px;">
+      <p style="margin-top: 10px; font-size: 14px; color: #888;">GitHub Desktop에서 Pull Request 미리보기 및 생성</p>
+    </div>
+
+    <div class="info-box">
+      <p>💡 <strong>Tip:</strong> PR 미리보기 화면에서 <strong>base 브랜치</strong>(병합 대상)와 <strong>compare 브랜치</strong>(작업 브랜치)가 올바르게 설정되어 있는지 확인하세요.</p>
+    </div>
+  </section>
+
+  <!-- 21. 웹 PR 관리 -->
+  <section class="slide" data-title="웹 PR 관리">
+    <div class="slide-label">21 — 웹 PR 관리</div>
+    <h1>🌐 웹: PR 리뷰 및 Merge</h1>
+    <p>GitHub Desktop에서 PR을 생성하면 <strong>GitHub 웹 페이지</strong>로 이동합니다. 여기서 PR 제목과 설명을 작성하고, 팀원의 코드 리뷰를 거쳐 최종 Merge를 진행합니다.</p>
+
+    <h2>📝 PR 작성 및 리뷰</h2>
+    <div class="highlight-box">
+      <ol>
+        <li>PR 제목과 설명을 작성하고 <strong>"Create Pull Request"</strong> 버튼을 클릭합니다.</li>
+        <li>팀원이 <strong>Conversation</strong>, <strong>Commits</strong>, <strong>Files changed</strong> 탭에서 코드를 리뷰합니다.</li>
+        <li>필요시 코멘트를 남기고 수정을 요청합니다.</li>
+      </ol>
+    </div>
+
+    <h2>✅ Merge 진행</h2>
+    <div class="highlight-box">
+      <ol>
+        <li>충돌이 없으면 <strong>"No conflicts with base branch"</strong> 메시지가 표시됩니다.</li>
+        <li><strong>"Merge pull request"</strong> 버튼을 클릭하여 병합을 완료합니다.</li>
+        <li>병합 후 <strong>"Pull request successfully merged and closed"</strong> 메시지가 나타납니다.</li>
+        <li>작업이 완료된 브랜치는 <strong>"Delete branch"</strong> 버튼으로 삭제할 수 있습니다.</li>
+      </ol>
+    </div>
+
+    <div style="text-align: center; margin: 25px 0;">
+      <img src="../images/images_github/desktop_pull_request_02.png" class="card-img" onclick="showImage(this.src)" style="max-width: 550px;">
+      <p style="margin-top: 10px; font-size: 14px; color: #888;">GitHub 웹에서 PR Merge 진행 (Open → Merged)</p>
+    </div>
+
+    <div class="info-box">
+      <p>💡 <strong>Tip:</strong> 직접 Merge하는 것보다 <strong>PR 기반의 협업</strong>이 코드 품질을 높이는 데 효과적입니다. 코멘트를 통해 피드백을 주고받으며 더 나은 코드를 만들어갈 수 있습니다.</p>
+    </div>
+  </section>
+
+  <!-- 22. 핵심 정리 -->
+  <section class="slide" data-title="핵심 요약">
+    <div class="slide-label">22 — 핵심 요약</div>
+    <h1>📌 핵심 정리</h1>
+
+    <h2>1️⃣ Git의 3가지 영역</h2>
+    <div class="highlight-box">
+      <div class="code-block">Working Directory  →(<span class="code-cmd">git add</span>)→  Staging Area  →(<span class="code-cmd">git commit</span>)→  Repository
+   실제 파일 수정                커밋할 파일 선택              버전 영구 저장</div>
+    </div>
+
+    <h2>2️⃣ 필수 명령어</h2>
+    <table>
+      <tr><th>명령어</th><th>설명</th></tr>
+      <tr><td><code>git init</code></td><td>Git 저장소 초기화 (.git 폴더 생성)</td></tr>
+      <tr><td><code>git config --global user.name/email</code></td><td>사용자 이름/이메일 설정</td></tr>
+      <tr><td><code>git status</code></td><td>현재 작업 디렉토리 상태 확인</td></tr>
+      <tr><td><code>git add . / git add -A</code></td><td>변경 파일을 Staging Area에 추가</td></tr>
+      <tr><td><code>git commit -m "메시지"</code></td><td>스테이징된 변경사항을 버전으로 저장</td></tr>
+      <tr><td><code>git log --oneline</code></td><td>커밋 이력 확인</td></tr>
+      <tr><td><code>git push -u origin main</code></td><td>원격 저장소에 업로드 (최초 1회)</td></tr>
+      <tr><td><code>git pull origin main</code></td><td>원격 변경사항을 로컬로 가져와 병합</td></tr>
+    </table>
+
+    <h2>3️⃣ GitHub 연동 & Token</h2>
+    <div class="highlight-box">
+      <div class="code-block"><span class="code-comment"># 로컬 → GitHub 연결</span>
+<span class="code-cmd">git remote add</span> origin https://github.com/username/repo.git
+<span class="code-cmd">git push</span> <span class="code-flag">-u</span> origin main
+
+<span class="code-comment"># GitHub → 로컬 복제</span>
+<span class="code-cmd">git clone</span> https://github.com/username/repo.git</div>
+    </div>
+    <div class="info-box">
+      <p>💡 <strong>PAT (Personal Access Token)</strong>: 2021년부터 비밀번호 대신 Token 사용 필수. GitHub Settings → Developer settings → Personal access tokens에서 발급. <code>repo</code> 권한 체크 후 생성하며, 한 번만 표시되므로 즉시 복사 보관.</p>
+    </div>
+
+    <h2>4️⃣ 브랜치 관리</h2>
+    <table>
+      <tr><th>명령어</th><th>설명</th></tr>
+      <tr><td><code>git branch</code></td><td>브랜치 목록 확인</td></tr>
+      <tr><td><code>git switch -c feature/기능명</code></td><td>새 브랜치 생성 & 전환</td></tr>
+      <tr><td><code>git switch -c 명칭 [Hash]</code></td><td>특정 커밋(Hash)에서 브랜치 생성</td></tr>
+      <tr><td><code>git switch main</code></td><td>브랜치 전환</td></tr>
+      <tr><td><code>git merge feature/기능명</code></td><td>브랜치 병합 (main에서 실행)</td></tr>
+      <tr><td><code>git branch -d feature/기능명</code></td><td>병합 완료된 브랜치 삭제</td></tr>
+    </table>
+    <div class="info-box">
+      <p>⚠️ <strong>Merge 병합</strong>: Merge는 병합 커밋이 생기며 이력이 보존됩니다. 협업과 공유 브랜치 관리에 권장되는 안전한 방식입니다.</p>
+    </div>
+
+    <h2>5️⃣ Pull Request (PR) 프로세스</h2>
+    <div class="highlight-box">
+      <ol>
+        <li>feature 브랜치에서 작업 완료 후 <code>git push -u origin feature/기능명</code></li>
+        <li>GitHub 웹 → <strong>"Compare & Pull Request"</strong> 클릭</li>
+        <li>PR 제목/설명 작성 → Reviewer 지정 → <strong>"Create Pull Request"</strong></li>
+        <li>팀원 코드 리뷰 → Approve → <strong>"Merge Pull Request"</strong></li>
+        <li>병합 완료 후 <strong>"Delete branch"</strong>로 feature 브랜치 삭제</li>
+      </ol>
+    </div>
+
+    <h2>6️⃣ GitHub Desktop 주요 기능</h2>
+    <table>
+      <tr><th>작업</th><th>CLI</th><th>GitHub Desktop</th></tr>
+      <tr><td>브랜치 생성</td><td><code>git switch -c feature</code></td><td>Current Branch → New Branch</td></tr>
+      <tr><td>브랜치 전환</td><td><code>git switch main</code></td><td>Current Branch 드롭다운 클릭</td></tr>
+      <tr><td>브랜치 병합</td><td><code>git merge feature</code></td><td>Branch → Merge into Current Branch</td></tr>
+      <tr><td>PR 생성</td><td>GitHub 웹에서 생성</td><td>Branch → Create Pull Request</td></tr>
+      <tr><td>커밋 히스토리</td><td><code>git log --oneline</code></td><td>History 탭에서 시각적 확인</td></tr>
+    </table>
+
+    <h2>7️⃣ 실전 팁</h2>
+    <div class="info-box">
+      <ul>
+        <li><strong>커밋 메시지 규칙</strong>: <code>feat:</code> 기능 추가 / <code>fix:</code> 버그 수정 / <code>docs:</code> 문서 / <code>refactor:</code> 리팩토링</li>
+        <li><strong>.gitignore</strong>: <code>node_modules/</code>, <code>.env</code>, <code>.DS_Store</code> 등 민감하거나 불필요한 파일은 반드시 제외</li>
+        <li><strong>pull before push</strong>: push 전에 항상 <code>git pull</code>로 최신 상태 유지</li>
+        <li><strong>GitHub Flow</strong>: main → feature 브랜치 생성 → 개발 → PR → 리뷰 → Merge → 삭제</li>
+      </ul>
+    </div>
+
+    <div class="success-box">
+      <h3>🎉 축하합니다!</h3>
+      <p>Git & GitHub의 핵심 개념부터 브랜치 전략, Pull Request, GitHub Desktop까지 완주하셨습니다! 이제 실전 협업 워크플로우를 자신있게 활용해보세요.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- NAV -->
+<div class="nav-arrows">
+  <button class="nav-btn" id="btnPrev" onclick="navigate(-1)" title="이전 (←)">←</button>
+  <button class="nav-btn" id="btnNext" onclick="navigate(1)" title="다음 (→)">→</button>
+</div>
+
+<div class="key-hint">
+  <kbd>←</kbd><kbd>→</kbd> 키보드로 이동 &nbsp;·&nbsp; <kbd>T</kbd> 테마 전환
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal" onclick="closeImageModal()">
+    <span class="close-modal">&times;</span>
+    <img class="modal-content" id="modalImage">
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const tocList = document.getElementById('tocList');
+  let current = -1;
+
+  // Build TOC
+  slides.forEach((s, i) => {
+    const title = s.dataset.title || `슬라이드 ${i+1}`;
+    const item = document.createElement('div');
+    item.className = 'toc-item' + (i === 0 ? ' active' : '');
+    item.innerHTML = `
+      <span class="toc-num">${String(i).padStart(2,'0')}</span>
+      <span class="toc-text">${title}</span>
+      <span class="toc-dot"></span>`;
+    item.addEventListener('click', () => goSlide(i));
+    tocList.appendChild(item);
+  });
+
+  document.getElementById('totNum').textContent = slides.length;
+
+  function goSlide(idx) {
+    if (idx < 0 || idx >= slides.length || idx === current) return;
+
+    if (current >= 0) {
+      const prev = slides[current];
+      prev.classList.add('exit');
+      setTimeout(() => prev.classList.remove('exit'), 500);
+      prev.classList.remove('active');
+    }
+
+    current = idx;
+    slides[current].classList.add('active');
+    slides[current].scrollTop = 0;
+
+    document.querySelectorAll('.toc-item').forEach((el, i) => {
+      el.classList.toggle('active', i === current);
+    });
+
+    const activeTocItem = tocList.querySelectorAll('.toc-item')[current];
+    if (activeTocItem) activeTocItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+    document.getElementById('curNum').textContent = current + 1;
+    const pct = ((current + 1) / slides.length) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+
+    document.getElementById('btnPrev').disabled = current === 0;
+    document.getElementById('btnNext').disabled = current === slides.length - 1;
+
+    if (window.innerWidth <= 768) document.body.classList.remove('sidebar-open');
+  }
+
+  function navigate(dir) { goSlide(current + dir); }
+
+  function toggleSidebar() {
+    document.body.classList.toggle('sidebar-open');
+  }
+
+  // Theme with localStorage persistence
+  let isDark = localStorage.getItem('devops-theme') !== 'light';
+  function applyTheme() {
+    document.documentElement.classList.toggle('light', !isDark);
+    const label = document.getElementById('themeLabel');
+    const thumb = document.querySelector('.toggle-thumb');
+    if (isDark) {
+      label.textContent = '🌙 다크 모드';
+      thumb.textContent = '🌙';
+    } else {
+      label.textContent = '☀️ 라이트 모드';
+      thumb.textContent = '☀️';
+    }
+  }
+  function toggleTheme() {
+    isDark = !isDark;
+    localStorage.setItem('devops-theme', isDark ? 'dark' : 'light');
+    applyTheme();
+  }
+  applyTheme();
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   navigate(-1);
+    if (e.key === 't' || e.key === 'T') toggleTheme();
+    if (e.key === 'Escape') closeImageModal();
+  });
+
+  // Image Modal
+  function showImage(src) {
+      const modal = document.getElementById('imageModal');
+      const modalImg = document.getElementById('modalImage');
+      modal.style.display = "block";
+      modalImg.src = src;
+  }
+  function closeImageModal() {
+      document.getElementById('imageModal').style.display = "none";
+  }
+
+  // --- Code Block Enhancements (Copy & Lang Tag) ---
+  document.querySelectorAll('.code-block').forEach(block => {
+    const container = document.createElement('div');
+    container.className = 'code-block-container';
+    block.parentNode.insertBefore(container, block);
+    container.appendChild(block);
+
+    let lang = block.dataset.lang;
+    if (!lang) {
+      const text = block.textContent;
+      if (text.includes('FROM ') || text.includes('RUN ') || text.includes('COPY ')) lang = 'Dockerfile';
+      else if (text.includes('services:') || text.includes('version:') || text.includes('image:')) lang = 'YAML';
+      else if (text.includes('server {') || text.includes('location ')) lang = 'Nginx';
+      else if (text.includes('import ') || text.includes('def ')) lang = 'Python';
+      else if (text.includes('npm ') || text.includes('node ')) lang = 'Node.js';
+      else if (text.includes('[devops@') || text.includes('$ ') || text.includes('sudo ')) lang = 'Bash';
+      else lang = 'Code';
+    }
+
+    const tag = document.createElement('div');
+    tag.className = 'code-lang-tag';
+    tag.textContent = lang;
+    container.appendChild(tag);
+
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> <span>Copy</span>`;
+    btn.onclick = () => {
+      const textToCopy = block.innerText;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const span = btn.querySelector('span');
+        btn.classList.add('copied');
+        span.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          span.textContent = 'Copy';
+        }, 2000);
+      });
+    };
+    container.appendChild(btn);
+  });
+
+  goSlide(0);
+</script>
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "403d66d8aa9e4d8e9c2370d257f0c9b6"}'></script>
+</body>
+</html>

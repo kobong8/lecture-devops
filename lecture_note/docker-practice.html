@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docker 실무: Multi-stage & Compose</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&family=Google+Sans+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --sidebar-bg: #0f0f1a;
+    --sidebar-w: 280px;
+    --accent: #6ee7b7;
+    --accent2: #818cf8;
+    --accent3: #f472b6;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border: rgba(255,255,255,0.07);
+    --slide-transition: 0.5s cubic-bezier(0.4,0,0.2,1);
+    --card-bg: rgba(255,255,255,0.03);
+    --card-hover-bg: rgba(255,255,255,0.055);
+    --toc-hover: rgba(255,255,255,0.04);
+    --toc-active: rgba(110,231,183,0.08);
+    --stat-bg: rgba(255,255,255,0.025);
+    --bar-track: rgba(255,255,255,0.05);
+    --kbd-bg: rgba(255,255,255,0.06);
+    --nav-bg: rgba(255,255,255,0.06);
+    --shadow: none;
+    --code-bg: #0d1117;
+    --code-text: #e6edf3;
+    --highlight-bg: rgba(110,231,183,0.05);
+    --highlight-border: rgba(110,231,183,0.3);
+    --table-header: rgba(255,255,255,0.05);
+    --table-row-alt: rgba(255,255,255,0.02);
+    --table-border: rgba(255,255,255,0.08);
+  }
+
+  html.light {
+    --bg: #f5f5f0;
+    --sidebar-bg: #eeeee8;
+    --accent: #059669;
+    --accent2: #4f46e5;
+    --accent3: #db2777;
+    --text: #1e293b;
+    --text-muted: #475569;
+    --border: rgba(0,0,0,0.09);
+    --card-bg: rgba(255,255,255,0.7);
+    --card-hover-bg: rgba(255,255,255,0.95);
+    --toc-hover: rgba(0,0,0,0.04);
+    --toc-active: rgba(5,150,105,0.08);
+    --stat-bg: rgba(255,255,255,0.6);
+    --bar-track: rgba(0,0,0,0.07);
+    --kbd-bg: rgba(0,0,0,0.06);
+    --nav-bg: rgba(255,255,255,0.7);
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --code-bg: #1e2530;
+    --code-text: #e6edf3;
+    --highlight-bg: rgba(5,150,105,0.06);
+    --highlight-border: rgba(5,150,105,0.3);
+    --table-header: rgba(0,0,0,0.05);
+    --table-row-alt: rgba(0,0,0,0.02);
+    --table-border: rgba(0,0,0,0.1);
+  }
+
+  *, *::before, *::after {
+    transition-property: background, background-color, border-color, color, box-shadow;
+    transition-duration: 0.35s;
+    transition-timing-function: ease;
+  }
+  .slide { transition: opacity var(--slide-transition), transform var(--slide-transition) !important; }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 10;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .brand-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, rgba(110,231,183,0.2), rgba(129,140,248,0.2));
+    border: 1px solid rgba(110,231,183,0.3);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .brand-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .brand-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .home-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(110,231,183,0.07);
+    border: 1px solid rgba(110,231,183,0.18);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--accent);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    text-decoration: none;
+    transition: all 0.2s;
+    margin-bottom: 8px;
+  }
+  .home-btn:hover {
+    background: rgba(110,231,183,0.14);
+    border-color: rgba(110,231,183,0.35);
+    transform: translateX(2px);
+  }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .theme-toggle:hover { background: var(--toc-hover); }
+  .theme-label {
+    font-size: 16px;
+    color: var(--text-muted);
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .toggle-track {
+    width: 32px; height: 18px;
+    border-radius: 9px;
+    background: var(--accent2);
+    position: relative;
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  html.light .toggle-track { background: #f59e0b; }
+  .toggle-thumb {
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    font-size: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  html.light .toggle-thumb { transform: translateX(14px); }
+
+  .toc-label {
+    padding: 20px 20px 10px;
+    font-size: 16px;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .toc-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 10px 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 1px;
+    position: relative;
+  }
+  .toc-item:hover { background: var(--toc-hover); }
+  .toc-item.active { background: var(--toc-active); }
+  .toc-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 2px; height: 55%;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .toc-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--text-muted);
+    min-width: 22px;
+    transition: color 0.2s;
+  }
+  .toc-item.active .toc-num { color: var(--accent); }
+
+  .toc-text {
+    font-size: 15px;
+    color: #94a3b8;
+    line-height: 1.35;
+    transition: color 0.2s;
+  }
+  .toc-item.active .toc-text,
+  .toc-item:hover .toc-text { color: var(--text); }
+
+  .toc-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .toc-item.active .toc-dot { background: var(--accent); box-shadow: 0 0 5px var(--accent); }
+
+  .sidebar-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .slide-counter {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .slide-counter span { color: var(--accent); font-weight: 700; }
+
+  .progress-bar {
+    width: 70px; height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 1px;
+    transition: width 0.4s ease !important;
+  }
+
+  /* ── MAIN ── */
+  #main {
+    flex: 1;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 52px 68px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity var(--slide-transition), transform var(--slide-transition);
+    pointer-events: none;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateY(-28px);
+  }
+
+  /* ── SLIDE: HOME ── */
+  .slide-home {
+    background: radial-gradient(ellipse at 25% 50%, rgba(110,231,183,0.06) 0%, transparent 55%),
+                radial-gradient(ellipse at 78% 18%, rgba(129,140,248,0.08) 0%, transparent 50%),
+                var(--bg);
+    justify-content: center;
+  }
+
+  .slide-home .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .slide-home h1 {
+    font-size: clamp(34px, 4.5vw, 60px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.35s forwards;
+  }
+
+  .slide-home h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .slide-home p.subtitle {
+    font-size: 18px;
+    color: #94a3b8;
+    max-width: 600px;
+    line-height: 1.75;
+    margin-bottom: 36px;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.5s forwards;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.65s forwards;
+  }
+
+  .meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 16px;
+    color: var(--text-muted);
+  }
+  .meta-chip .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* ── SLIDE: COMMON ── */
+  .slide-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--accent2);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .slide h1 {
+    font-size: clamp(26px, 3vw, 42px);
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+  }
+
+  .slide h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 28px;
+    margin-bottom: 12px;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .slide h2::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 18px;
+    background: var(--accent2);
+    margin-right: 10px;
+    border-radius: 2px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+  }
+
+  .slide p + h2 {
+    margin-top: 16px;
+  }
+
+  .slide h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+
+  .slide p {
+    font-size: 18px;
+    line-height: 1.8;
+    color: #94a3b8;
+    margin-bottom: 14px;
+  }
+  html.light .slide p { color: #475569; }
+
+  .slide ul, .slide ol {
+    margin-left: 20px;
+    margin-bottom: 18px;
+  }
+
+  .slide li {
+    font-size: 18px;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+  html.light .slide li { color: #475569; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 18px 20px;
+    border-radius: 10px;
+    margin: 14px 0;
+    font-family: 'Google Sans Code', monospace;
+    font-size: 18px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    overflow: visible;
+    flex-shrink: 0;
+    overflow-x: hidden;
+  }
+  .code-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+    border-radius: 10px 10px 0 0;
+    opacity: 0.4;
+  }
+  .code-comment { color: #6e7681; }
+  .code-cmd { color: var(--accent); font-weight: 700; }
+  .code-flag { color: var(--accent2); }
+  .code-str { color: #a5d6ff; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: var(--highlight-bg);
+    border-left: 3px solid var(--accent);
+    padding: 18px 20px;
+    margin: 16px 0;
+    border-radius: 0 10px 10px 0;
+    border: 1px solid var(--border);
+  }
+
+  .warning-box {
+    background: rgba(245, 158, 11, 0.05);
+    border-left: 3px solid #f59e0b;
+    padding: 18px 20px;
+    margin: 16px 0;
+    border-radius: 0 10px 10px 0;
+    border: 1px solid var(--border);
+  }
+
+  /* ── NAV ARROWS ── */
+  .nav-arrows {
+    position: fixed;
+    bottom: 28px;
+    right: 36px;
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+  .nav-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--nav-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-size: 14px;
+    box-shadow: var(--shadow);
+  }
+  .nav-btn:hover {
+    background: rgba(110,231,183,0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+
+  .key-hint {
+    position: fixed;
+    bottom: 32px; left: calc(var(--sidebar-w) + 20px);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 16px;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .key-hint kbd {
+    padding: 1px 5px;
+    background: var(--kbd-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ── TABLE ── */
+  .slide table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 16px;
+  }
+  .slide th {
+    background: var(--table-header);
+    color: var(--accent);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 1px solid var(--table-border);
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+  }
+  .slide td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--table-border);
+    color: #94a3b8;
+    vertical-align: top;
+    line-height: 1.6;
+  }
+  html.light .slide td { color: #475569; }
+  .slide tr:nth-child(even) td { background: var(--table-row-alt); }
+  .slide tr:hover td { background: var(--toc-hover); }
+
+  /* ── KEYWORD ── */
+  .keyword {
+    background: rgba(110,231,183,0.12);
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.95em;
+    border: 1px solid rgba(110,231,183,0.2);
+  }
+
+  /* ── CODE BLOCK ENHANCEMENTS ── */
+  .code-block-container {
+    position: relative;
+    margin: 14px 0;
+    overflow: visible;
+  }
+  .code-block {
+    margin: 0 !important;
+    padding-top: 36px !important;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-lang-tag {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: var(--accent2);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 9px 0 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 5;
+    pointer-events: none;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  }
+  .copy-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .copy-btn:hover {
+    background: rgba(110,231,183,0.15);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .copy-btn.copied {
+    background: rgba(110,231,183,0.2);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  html.light .copy-btn {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.1);
+  }
+  html.light .copy-btn:hover {
+    background: rgba(5,150,105,0.1);
+  }
+
+  /* ── SPLIT LAYOUT (2 COLUMNS) ── */
+  .split-layout {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+    align-items: flex-start;
+  }
+  .split-layout > div {
+    flex: 1;
+  }
+
+  @media (max-width: 768px) {
+    .split-layout {
+      flex-direction: column;
+    }
+  }
+
+  /* ── STACK LAYOUT (1 COLUMN) ── */
+  .stack-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-top: 20px;
+  }
+
+  /* ── MOBILE ── */
+  .menu-toggle {
+    display: none;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 300;
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 20px;
+    align-items: center; justify-content: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    backdrop-filter: blur(8px);
+  }
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 150;
+  }
+  @media (max-width: 768px) {
+    .menu-toggle { display: flex; }
+    #sidebar {
+      position: fixed;
+      left: 0; top: 0;
+      height: 100vh;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease !important;
+      z-index: 200;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+    }
+    body.sidebar-open #sidebar { transform: translateX(0); }
+    body.sidebar-open .sidebar-overlay { display: block; }
+    .slide { padding: 56px 20px 80px; }
+    .nav-arrows { right: 16px; bottom: 16px; }
+    .key-hint { display: none; }
+  }
+  @media (max-width: 480px) {
+    .slide { padding: 56px 14px 80px; }
+    .slide h2 { font-size: 22px !important; }
+    .nav-btn { width: 44px; height: 44px; font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="toggleSidebar()" aria-label="메뉴 열기">☰</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🐳</div>
+      <div>
+        <div class="brand-text">Docker 실무</div>
+        <div class="brand-sub">Docker Intermediate</div>
+      </div>
+    </div>
+    <a class="home-btn" href="../" title="홈으로">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      홈으로
+    </a>
+    <div class="theme-toggle" onclick="toggleTheme()">
+      <span class="theme-label" id="themeLabel">🌙 다크 모드</span>
+      <div class="toggle-track"><div class="toggle-thumb">🌙</div></div>
+    </div>
+  </div>
+
+  <div class="toc-label">목 차</div>
+  <div class="toc-list" id="tocList"></div>
+
+  <div class="sidebar-footer">
+    <div class="slide-counter"><span id="curNum">1</span> / <span id="totNum">1</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</nav>
+
+<main id="main">
+  <!-- 0. HOME -->
+  <section class="slide slide-home" data-title="Docker 시작하기">
+    <div class="eyebrow">— DevOps Advanced Study</div>
+    <h1>🐳 <em>Docker</em> 실무</h1>
+    <p class="subtitle">Multi-stage Build를 통한 이미지 최적화와 Docker Compose를 이용한 다중 컨테이너 오케스트레이션을 학습합니다.</p>
+    <div class="meta-row">
+      <div class="meta-chip"><span class="dot"></span> 2026 DevOps</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 12 슬라이드</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent3)"></span> Build once, Run anywhere</div>
+    </div>
+  </section>
+
+  <!-- 1. Nginx란? -->
+  <section class="slide" data-title="Nginx 웹 서버 개요">
+    <div class="slide-label">01 — Nginx 웹 서버 개요</div>
+    <h1><span class="emoji">🟢</span>Nginx란?</h1>
+
+    <div class="split-layout">
+      <!-- Left Column -->
+      <div>
+        <h2>Nginx (Engine-X)</h2>
+        <p><span class="keyword">Nginx</span>는 가볍고 성능이 뛰어난 <strong>웹 서버(Web Server)</strong>이자 <strong>리버스 프록시(Reverse Proxy)</strong>입니다.</p>
+
+        <div class="highlight-box">
+          <h3>🌟 주요 특징</h3>
+          <ul>
+            <li><strong>비동기 이벤트 기반 구조</strong>: 적은 메모리로 많은 동시 접속 처리가 가능합니다.</li>
+            <li><strong>리버스 프록시</strong>: 클라이언트의 요청을 대신 받아 백엔드 서버로 전달합니다.</li>
+            <li><strong>정적 파일 서빙</strong>: HTML, CSS, 이미지 등을 매우 빠르게 제공합니다.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div>
+        <div class="highlight-box" style="margin-top: 0;">
+          <h3 style="margin-top: 0;">📚 용어 정리</h3>
+          <div>
+            <p><strong>1. 비동기 (Asynchronous)</strong></p>
+            <ul>
+              <li><strong>동기(Sync)</strong>: 이전 작업이 완료될 때까지 다음 작업이 대기하는 방식입니다.</li>
+              <li><strong>비동기(Async)</strong>: 이전 작업의 완료 여부와 상관없이 다음 작업을 동시에 진행하는 방식입니다.</li>
+            </ul>
+            <p><strong>2. 프록시 / 리버스 프록시 (Reverse Proxy)</strong></p>
+            <ul>
+              <li><strong>포워드 프록시</strong>: 클라이언트 앞에 위치하여, 클라이언트를 대신해 외부 서버에 요청을 보냅니다.</li>
+              <li><strong>리버스 프록시</strong>: 서버 앞에 위치하여, 외부 요청을 받아 내부 백엔드 서버로 전달합니다.</li>
+            </ul>
+            <p><strong>3. 로드밸런싱 (Load Balancing)</strong></p>
+            <p style="margin-bottom: 0;">들어오는 트래픽을 여러 서버에 <strong>균등하게 분산</strong>시켜 특정 서버의 과부하를 방지하는 기술입니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Multi-stage Build란? -->
+  <section class="slide" data-title="Multi-stage Build 개념">
+    <div class="slide-label">02 — Multi-stage Build 개념</div>
+    <h1>🏗️ Multi-stage Build란?</h1>
+    <p>하나의 Dockerfile 안에서 여러 개의 <code>FROM</code> 구문을 사용하여 빌드 단계(Stage)를 나누는 기법입니다.</p>
+
+    <!-- 개념 다이어그램 -->
+    <style>
+      .diag-container { display: flex; gap: 0; align-items: stretch; margin: 18px 0 14px; font-family: 'Noto Sans KR', sans-serif; font-size: 15px; }
+      .diag-box-fail { flex: 1; border: 1px solid var(--diag-warn-border, rgba(245,158,11,0.35)); border-radius: 10px; padding: 14px 16px; background: var(--diag-warn-bg, rgba(245,158,11,0.04)); }
+      .diag-title-fail { color: var(--diag-warn, #f59e0b); font-weight: 700; font-size: 15px; letter-spacing: 0.12em; margin-bottom: 10px; }
+      .diag-item-fail { background: var(--diag-warn-item-bg, rgba(245,158,11,0.12)); border: 1px solid var(--diag-warn-item-border, rgba(245,158,11,0.25)); border-radius: 6px; padding: 7px 10px; color: var(--diag-warn-item, #fbbf24); font-size: 14px; }
+      .diag-item-fail-high { background: var(--diag-warn-item-bg-high, rgba(245,158,11,0.2)); border: 1px solid var(--diag-warn-item-border-high, rgba(245,158,11,0.4)); border-radius: 6px; padding: 7px 10px; color: var(--diag-warn, #f59e0b); font-weight: 700; font-size: 14px; }
+      .diag-footer-fail { margin-top: 10px; text-align: center; color: var(--diag-warn, #f59e0b); font-size: 14px; }
+
+      .diag-arrow { display: flex; align-items: center; padding: 0 14px; color: var(--accent); font-size: 20px; flex-shrink: 0; }
+
+      .diag-box-success { flex: 1.6; border: 1px solid rgba(110,231,183,0.3); border-radius: 10px; padding: 14px 16px; background: rgba(110,231,183,0.03); }
+      .diag-title-success { color: var(--accent); font-weight: 700; font-size: 15px; letter-spacing: 0.12em; margin-bottom: 10px; }
+      
+      .diag-stage { flex: 1; border-radius: 8px; padding: 10px 12px; }
+      .diag-stage1 { border: 1px solid rgba(129,140,248,0.3); background: rgba(129,140,248,0.05); }
+      .diag-title-st1 { color: var(--accent2); font-size: 14px; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.08em; }
+      .diag-item-st1 { background: rgba(129,140,248,0.1); border-radius: 4px; padding: 5px 8px; color: var(--diag-st1-item, #a5b4fc); font-size: 14px; }
+      
+      .diag-stage2 { border: 1px solid rgba(110,231,183,0.3); background: rgba(110,231,183,0.05); }
+      .diag-title-st2 { color: var(--accent); font-size: 14px; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.08em; }
+      .diag-item-st2 { background: rgba(110,231,183,0.1); border-radius: 4px; padding: 5px 8px; color: var(--diag-st2-item, #6ee7b7); font-size: 14px; }
+
+      .diag-item-high { background: rgba(110,231,183,0.15); border: 1px solid rgba(110,231,183,0.3); border-radius: 4px; padding: 5px 8px; color: var(--accent); font-size: 14px; font-weight: 700; }
+      .diag-footer-st2 { margin-top: 10px; text-align: center; color: var(--accent); font-size: 14px; font-weight: 700; }
+      
+      .diag-copy-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 40px; color: var(--accent); flex-shrink: 0; gap: 3px; }
+      .diag-copy-text { font-size: 14px; color: var(--text-muted); }
+
+      html.light .diag-container {
+        --diag-warn: #d97706;
+        --diag-warn-bg: rgba(217,119,6,0.04);
+        --diag-warn-border: rgba(217,119,6,0.35);
+        --diag-warn-item: #b45309;
+        --diag-warn-item-bg: rgba(217,119,6,0.12);
+        --diag-warn-item-border: rgba(217,119,6,0.25);
+        --diag-warn-item-bg-high: rgba(217,119,6,0.2);
+        --diag-warn-item-border-high: rgba(217,119,6,0.4);
+        --diag-st1-item: #4338ca;
+        --diag-st2-item: #047857;
+      }
+    </style>
+    <div class="diag-container">
+      <!-- 일반 빌드 -->
+      <div class="diag-box-fail">
+        <div class="diag-title-fail">❌ 일반 빌드 (Single-stage)</div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div class="diag-item-fail">📦 Node.js SDK + 컴파일러</div>
+          <div class="diag-item-fail">📄 소스 코드 전체</div>
+          <div class="diag-item-fail">📁 node_modules (수백 MB)</div>
+          <div class="diag-item-fail-high">🗂️ dist/ (실제 필요한 결과물)</div>
+        </div>
+        <div class="diag-footer-fail">최종 이미지 ≈ 수백 MB</div>
+      </div>
+
+      <!-- 화살표 -->
+      <div class="diag-arrow">→</div>
+
+      <!-- Multi-stage 빌드 -->
+      <div class="diag-box-success">
+        <div class="diag-title-success">✅ Multi-stage Build</div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <!-- Stage 1 -->
+          <div class="diag-stage diag-stage1">
+            <div class="diag-title-st1">STAGE 1: builder</div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+              <div class="diag-item-st1">📦 Node.js SDK</div>
+              <div class="diag-item-st1">📄 소스 코드</div>
+              <div class="diag-item-st1">📁 node_modules</div>
+              <div class="diag-item-high">🗂️ dist/ ← 생성</div>
+            </div>
+          </div>
+
+          <!-- 복사 화살표 -->
+          <div class="diag-copy-arrow">
+            <span class="diag-copy-text">COPY</span>
+            <span style="font-size: 16px;">→</span>
+            <span class="diag-copy-text">dist/만</span>
+          </div>
+
+          <!-- Stage 2 -->
+          <div class="diag-stage diag-stage2">
+            <div class="diag-title-st2">STAGE 2: production</div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+              <div class="diag-item-st2">🟢 nginx:alpine</div>
+              <div class="diag-item-high">🗂️ dist/ ← 복사됨</div>
+            </div>
+            <div class="diag-footer-st2">최종 이미지 ≈ 수십 MB</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 핵심 메커니즘 설명 -->
+    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+      <div style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 15px;">
+        <div style="color: var(--accent2); font-weight: 700; font-size: 14px; margin-bottom: 6px;">① FROM … AS &lt;name&gt;</div>
+        <div style="color: #94a3b8; font-size: 15px; line-height: 1.6;">각 Stage에 이름을 붙여 구분합니다. 하나의 Dockerfile에 <code>FROM</code>이 여러 번 등장할 수 있습니다.</div>
+      </div>
+      <div style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 15px;">
+        <div style="color: var(--accent2); font-weight: 700; font-size: 14px; margin-bottom: 6px;">② COPY --from=&lt;name&gt;</div>
+        <div style="color: #94a3b8; font-size: 15px; line-height: 1.6;">이전 Stage의 파일시스템에서 필요한 파일만 선택적으로 복사합니다. 나머지는 최종 이미지에 포함되지 않습니다.</div>
+      </div>
+      <div style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 15px;">
+        <div style="color: var(--accent2); font-weight: 700; font-size: 14px; margin-bottom: 6px;">③ 마지막 FROM이 최종</div>
+        <div style="color: #94a3b8; font-size: 15px; line-height: 1.6;">가장 마지막 <code>FROM</code> 구문의 Stage만 실제 배포 이미지로 생성됩니다. 앞선 Stage는 중간 작업 공간입니다.</div>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <h3>🚀 왜 사용하는가?</h3>
+      <ul>
+        <li><strong>이미지 크기 최소화:</strong> 빌드에만 필요한 도구(SDK, 컴파일러 등)를 최종 이미지에서 제외합니다.</li>
+        <li><strong>보안 강화:</strong> 소스 코드나 불필요한 바이너리를 배포 이미지에 포함하지 않아 공격 표면을 줄입니다.</li>
+        <li><strong>캐싱 최적화:</strong> 단계별로 레이어를 나누어 빌드 속도를 향상시킬 수 있습니다.</li>
+      </ul>
+    </div>
+
+    <div class="warning-box">
+      <p>💡 <strong>비교:</strong> 일반 빌드 방식은 "빌드 도구 + 소스 + 결과물"이 모두 포함되어 수백 MB가 넘어가지만, Multi-stage는 "결과물"만 담아 수십 MB로 줄일 수 있습니다.</p>
+    </div>
+  </section>
+
+  <!-- 3. Dockerfile 설정 -->
+  <section class="slide" data-title="Dockerfile 설정">
+    <div class="slide-label">03 — Dockerfile 설정</div>
+    <h1>💻 Multi-stage 예제 (Dockerfile)</h1>
+    <p><code>npm ci</code>를 활용하여 의존성을 설치하고, 빌드된 결과물(<code>dist</code>)만 Nginx 이미지로 복사합니다.</p>
+
+    <h2>Dockerfile</h2>
+    <div class="code-block" style="margin-top: 8px; position: relative;">
+<span class="code-comment"># Stage 1: Build Stage</span>
+<span class="code-cmd">FROM</span> node:22-alpine <span class="code-cmd">AS</span> <span class="code-flag">builder</span>
+
+<span class="code-cmd">WORKDIR</span> /app
+
+<span class="code-cmd">COPY</span> package*.json ./
+<span class="code-cmd">RUN</span> npm ci
+
+<span class="code-cmd">COPY</span> . .
+
+<span class="code-cmd">RUN</span> npm run build
+
+
+<span class="code-comment"># Stage 2: Production Stage</span>
+<span class="code-cmd">FROM</span> nginx:alpine <span class="code-cmd">AS</span> <span class="code-flag">production</span>
+
+<span class="code-cmd">COPY</span> nginx.conf /etc/nginx/conf.d/default.conf
+<span class="code-cmd">COPY --from=</span><span class="code-flag">builder</span> /app/dist /usr/share/nginx/html
+
+<span class="code-cmd">EXPOSE</span> 80
+
+<span class="code-cmd">CMD</span> ["nginx", "-g", "daemon off;"]
+    </div>
+
+    <!-- 명령어 설명 카드 -->
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; display: flex; gap: 10px; align-items: flex-start;">
+        <span style="font-family:'Space Mono',monospace; font-size:18px; color:var(--accent); background:var(--highlight-bg); border:1px solid var(--highlight-border); border-radius:5px; padding:2px 8px; white-space:nowrap; flex-shrink:0;">npm install</span>
+        <span style="font-size:18px; color:var(--text-muted); line-height:1.5;">매번 최신 버전을 조회해 설치. 버전이 달라질 수 있어 <strong style="color:var(--accent3);">재현성이 낮음</strong></span>
+      </div>
+      <div style="background: var(--highlight-bg); border: 1px solid var(--highlight-border); border-radius: 8px; padding: 11px 14px; display: flex; gap: 10px; align-items: flex-start;">
+        <span style="font-family:'Space Mono',monospace; font-size:18px; color:var(--accent); background:var(--highlight-bg); border:1px solid var(--highlight-border); border-radius:5px; padding:2px 8px; white-space:nowrap; flex-shrink:0;">npm ci</span>
+        <span style="font-size:18px; color:var(--text-muted); line-height:1.5;"><code>package-lock.json</code>을 기준으로 정확히 고정된 버전 설치. <strong style="color:var(--accent);">CI/CD 환경 권장</strong></span>
+      </div>
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; display: flex; gap: 10px; align-items: flex-start;">
+        <span style="font-family:'Space Mono',monospace; font-size:18px; color:var(--accent2); background:rgba(129,140,248,0.08); border:1px solid rgba(129,140,248,0.2); border-radius:5px; padding:2px 8px; white-space:nowrap; flex-shrink:0;">daemon off;</span>
+        <span style="font-size:18px; color:var(--text-muted); line-height:1.5;">Nginx를 백그라운드 데몬이 아닌 <strong>포그라운드</strong>로 실행. PID 1이 유지되어야 컨테이너가 종료되지 않음</span>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top: 10px;">
+      <h3>💡 레이어 캐싱 전략</h3>
+      <p style="font-size:18px; margin-bottom:6px;"><code>package*.json</code>을 소스보다 <strong>먼저</strong> COPY하는 이유:</p>
+      <ul style="font-size:18px; color:var(--text-muted);">
+        <li>소스 코드는 자주 바뀌지만 <code>package.json</code>은 상대적으로 안정적</li>
+        <li>소스만 변경됐을 때 <code>npm ci</code> 레이어를 <strong>캐시에서 재사용</strong> → 빌드 속도 향상</li>
+      </ul>
+    </div>
+
+    <h2>.dockerignore</h2>
+    <div class="code-block" style="margin-top: 8px;">
+node_modules
+dist
+.git
+.gitignore
+.vscode
+npm-debug.log*
+README.md
+    </div>
+  </section>
+
+  <!-- 4. Nginx 설정 -->
+  <section class="slide" data-title="Nginx 설정">
+    <div class="slide-label">04 — Nginx 설정</div>
+    <h1>⚙️ 설정 파일 (Nginx)</h1>
+    <p>SPA(Single Page Application) 라우팅을 위한 Nginx 설정입니다.</p>
+
+    <h2>nginx.conf</h2>
+    <div class="code-block" style="margin-top: 8px;">
+<span class="code-cmd">server</span> {
+    <span class="code-cmd">listen</span> 80;
+    <span class="code-cmd">server_name</span> localhost;
+
+    <span class="code-cmd">root</span> /usr/share/nginx/html;
+    <span class="code-cmd">index</span> index.html;
+
+    <span class="code-cmd">location</span> / {
+        <span class="code-cmd">try_files</span> $uri $uri/ /index.html;
+    }
+}
+    </div>
+
+    <!-- 각 지시어 설명 -->
+    <div style="display: flex; flex-direction: column; gap: 7px; margin-top: 12px;">
+      <div style="font-size: 18px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.1em; margin-bottom: 2px;">지시어(Directive) 설명</div>
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 13px; display: flex; gap: 10px; align-items: flex-start;">
+        <code style="font-size:18px; color:var(--accent); flex-shrink:0; min-width:90px;">listen 80</code>
+        <span style="font-size:18px; color:var(--text-muted); line-height:1.5;">HTTP 기본 포트. HTTPS는 <code>443</code> + SSL 설정 추가 필요</span>
+      </div>
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 13px; display: flex; gap: 10px; align-items: flex-start;">
+        <code style="font-size:18px; color:var(--accent); flex-shrink:0; min-width:90px;">server_name</code>
+        <span style="font-size:18px; color:var(--text-muted); line-height:1.5;">실제 운영 시 도메인명 입력 (<code>example.com</code>). 여러 도메인 공백으로 구분 가능</span>
+      </div>
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 13px; display: flex; gap: 10px; align-items: flex-start;">
+        <code style="font-size:18px; color:var(--accent); flex-shrink:0; min-width:90px;">root</code>
+        <span style="font-size:18px; color:var(--text-muted); line-height:1.5;">Dockerfile에서 <code>COPY --from=builder /app/dist</code>로 복사한 경로와 일치해야 함</span>
+      </div>
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 13px; display: flex; gap: 10px; align-items: flex-start;">
+        <code style="font-size:18px; color:var(--accent); flex-shrink:0; min-width:90px;">location /</code>
+        <span style="font-size:18px; color:var(--text-muted); line-height:1.5;">모든 URL 패턴을 이 블록에서 처리. API 서버가 있다면 <code>location /api</code> 블록으로 분리 가능</span>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top: 10px;">
+      <h3>💡 Nginx SPA 설정</h3>
+      <ul style="color:var(--text-muted);">
+        <li><code>try_files</code>: 요청된 파일이 없으면 <code>/index.html</code>로 라우팅하여 Vue Router의 History 모드를 정상적으로 지원합니다.</li>
+        <li>기본 포트 80으로 들어오는 모든 요청을 처리하며, <code>/usr/share/nginx/html</code>에서 정적 파일들을 서빙합니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 5. 이미지 빌드 및 컨테이너 실행 -->
+  <section class="slide" data-title="이미지 빌드 및 컨테이너 실행">
+    <div class="slide-label">05 — 이미지 빌드 및 컨테이너 실행</div>
+    <h1>🚀 이미지 빌드 및 컨테이너 실행</h1>
+    <p>Docker 이미지를 빌드하고 실행하여 Multi-stage 빌드의 결과물을 확인합니다.</p>
+
+    <h2>1. 이미지 빌드</h2>
+    <div class="code-block" style="margin-top: 8px;">
+<span class="code-comment"># 이미지 빌드</span>
+[devops@localhost ~]$ <span class="code-cmd">docker</span> build -t vue-multistage:1.0 .
+<span style="color: var(--text-muted);">...
+ => [production 3/3] COPY --from=builder /app/dist /usr/share/nginx/html
+ => exporting to image
+ => => naming to docker.io/library/vue-multistage:1.0</span>
+
+<span class="code-comment"># 이미지 크기 확인 (~91.2MB)</span>
+[devops@localhost ~]$ <span class="code-cmd">docker</span> images
+<span style="color: var(--text-muted);">IMAGE                   ID             DISK USAGE   CONTENT SIZE
+vue-multistage:1.0      d396442cd561       91.2MB           26MB</span>
+    </div>
+
+    <!-- 옵션 상세 설명 -->
+    <div style="display: flex; flex-direction: column; gap: 7px; margin-top: 12px;">
+      <div style="font-size: 18px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.1em; margin-bottom: 2px;">docker build 옵션</div>
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 13px; display: flex; gap: 10px; align-items: flex-start;">
+        <code style="font-size:18px; color:var(--accent); flex-shrink:0; min-width:100px;">-t &lt;이름:태그&gt;</code>
+        <span style="font-size:18px; color:var(--text-muted); line-height:1.5;"><code>vue-multistage</code>는 이미지 이름, <code>1.0</code>은 버전 태그. 생략 시 <code>latest</code>로 자동 지정</span>
+      </div>
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 13px; display: flex; gap: 10px; align-items: flex-start;">
+        <code style="font-size:18px; color:var(--accent); flex-shrink:0; min-width:100px;">. (빌드 컨텍스트)</code>
+        <span style="font-size:18px; color:var(--text-muted); line-height:1.5;">현재 디렉토리를 빌드 컨텍스트로 설정. <code>Dockerfile</code>과 복사할 파일들의 기준 경로가 됨</span>
+      </div>
+    </div>
+
+    <h2>2. 컨테이너 실행</h2>
+    <div class="code-block" style="margin-top: 8px;">
+<span class="code-comment"># 컨테이너 백그라운드 실행</span>
+[devops@localhost ~]$ <span class="code-cmd">docker</span> run -d -p 8000:80 --name=multistage-container vue-multistage:1.0
+
+<span class="code-comment"># 프로세스 확인</span>
+[devops@localhost ~]$ <span class="code-cmd">docker</span> ps
+<span style="color: var(--text-muted);">CONTAINER ID   IMAGE                STATUS          PORTS                                     NAMES
+155b60a86034   vue-multistage:1.0   Up 30 seconds   0.0.0.0:8000->80/tcp, [::]:8000->80/tcp   multistage-container</span>
+    </div>
+
+    <!-- run 옵션 상세 설명 -->
+    <div style="display: flex; flex-direction: column; gap: 7px; margin-top: 12px;">
+      <div style="font-size: 18px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.1em; margin-bottom: 2px;">docker run 옵션</div>
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 13px; display: flex; gap: 10px; align-items: flex-start;">
+        <code style="font-size:18px; color:var(--accent); flex-shrink:0; min-width:60px;">-d</code>
+        <span style="font-size:18px; color:var(--text-muted); line-height:1.5;"><strong>detached</strong> 모드. 컨테이너를 백그라운드에서 실행. 없으면 터미널이 컨테이너에 붙어 포그라운드로 실행됨</span>
+      </div>
+      <div style="background: var(--highlight-bg); border: 1px solid var(--highlight-border); border-radius: 8px; padding: 10px 13px; display: flex; gap: 10px; align-items: flex-start;">
+        <code style="font-size:18px; color:var(--accent); flex-shrink:0; min-width:60px;">-p 8000:80</code>
+        <span style="font-size:18px; color:var(--text-muted); line-height:1.5;"><strong>포트 포워딩.</strong> <code>호스트포트:컨테이너포트</code> 형식. 호스트의 8000 → 컨테이너 Nginx 80으로 연결</span>
+      </div>
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 13px; display: flex; gap: 10px; align-items: flex-start;">
+        <code style="font-size:18px; color:var(--accent); flex-shrink:0; min-width:60px;">--name</code>
+        <span style="font-size:18px; color:var(--text-muted); line-height:1.5;">컨테이너에 이름 부여. 생략 시 Docker가 무작위 이름 자동 생성. 이름으로 <code>stop/rm</code> 가능</span>
+      </div>
+    </div>
+
+    <!-- 포트 포워딩 시각화 -->
+    <div style="margin-top: 12px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px;">
+      <div style="font-size: 18px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.05em;">-p 8000:80 포트 포워딩 구조</div>
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Space Mono', monospace; font-size: 18px;">
+        <div style="background: rgba(244,114,182,0.1); border: 1px solid rgba(244,114,182,0.25); border-radius: 6px; padding: 7px 12px; color: var(--accent3); text-align:center;">
+          🌐 브라우저<br><span style="font-size:18px;">localhost:8000</span>
+        </div>
+        <div style="color: var(--accent); font-size: 18px; flex-shrink:0;">→</div>
+        <div style="background: var(--highlight-bg); border: 1px solid var(--highlight-border); border-radius: 6px; padding: 7px 12px; color: var(--accent); text-align:center;">
+          🖥️ 호스트<br><span style="font-size:18px;">:8000</span>
+        </div>
+        <div style="color: var(--accent2); font-size: 18px; flex-shrink:0;">→</div>
+        <div style="background: rgba(129,140,248,0.08); border: 1px solid rgba(129,140,248,0.25); border-radius: 6px; padding: 7px 12px; color: var(--accent2); text-align:center;">
+          📦 컨테이너<br><span style="font-size:18px;">Nginx :80</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Docker Compose란? -->
+  <section class="slide" data-title="Docker Compose 개요">
+    <div class="slide-label">06 — Docker Compose 개요</div>
+    <h1>📋 Docker Compose란?</h1>
+    <p>여러 개의 컨테이너를 정의하고 실행하기 위한 도구입니다. <code>YAML</code> 파일을 사용하여 애플리케이션의 서비스를 설정합니다.<br>
+    <span style="font-size: 0.85em; color: var(--text-muted);">* YAML은 <strong>Yet Another Markup Language</strong> 또는 <strong>YAML Ain't Markup Language</strong>를 의미합니다.</span></p>
+    
+    <div class="highlight-box">
+      <h3>🌟 주요 특징</h3>
+      <ul>
+        <li><strong>단일 명령 실행:</strong> <code>docker-compose up</code> 한 번으로 모든 서비스를 시작합니다.</li>
+        <li><strong>서비스 격리:</strong> 각 프로젝트마다 독립된 환경을 유지합니다.</li>
+        <li><strong>데이터 보존:</strong> 컨테이너가 삭제되어도 볼륨을 통해 데이터를 유지합니다.</li>
+        <li><strong>네트워크 자동 생성:</strong> 서비스 간 통신을 위한 기본 네트워크를 자동으로 구축합니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 7. YAML 개요 -->
+  <section class="slide" data-title="YAML 문법 개요">
+    <div class="slide-label">07 — YAML 문법 개요</div>
+    <h1>📝 YAML 코드란?</h1>
+    <p><strong>YAML 코드</strong>는 사람이 읽고 쓰기 쉽게 만들어진 데이터 직렬화 언어입니다. Docker Compose와 Kubernetes 등 다양한 인프라 도구의 설정 파일로 널리 사용됩니다.</p>
+    
+    <div class="split-layout">
+      <div>
+        <h2>📌 핵심 규칙</h2>
+        <div class="highlight-box" style="margin-top: 10px;">
+          <ul>
+            <li><strong>들여쓰기:</strong> 스페이스(Space)를 사용한 들여쓰기로 계층 구조를 나타냅니다. (탭(Tab) 문자 사용은 권장되지 않습니다)</li>
+            <li><strong>Key-Value:</strong> <code>키: 값</code> 형태로 데이터를 정의합니다. 콜론(<code>:</code>) 뒤에는 반드시 <strong>공백(스페이스)</strong>이 하나 있어야 합니다.</li>
+            <li><strong>리스트(배열):</strong> 하이픈(<code>-</code>)으로 시작하여 여러 개의 항목을 나열합니다.</li>
+            <li><strong>주석:</strong> <code>#</code> 기호를 사용하여 주석을 작성합니다.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h2>💻 작성 예시</h2>
+        <div class="code-block" style="margin-top: 10px;">
+<span class="code-comment"># 사용자 설정 예시</span>
+<span class="code-cmd">name:</span> <span class="code-str">"kobong"</span>
+<span class="code-cmd">age:</span> unknown
+
+<span class="code-comment"># 하위 속성 (들여쓰기로 계층 표현)</span>
+<span class="code-cmd">address:</span>
+  <span class="code-cmd">city:</span> <span class="code-str">"Seoul"</span>
+  <span class="code-cmd">zipcode:</span> <span class="code-str">"12345"</span>
+
+<span class="code-comment"># 리스트(배열)</span>
+<span class="code-cmd">skills:</span>
+  - <span class="code-flag">Docker</span>
+  - <span class="code-flag">Linux</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Docker Compose 명령어 -->
+  <section class="slide" data-title="Docker Compose CLI 명령어">
+    <div class="slide-label">08 — Docker Compose CLI 명령어</div>
+    <h1>⚡ 주요 명령어 (CLI)</h1>
+    <p>실제 운영 시 가장 자주 사용되는 Compose 명령어 모음입니다.</p>
+
+    <table>
+      <tr>
+        <th>명령어</th>
+        <th>설명</th>
+      </tr>
+      <tr>
+        <td><code>docker-compose up -d</code></td>
+        <td>모든 서비스를 생성하고 백그라운드에서 실행</td>
+      </tr>
+      <tr>
+        <td><code>docker-compose down</code></td>
+        <td>모든 컨테이너와 네트워크를 정지시키고 삭제</td>
+      </tr>
+      <tr>
+        <td><code>docker-compose logs -f</code></td>
+        <td>실행 중인 서비스의 로그를 실시간 확인</td>
+      </tr>
+      <tr>
+        <td><code>docker-compose ps</code></td>
+        <td>현재 Compose 프로젝트의 컨테이너 상태 확인</td>
+      </tr>
+      <tr>
+        <td><code>docker-compose exec [서비스] sh</code></td>
+        <td>실행 중인 컨테이너 내부에 접속</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- 9. 실습: 방문자 카운터 (1) -->
+  <section class="slide" data-title="실습: 방문자 카운터 (1)">
+    <div class="slide-label">09 — 실습: 방문자 카운터 (1)</div>
+    <h1>🔥 실습: 방문자 카운터 (1) — 소스 코드</h1>
+    <p>애플리케이션 소스 코드와 컨테이너 이미지를 빌드하기 위한 Dockerfile 구성입니다.</p>
+
+    <div class="split-layout">
+      <!-- Left Column: Python -->
+      <div>
+        <h2>📄 main.py</h2>
+        <div class="code-block" style="font-size: 15px;">import os
+from fastapi import FastAPI
+from redis import Redis
+
+app = FastAPI()
+redis_client = Redis(
+    host=os.getenv("REDIS_HOST", "localhost"),
+    port=int(os.getenv("REDIS_PORT", "6379")),
+    decode_responses=True,
+)
+VISITOR_COUNT_KEY = "visitor_count"
+
+@app.get("/")
+def count_visitor():
+    count = redis_client.incr(VISITOR_COUNT_KEY)
+    return {
+        "message": "Hello FastAPI + Redis!",
+        "visitor_count": count,
+    }</div>
+      </div>
+
+      <!-- Right Column: Dockerfile & Requirements -->
+      <div>
+        <h2>📄 Dockerfile</h2>
+        <div class="code-block" style="font-size: 15px;"><span class="code-cmd">FROM</span> python:3.12-slim
+<span class="code-cmd">WORKDIR</span> /app
+<span class="code-cmd">COPY</span> requirements.txt .
+<span class="code-cmd">RUN</span> pip install --no-cache-dir -r requirements.txt
+<span class="code-cmd">COPY</span> main.py .
+<span class="code-cmd">EXPOSE</span> 8000
+<span class="code-cmd">CMD</span> ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</div>
+
+        <h2 style="margin-top: 20px;">📄 requirements.txt</h2>
+        <div class="code-block" style="font-size: 15px;">fastapi
+uvicorn[standard]
+redis</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. 실습: 방문자 카운터 (2) -->
+  <section class="slide" data-title="실습: 방문자 카운터 (2)">
+    <div class="slide-label">10 — 실습: 방문자 카운터 (2)</div>
+    <h1>🔥 실습: 방문자 카운터 (2) — Compose & 실행</h1>
+    <p>Docker Compose를 활용하여 다중 컨테이너 환경을 구성하고 실행합니다.</p>
+
+    <div class="split-layout">
+      <!-- Left Column: Compose -->
+      <div>
+        <h2>📄 docker-compose.yaml</h2>
+        <div class="code-block" style="font-size: 15px;"><span class="code-cmd">services:</span>
+  <span class="code-cmd">app:</span>
+    <span class="code-cmd">build:</span> .
+    <span class="code-cmd">ports:</span>
+      - <span class="code-str">"8000:8000"</span>
+    <span class="code-cmd">environment:</span>
+      <span class="code-cmd">REDIS_HOST:</span> <span class="code-str">redis</span>
+      <span class="code-cmd">REDIS_PORT:</span> 6379
+    <span class="code-cmd">depends_on:</span>
+      - <span class="code-flag">redis</span>
+    <span class="code-cmd">restart:</span> always
+
+  <span class="code-cmd">redis:</span>
+    <span class="code-cmd">image:</span> <span class="code-str">redis:7-alpine</span>
+    <span class="code-cmd">ports:</span>
+      - <span class="code-str">"6379:6379"</span>
+    <span class="code-cmd">restart:</span> always</div>
+      </div>
+
+      <!-- Right Column: Commands -->
+      <div>
+        <h2>🚀 실행 및 확인</h2>
+        <div class="code-block" style="font-size: 14px;"><span class="code-comment"># 컨테이너 실행</span>
+[devops@localhost]$ <span class="code-cmd">docker compose</span> <span class="code-flag">up -d</span>
+
+<span class="code-comment"># 상태 확인</span>
+[devops@localhost]$ <span class="code-cmd">docker compose</span> <span class="code-flag">ps</span>
+NAME                          STATUS         PORTS
+fastapi-redis-counter-app-1   Up 7 seconds   0.0.0.0:8000->8000/tcp
+fastapi-redis-counter-redis-1 Up 7 seconds   0.0.0.0:6379->6379/tcp
+
+<span class="code-comment"># 리소스 정리</span>
+[devops@localhost]$ <span class="code-cmd">docker compose</span> <span class="code-flag">down</span></div>
+
+        <div class="highlight-box" style="margin-top: 16px;">
+          <h3 style="margin-top:0;">💡 주요 포인트</h3>
+          <ul style="font-size: 15px;">
+            <li><strong>서비스 이름 통신</strong>: <code>app</code>은 <code>redis</code>라는 이름으로 자동 연결됩니다.</li>
+            <li><strong>의존성 관리</strong>: <code>depends_on</code>으로 실행 순서를 제어합니다.</li>
+            <li><strong>원자적 연산</strong>: Redis의 <code>incr()</code>는 동시 요청에도 안전합니다.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. 부록: Node & Vue.js 설치 -->
+  <section class="slide" data-title="부록: Node & Vue.js 설치">
+    <div class="slide-label">11 — 부록: Node & Vue.js 설치</div>
+    <h1>✨ 부록: Node & Vue.js 설치</h1>
+    <p>Node.js와 npm을 설치하고 최신 Vue 템플릿을 생성하여 개발 서버를 실행하는 과정입니다.</p>
+
+    <div class="split-layout">
+      <div>
+        <h2>1. Node.js & npm 설치</h2>
+        <div class="code-block" style="margin-top: 8px;">
+<span class="code-comment"># nodejs 패키지 검색</span>
+[devops@localhost ~]$ <span class="code-cmd">sudo</span> dnf search nodejs
+<span style="color: #94a3b8; font-size: 0.9em;">================ Name Exactly Matched: nodejs ================
+nodejs.x86_64 : JavaScript runtime
+...</span>
+
+<span class="code-comment"># nodejs & npm 설치</span>
+[devops@localhost ~]$ <span class="code-cmd">sudo</span> dnf install -y nodejs npm
+<span style="color: #94a3b8; font-size: 0.9em;">Installing:
+ nodejs      x86_64   1:22.22.2-1.el10_1
+ nodejs-npm  x86_64   1:10.9.7-1...</span>
+
+<span class="code-comment"># 버전 확인</span>
+[devops@localhost ~]$ <span class="code-cmd">node</span> -v
+<span style="color: #94a3b8;">v22.22.2</span>
+[devops@localhost ~]$ <span class="code-cmd">npm</span> -v
+<span style="color: #94a3b8;">10.9.7</span>
+        </div>
+      </div>
+      <div>
+        <h2>2. Vue 프로젝트 생성 및 실행</h2>
+        <div class="code-block" style="margin-top: 8px;">
+<span class="code-comment"># Vue 최신 버전 템플릿 생성</span>
+[devops@localhost project]$ <span class="code-cmd">npm</span> create vue@latest
+<span style="color: #94a3b8; font-size: 0.9em;">Vue.js - The Progressive JavaScript Framework
+◇ Project name: multi-stage
+◇ Use TypeScript? Yes ...
+Scaffolding project in /home/.../multi-stage</span>
+
+<span class="code-comment"># 의존성 설치</span>
+[devops@localhost project]$ <span class="code-cmd">cd</span> multi-stage/
+[devops@localhost multi-stage]$ <span class="code-cmd">npm</span> install
+<span style="color: #94a3b8; font-size: 0.9em;">added 263 packages, and audited 264 packages in 45s</span>
+
+<span class="code-comment"># 개발 서버 실행</span>
+[devops@localhost multi-stage]$ <span class="code-cmd">npm</span> run dev
+<span style="color: #94a3b8; font-size: 0.9em;">  VITE v8.0.10  ready in 2153 ms
+  ➜  Local:   http://localhost:5173/</span>
+        </div>
+        <div class="highlight-box" style="margin-top: 12px;">
+          <h3>💡 참고 사항</h3>
+          <ul>
+            <li>설치 시 <code>create-vue</code> 패키지를 사용하여 프로젝트를 스캐폴딩합니다.</li>
+            <li>기본 개발 서버 주소는 <strong>http://localhost:5173/</strong> 입니다.</li>
+            <li>외부 네트워크에서 접근하려면 <code>--host</code> 플래그를 추가해야 합니다.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="nav-arrows">
+  <button class="nav-btn" id="btnPrev" onclick="navigate(-1)" title="이전 (←)">←</button>
+  <button class="nav-btn" id="btnNext" onclick="navigate(1)" title="다음 (→)">→</button>
+</div>
+
+<div class="key-hint">
+  <kbd>←</kbd><kbd>→</kbd> 이동 &nbsp;·&nbsp; <kbd>T</kbd> 테마
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const tocList = document.getElementById('tocList');
+  let current = -1;
+
+  slides.forEach((s, i) => {
+    const title = s.dataset.title || `슬라이드 ${i+1}`;
+    const item = document.createElement('div');
+    item.className = 'toc-item' + (i === 0 ? ' active' : '');
+    item.innerHTML = `
+      <span class="toc-num">${String(i).padStart(2,'0')}</span>
+      <span class="toc-text">${title}</span>
+      <span class="toc-dot"></span>`;
+    item.addEventListener('click', () => goSlide(i));
+    tocList.appendChild(item);
+  });
+
+  document.getElementById('totNum').textContent = slides.length;
+
+  function goSlide(idx) {
+    if (idx < 0 || idx >= slides.length || idx === current) return;
+    if (current >= 0) {
+      const prev = slides[current];
+      prev.classList.add('exit');
+      setTimeout(() => prev.classList.remove('exit'), 500);
+      prev.classList.remove('active');
+    }
+    current = idx;
+    slides[current].classList.add('active');
+    slides[current].scrollTop = 0;
+    document.querySelectorAll('.toc-item').forEach((el, i) => {
+      el.classList.toggle('active', i === current);
+    });
+    const activeTocItem = tocList.querySelectorAll('.toc-item')[current];
+    if (activeTocItem) activeTocItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    document.getElementById('curNum').textContent = current + 1;
+    const pct = ((current + 1) / slides.length) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('btnPrev').disabled = current === 0;
+    document.getElementById('btnNext').disabled = current === slides.length - 1;
+
+    if (window.innerWidth <= 768) document.body.classList.remove('sidebar-open');
+  }
+
+  function navigate(dir) { goSlide(current + dir); }
+
+  function toggleSidebar() {
+    document.body.classList.toggle('sidebar-open');
+  }
+
+  let isDark = localStorage.getItem('devops-theme') !== 'light';
+  function applyTheme() {
+    document.documentElement.classList.toggle('light', !isDark);
+    const label = document.getElementById('themeLabel');
+    const thumb = document.querySelector('.toggle-thumb');
+    if (isDark) {
+      if(label) label.textContent = '🌙 다크 모드';
+      if(thumb) thumb.textContent = '🌙';
+    } else {
+      if(label) label.textContent = '☀️ 라이트 모드';
+      if(thumb) thumb.textContent = '☀️';
+    }
+  }
+  function toggleTheme() {
+    isDark = !isDark;
+    localStorage.setItem('devops-theme', isDark ? 'dark' : 'light');
+    applyTheme();
+  }
+  applyTheme();
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   navigate(-1);
+    if (e.key === 't' || e.key === 'T') toggleTheme();
+  });
+
+  // --- Code Block Enhancements (Copy & Lang Tag) ---
+  document.querySelectorAll('.code-block').forEach(block => {
+    const container = document.createElement('div');
+    container.className = 'code-block-container';
+    block.parentNode.insertBefore(container, block);
+    container.appendChild(block);
+
+    let lang = block.dataset.lang;
+    if (!lang) {
+      const text = block.textContent;
+      if (text.includes('FROM ') || text.includes('RUN ') || text.includes('COPY ')) lang = 'Dockerfile';
+      else if (text.includes('services:') || text.includes('version:') || text.includes('image:')) lang = 'YAML';
+      else if (text.includes('server {') || text.includes('location ')) lang = 'Nginx';
+      else if (text.includes('import ') || text.includes('def ')) lang = 'Python';
+      else if (text.includes('npm ') || text.includes('node ')) lang = 'Node.js';
+      else if (text.includes('[devops@') || text.includes('$ ') || text.includes('sudo ')) lang = 'Bash';
+      else lang = 'Code';
+    }
+
+    const tag = document.createElement('div');
+    tag.className = 'code-lang-tag';
+    tag.textContent = lang;
+    container.appendChild(tag);
+
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> <span>Copy</span>`;
+    btn.onclick = () => {
+      const textToCopy = block.innerText;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const span = btn.querySelector('span');
+        btn.classList.add('copied');
+        span.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          span.textContent = 'Copy';
+        }, 2000);
+      });
+    };
+    container.appendChild(btn);
+  });
+
+  goSlide(0);
+</script>
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "403d66d8aa9e4d8e9c2370d257f0c9b6"}'></script>
+</body>
+</html>

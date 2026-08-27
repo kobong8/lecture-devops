@@ -1008,6 +1008,7 @@
     .nav-btn { width: 44px; height: 44px; font-size: 16px; }
   }
 </style>
+<style>.moved-to-practice { display: none !important; }</style>
 </head>
 <body>
 
@@ -1054,7 +1055,7 @@
     <p class="subtitle">컨테이너화된 애플리케이션의 자동 배포, 스케일링 및 관리를 위한 오케스트레이션 플랫폼 Kubernetes의 핵심을 배웁니다.</p>
     <div class="meta-row">
       <div class="meta-chip"><span class="dot"></span> 2026 DevOps</div>
-      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 17 슬라이드</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 10 슬라이드</div>
       <div class="meta-chip"><span class="dot" style="background:var(--accent3)"></span> Container Orchestration</div>
     </div>
     <div class="deco-grid">
@@ -1531,7 +1532,7 @@ curl http://myapp-service.default.svc.cluster.local:80</div>
 
 
         <!-- Slide 09: Pod 상태 조회 -->
-        <section class="slide" data-title="Pod 상태 조회">
+        <section class="slide moved-to-practice" data-title="Pod 상태 조회">
             <div class="slide-label">09 — kubectl get</div>
             <h1><span class="emoji">⎈</span>🔍 Pod 상태 조회</h1>
             <p><span class="keyword">kubectl get</span>은 리소스의 현재 상태를 요약해서 보여줍니다.</p>
@@ -1558,7 +1559,7 @@ kubectl get pods -o wide</div>
         </section>
 
         <!-- Slide 10: 상세 정보 확인 -->
-        <section class="slide" data-title="상세 정보 확인">
+        <section class="slide moved-to-practice" data-title="상세 정보 확인">
             <div class="slide-label">10 — kubectl describe</div>
             <h1><span class="emoji">⎈</span>🔍 상세 정보 확인</h1>
             <p><span class="keyword">kubectl describe</span>는 특정 리소스의 상세 정보와 이벤트 기록을 보여줍니다.</p>
@@ -1580,7 +1581,7 @@ kubectl describe pod [Pod 이름]
         </section>
 
         <!-- Slide 11: 로그 확인 -->
-        <section class="slide" data-title="로그 확인">
+        <section class="slide moved-to-practice" data-title="로그 확인">
             <div class="slide-label">11 — kubectl logs</div>
             <h1><span class="emoji">⎈</span>🔍 로그 확인</h1>
             <p><span class="keyword">kubectl logs</span>는 애플리케이션이 출력하는 로그를 확인하여 <strong>에러 원인을 진단</strong>합니다.</p>
@@ -1600,7 +1601,7 @@ kubectl logs [Pod 이름] --since=1h</div>
         </section>
 
         <!-- Slide 12: 컨테이너 내부 접속 -->
-        <section class="slide" data-title="컨테이너 내부 접속">
+        <section class="slide moved-to-practice" data-title="컨테이너 내부 접속">
             <div class="slide-label">12 — kubectl exec</div>
             <h1><span class="emoji">⎈</span>🔍 컨테이너 내부 접속</h1>
             <p><span class="keyword">kubectl exec</span>는 실행 중인 컨테이너 내부에 직접 접속하여 <strong>디버깅</strong>을 수행합니다.</p>
@@ -1631,7 +1632,7 @@ kubectl exec [Pod 이름] -- curl http://other-service:80</div>
 
 
         <!-- Slide 13: ConfigMap -->
-        <section class="slide" data-title="설정 관리">
+        <section class="slide moved-to-practice" data-title="설정 관리">
             <div class="slide-label">13 — ConfigMap</div>
             <h1><span class="emoji">⎈</span>📄 설정 관리</h1>
             <p><span class="keyword">ConfigMap</span>은 환경 변수, 설정 파일 경로, 로그 레벨 등 <strong>민감하지 않은 데이터</strong>를 저장합니다.</p>
@@ -1656,7 +1657,7 @@ data:
         </section>
 
         <!-- Slide 14: Secret -->
-        <section class="slide" data-title="민감 정보 관리">
+        <section class="slide moved-to-practice" data-title="민감 정보 관리">
             <div class="slide-label">14 — Secret</div>
             <h1><span class="emoji">⎈</span>🔐 민감 정보 관리</h1>
             <p><span class="keyword">Secret</span>은 비밀번호, API 키, 토큰 등 <strong>외부에 노출되면 안 되는 데이터</strong>를 base64 인코딩하여 저장합니다.</p>
@@ -1694,7 +1695,7 @@ env:
 
 
         <!-- Slide 15: 장애 사례 분석 -->
-        <section class="slide" data-title="자주 발생하는 장애 사례 분석">
+        <section class="slide moved-to-practice" data-title="자주 발생하는 장애 사례 분석">
     <div class="slide-label">15 — 자주 발생하는 장애 사례 분석</div>
             <h1><span class="emoji">⎈</span>🚨 자주 발생하는 장애 사례 분석</h1>
             <p><code>kubectl describe pod</code>에서 자주 만나는 장애 상황과 해결 방법을 알아봅니다.</p>
@@ -1773,7 +1774,7 @@ Events:
 
         <!-- Slide 16: 핵심 정리 -->
         <section class="slide" data-title="Kubernetes 핵심 정리">
-    <div class="slide-label">16 — Kubernetes 핵심 정리</div>
+    <div class="slide-label">09 — Kubernetes 핵심 정리</div>
             <h1><span class="emoji">⎈</span>🎯 Kubernetes 핵심 정리</h1>
             
             <h2>1. Kubernetes란?</h2>
@@ -1805,40 +1806,34 @@ Events:
                     <h4>PVC</h4>
                     <p>영구 스토리지 관리 (RWO, RWX)</p>
                 </div>
-                <div class="highlight-box" style="flex: 1 1 calc(50% - 20px); margin: 0;">
-                    <h4>ConfigMap/Secret</h4>
-                    <p>설정 및 민감 데이터 관리</p>
-                </div>
             </div>
 
-            <h2>3. 베스트 프랙티스</h2>
+            <h2>3. 기초 설계 원칙</h2>
             <ul>
                 <li>✅ 선언적 설정 (YAML 파일을 Git으로 관리)</li>
-                <li>✅ 모든 컨테이너에 리소스 requests/limits 설정</li>
-                <li>✅ Liveness와 Readiness Probe 항상 설정</li>
-                <li>✅ 환경별로 네임스페이스 분리 (dev, staging, prod)</li>
                 <li>✅ 롤링 업데이트 전략 사용</li>
-                <li>✅ Secret은 암호화하여 관리</li>
+                <li>✅ Pod에 직접 접근하지 않고 Service를 통해 연결</li>
+                <li>✅ 상태 데이터는 PVC 등 외부 스토리지로 분리</li>
             </ul>
 
             <h2>4. 학습 로드맵</h2>
             <ol>
                 <li><strong>기초:</strong> Pod, Deployment, Service</li>
-                <li><strong>스토리지:</strong> PVC, ConfigMap, Secret</li>
-                <li><strong>네트워킹:</strong> Ingress, Network Policy</li>
-                <li><strong>고급:</strong> StatefulSet, HPA, RBAC, Helm</li>
+                <li><strong>스토리지:</strong> PV, PVC, Stateful/Stateless</li>
+                <li><strong>네트워킹:</strong> Service, Ingress</li>
+                <li><strong>실무:</strong> ConfigMap, Secret, Resources, Probe, HPA, 장애 대응</li>
             </ol>
 
             <div class="highlight-box">
                 <h3>🚀 다음 단계</h3>
-                <p>실습 환경을 구축하고 직접 리소스를 배포해보세요!</p>
-                <p>추천 도구: Minikube, kind, Docker Desktop의 Kubernetes</p>
+                <p>다음 강의인 <strong>Kubernetes 실무</strong>에서 설정 주입, 자원 관리, 상태 검사와 장애 대응을 학습합니다.</p>
+                <p>실습 환경 추천: Minikube, kind, Docker Desktop의 Kubernetes</p>
+                <p><a href="kubernetes-practice.html" style="color: var(--accent); font-weight: 700;">Kubernetes 실무 강의로 이동 →</a></p>
             </div>
 
 
             
             
-        </div>
     </section>
 
 
@@ -1870,7 +1865,7 @@ Events:
 </div>
 
 <script>
-  const slides = Array.from(document.querySelectorAll('.slide'));
+  const slides = Array.from(document.querySelectorAll('.slide:not(.moved-to-practice)'));
   const tocList = document.getElementById('tocList');
   let current = -1;
 

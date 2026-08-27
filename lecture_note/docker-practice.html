@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Docker 실무: Multi-stage & Compose</title>
+<title>Docker 실무: Build, Compose & Operations</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&family=Google+Sans+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -789,10 +789,10 @@
   <section class="slide slide-home" data-title="Docker 시작하기">
     <div class="eyebrow">— DevOps Advanced Study</div>
     <h1>🐳 <em>Docker</em> 실무</h1>
-    <p class="subtitle">Multi-stage Build를 통한 이미지 최적화와 Docker Compose를 이용한 다중 컨테이너 오케스트레이션을 학습합니다.</p>
+    <p class="subtitle">이미지 최적화부터 다중 컨테이너 구성, 데이터 보존, 네트워크, 설정·비밀정보 관리와 장애 대응까지 실무 흐름으로 학습합니다.</p>
     <div class="meta-row">
       <div class="meta-chip"><span class="dot"></span> 2026 DevOps</div>
-      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 12 슬라이드</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 21 슬라이드</div>
       <div class="meta-chip"><span class="dot" style="background:var(--accent3)"></span> Build once, Run anywhere</div>
     </div>
   </section>
@@ -1181,7 +1181,7 @@ vue-multistage:1.0      d396442cd561       91.2MB           26MB</span>
     <div class="highlight-box">
       <h3>🌟 주요 특징</h3>
       <ul>
-        <li><strong>단일 명령 실행:</strong> <code>docker-compose up</code> 한 번으로 모든 서비스를 시작합니다.</li>
+        <li><strong>단일 명령 실행:</strong> <code>docker compose up</code> 한 번으로 모든 서비스를 시작합니다.</li>
         <li><strong>서비스 격리:</strong> 각 프로젝트마다 독립된 환경을 유지합니다.</li>
         <li><strong>데이터 보존:</strong> 컨테이너가 삭제되어도 볼륨을 통해 데이터를 유지합니다.</li>
         <li><strong>네트워크 자동 생성:</strong> 서비스 간 통신을 위한 기본 네트워크를 자동으로 구축합니다.</li>
@@ -1240,23 +1240,23 @@ vue-multistage:1.0      d396442cd561       91.2MB           26MB</span>
         <th>설명</th>
       </tr>
       <tr>
-        <td><code>docker-compose up -d</code></td>
+        <td><code>docker compose up -d</code></td>
         <td>모든 서비스를 생성하고 백그라운드에서 실행</td>
       </tr>
       <tr>
-        <td><code>docker-compose down</code></td>
+        <td><code>docker compose down</code></td>
         <td>모든 컨테이너와 네트워크를 정지시키고 삭제</td>
       </tr>
       <tr>
-        <td><code>docker-compose logs -f</code></td>
+        <td><code>docker compose logs -f</code></td>
         <td>실행 중인 서비스의 로그를 실시간 확인</td>
       </tr>
       <tr>
-        <td><code>docker-compose ps</code></td>
+        <td><code>docker compose ps</code></td>
         <td>현재 Compose 프로젝트의 컨테이너 상태 확인</td>
       </tr>
       <tr>
-        <td><code>docker-compose exec [서비스] sh</code></td>
+        <td><code>docker compose exec [서비스] sh</code></td>
         <td>실행 중인 컨테이너 내부에 접속</td>
       </tr>
     </table>
@@ -1368,9 +1368,251 @@ fastapi-redis-counter-redis-1 Up 7 seconds   0.0.0.0:6379->6379/tcp
     </div>
   </section>
 
-  <!-- 11. 부록: Node & Vue.js 설치 -->
+  <!-- 11. 데이터 보존 -->
+  <section class="slide" data-title="Volume과 Bind Mount">
+    <div class="slide-label">11 — Volume과 Bind Mount</div>
+    <h1>💾 컨테이너 데이터 보존</h1>
+    <p>컨테이너의 쓰기 계층은 컨테이너와 생명주기를 함께합니다. 영속 데이터와 개발 소스는 목적에 맞게 호스트 밖에 보관해야 합니다.</p>
+    <table>
+      <tr><th>방식</th><th>예시</th><th>권장 용도</th></tr>
+      <tr><td>Named Volume</td><td><code>mydata:/data</code></td><td>DB 데이터 등 Docker가 관리할 운영 데이터</td></tr>
+      <tr><td>Bind Mount</td><td><code>./src:/app/src</code></td><td>개발 중 소스·설정 파일을 즉시 반영할 때</td></tr>
+      <tr><td>tmpfs</td><td><code>--tmpfs /run</code></td><td>디스크에 남기지 않을 임시 데이터</td></tr>
+    </table>
+    <div class="code-block"><span class="code-comment"># 볼륨 생성·사용·확인</span>
+[devops@localhost]$ <span class="code-cmd">docker volume</span> create mydata
+[devops@localhost]$ <span class="code-cmd">docker run</span> --rm -v mydata:/data alpine sh -c "echo hello &gt; /data/message"
+[devops@localhost]$ <span class="code-cmd">docker run</span> --rm -v mydata:/data alpine cat /data/message
+hello</div>
+    <div class="warning-box"><strong>주의:</strong> <code>docker compose down</code>은 Named Volume을 보존하지만, <code>down -v</code>는 함께 삭제합니다. 운영 데이터가 있다면 삭제 전에 반드시 백업을 확인합니다.</div>
+  </section>
+
+  <!-- 12. Compose 볼륨 실습 -->
+  <section class="slide" data-title="Compose 데이터 영속화">
+    <div class="slide-label">12 — Compose 데이터 영속화</div>
+    <h1>🧪 Redis 데이터를 재시작 후에도 유지하기</h1>
+    <div class="split-layout">
+      <div>
+        <h2>docker-compose.yaml 보강</h2>
+        <div class="code-block" style="font-size:15px;"><span class="code-cmd">services:</span>
+  <span class="code-cmd">redis:</span>
+    <span class="code-cmd">image:</span> <span class="code-str">redis:7-alpine</span>
+    <span class="code-cmd">command:</span> redis-server --appendonly yes
+    <span class="code-cmd">volumes:</span>
+      - <span class="code-str">redis-data:/data</span>
+
+<span class="code-cmd">volumes:</span>
+  <span class="code-cmd">redis-data:</span></div>
+      </div>
+      <div>
+        <h2>검증 순서</h2>
+        <div class="code-block" style="font-size:15px;">$ <span class="code-cmd">docker compose</span> up -d
+$ <span class="code-cmd">curl</span> localhost:8000
+{"visitor_count":1}
+
+$ <span class="code-cmd">docker compose</span> down
+$ <span class="code-cmd">docker compose</span> up -d
+$ <span class="code-cmd">curl</span> localhost:8000
+{"visitor_count":2}
+
+$ <span class="code-cmd">docker volume</span> ls</div>
+        <div class="highlight-box"><strong>핵심:</strong> 컨테이너는 교체 가능한 실행 단위이고, 상태 데이터는 볼륨으로 분리합니다. Redis의 AOF도 활성화해야 메모리 데이터를 디스크에 기록합니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13. Docker Network -->
+  <section class="slide" data-title="Docker Network와 DNS">
+    <div class="slide-label">13 — Docker Network와 DNS</div>
+    <h1>🌐 서비스 이름으로 통신하는 이유</h1>
+    <p>Compose는 프로젝트별 기본 네트워크와 내장 DNS를 만듭니다. 컨테이너 IP는 바뀔 수 있으므로 애플리케이션은 <strong>서비스 이름</strong>을 사용합니다.</p>
+    <div class="split-layout">
+      <div class="highlight-box" style="text-align:center; line-height:2.1; font-size:18px;">
+        🌍 Browser → <strong>localhost:8000</strong><br>
+        📦 app → <strong>redis:6379</strong><br>
+        <span style="color:var(--text-muted);">호스트 포트 공개</span> &nbsp; / &nbsp; <span style="color:var(--accent);">내부 DNS 통신</span>
+      </div>
+      <div>
+        <div class="code-block"><span class="code-comment"># 네트워크와 DNS 확인</span>
+$ <span class="code-cmd">docker compose</span> exec app getent hosts redis
+$ <span class="code-cmd">docker network</span> ls
+$ <span class="code-cmd">docker network</span> inspect PROJECT_default</div>
+      </div>
+    </div>
+    <div class="warning-box"><code>localhost</code>는 항상 <strong>현재 컨테이너 자신</strong>입니다. app에서 Redis에 접근할 때 <code>localhost:6379</code>가 아니라 <code>redis:6379</code>를 사용합니다. DB처럼 외부 공개가 필요 없는 서비스는 <code>ports</code>를 생략합니다.</div>
+  </section>
+
+  <!-- 14. 환경변수 -->
+  <section class="slide" data-title="환경변수와 설정 분리">
+    <div class="slide-label">14 — 환경변수와 설정 분리</div>
+    <h1>⚙️ 환경변수는 이미지와 설정을 분리한다</h1>
+    <div class="split-layout">
+      <div>
+        <h2>.env — Compose 치환용</h2>
+        <div class="code-block">APP_PORT=8000
+REDIS_HOST=redis</div>
+        <h2>docker-compose.yaml</h2>
+        <div class="code-block"><span class="code-cmd">services:</span>
+  <span class="code-cmd">app:</span>
+    <span class="code-cmd">ports:</span>
+      - <span class="code-str">"${APP_PORT}:8000"</span>
+    <span class="code-cmd">environment:</span>
+      <span class="code-cmd">REDIS_HOST:</span> <span class="code-str">${REDIS_HOST}</span></div>
+      </div>
+      <div>
+        <table>
+          <tr><th>방법</th><th>특징</th></tr>
+          <tr><td><code>Dockerfile ENV</code></td><td>이미지 기본값. 민감정보 금지</td></tr>
+          <tr><td><code>environment</code></td><td>컨테이너 실행 시 값 전달</td></tr>
+          <tr><td><code>env_file</code></td><td>여러 환경변수를 파일에서 전달</td></tr>
+          <tr><td><code>.env</code></td><td>Compose 파일의 <code>${...}</code> 치환</td></tr>
+        </table>
+        <div class="code-block"><span class="code-comment"># 최종 설정과 전달값 확인</span>
+$ <span class="code-cmd">docker compose</span> config
+$ <span class="code-cmd">docker compose</span> exec app env</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15. Secret -->
+  <section class="slide" data-title="Secret 안전하게 다루기">
+    <div class="slide-label">15 — Secret 안전하게 다루기</div>
+    <h1>🔐 비밀번호를 이미지에 넣지 마세요</h1>
+    <p>Dockerfile의 <code>ARG</code>·<code>ENV</code>나 Git에 커밋한 <code>.env</code>는 비밀 저장소가 아닙니다. 이미지 이력, 설정 출력, 저장소 기록을 통해 노출될 수 있습니다.</p>
+    <div class="split-layout">
+      <div>
+        <h2>Compose secrets 예시</h2>
+        <div class="code-block" style="font-size:15px;"><span class="code-cmd">services:</span>
+  <span class="code-cmd">app:</span>
+    <span class="code-cmd">secrets:</span>
+      - <span class="code-flag">db_password</span>
+    <span class="code-cmd">environment:</span>
+      <span class="code-cmd">DB_PASSWORD_FILE:</span> <span class="code-str">/run/secrets/db_password</span>
+
+<span class="code-cmd">secrets:</span>
+  <span class="code-cmd">db_password:</span>
+    <span class="code-cmd">file:</span> <span class="code-str">./secrets/db_password.txt</span></div>
+      </div>
+      <div>
+        <h2>실무 체크리스트</h2>
+        <ul>
+          <li><code>secrets/</code>와 <code>.env</code>를 <code>.gitignore</code>에 추가</li>
+          <li>애플리케이션은 <code>/run/secrets/...</code> 파일을 읽도록 구현</li>
+          <li>운영 환경에서는 Vault·클라우드 Secret Manager 등 전용 저장소 사용</li>
+          <li>노출이 의심되면 값을 숨기는 데서 끝내지 말고 즉시 교체</li>
+        </ul>
+        <div class="warning-box">Compose의 로컬 파일 기반 secret은 전달 방식을 개선하지만 파일 자체를 암호화하지는 않습니다. 원본 파일의 권한과 보관도 별도로 관리해야 합니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16. Healthcheck -->
+  <section class="slide" data-title="Healthcheck와 준비 상태">
+    <div class="slide-label">16 — Healthcheck와 준비 상태</div>
+    <h1>❤️ 실행 중(Up)과 정상 동작은 다르다</h1>
+    <div class="split-layout">
+      <div>
+        <h2>Redis 상태 검사</h2>
+        <div class="code-block" style="font-size:15px;"><span class="code-cmd">redis:</span>
+  <span class="code-cmd">image:</span> <span class="code-str">redis:7-alpine</span>
+  <span class="code-cmd">healthcheck:</span>
+    <span class="code-cmd">test:</span> [<span class="code-str">"CMD", "redis-cli", "ping"</span>]
+    <span class="code-cmd">interval:</span> 5s
+    <span class="code-cmd">timeout:</span> 3s
+    <span class="code-cmd">retries:</span> 5</div>
+      </div>
+      <div>
+        <h2>의존 서비스가 준비된 뒤 시작</h2>
+        <div class="code-block" style="font-size:15px;"><span class="code-cmd">app:</span>
+  <span class="code-cmd">depends_on:</span>
+    <span class="code-cmd">redis:</span>
+      <span class="code-cmd">condition:</span> service_healthy</div>
+        <div class="code-block">$ <span class="code-cmd">docker compose</span> ps
+$ <span class="code-cmd">docker inspect</span> --format '{{json .State.Health}}' CONTAINER</div>
+      </div>
+    </div>
+    <div class="highlight-box"><code>depends_on</code>의 단순 목록은 시작 순서만 정하며 서비스 준비 완료를 보장하지 않습니다. Healthcheck와 함께 애플리케이션의 재시도·타임아웃도 설계합니다.</div>
+  </section>
+
+  <!-- 17. 운영 관찰 -->
+  <section class="slide" data-title="컨테이너 관찰과 진단">
+    <div class="slide-label">17 — 컨테이너 관찰과 진단</div>
+    <h1>🔎 문제가 생기면 증거부터 수집한다</h1>
+    <table>
+      <tr><th>질문</th><th>명령어</th><th>확인할 것</th></tr>
+      <tr><td>실행 상태는?</td><td><code>docker compose ps -a</code></td><td>Status, Exit Code, Health</td></tr>
+      <tr><td>무슨 로그가 남았나?</td><td><code>docker compose logs --tail=100 -f app</code></td><td>오류 시각과 최초 원인</td></tr>
+      <tr><td>설정은 어떻게 적용됐나?</td><td><code>docker inspect CONTAINER</code></td><td>Env, Mounts, Network, State</td></tr>
+      <tr><td>내부에서 연결되나?</td><td><code>docker compose exec app sh</code></td><td>DNS, 파일, 프로세스, 권한</td></tr>
+      <tr><td>자원이 부족한가?</td><td><code>docker stats</code></td><td>CPU, Memory, Network I/O</td></tr>
+      <tr><td>디스크가 찼나?</td><td><code>docker system df</code></td><td>이미지·볼륨·빌드 캐시</td></tr>
+    </table>
+    <div class="warning-box"><strong>진단 원칙:</strong> 무작정 재시작하거나 삭제하기 전에 <code>ps -a → logs → inspect</code> 순서로 상태와 로그를 남깁니다. 재시작은 원인을 해결하지 않고 증거를 지울 수 있습니다.</div>
+  </section>
+
+  <!-- 18. Troubleshooting -->
+  <section class="slide" data-title="Docker 장애 대응 플레이북">
+    <div class="slide-label">18 — Docker 장애 대응 플레이북</div>
+    <h1>🧯 증상에서 원인까지 추적하기</h1>
+    <div class="split-layout">
+      <div>
+        <h2>기본 진단 흐름</h2>
+        <div class="highlight-box" style="line-height:2; text-align:center;">
+          컨테이너가 동작하지 않는다<br>↓<br>
+          <code>docker compose ps -a</code><br>↓<br>
+          <code>logs</code> → <code>inspect</code><br>↓<br>
+          포트 · 환경변수 · 볼륨 · 네트워크<br>
+          권한 · 디스크 · 메모리 확인
+        </div>
+      </div>
+      <div>
+        <h2>대표 증상과 첫 확인</h2>
+        <table>
+          <tr><th>증상</th><th>첫 확인</th></tr>
+          <tr><td>Port already allocated</td><td><code>docker ps</code>, 호스트 포트</td></tr>
+          <tr><td>Connection refused</td><td>서비스 이름, 포트, Health</td></tr>
+          <tr><td>Permission denied</td><td>UID/GID, Mount 권한</td></tr>
+          <tr><td>Exited 직후 종료</td><td>Exit Code와 로그</td></tr>
+          <tr><td>No space left</td><td><code>docker system df</code></td></tr>
+          <tr><td>Exit Code 137</td><td>OOM 여부와 메모리 제한</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19. 실무 점검 -->
+  <section class="slide" data-title="실무 종합 점검">
+    <div class="slide-label">19 — 실무 종합 점검</div>
+    <h1>✅ Compose 서비스를 운영 가능하게 만들기</h1>
+    <div class="split-layout">
+      <div>
+        <h2>구성 체크리스트</h2>
+        <ul>
+          <li>DB·Redis 데이터는 Named Volume으로 분리</li>
+          <li>내부 서비스 포트는 불필요하게 공개하지 않음</li>
+          <li>환경별 설정은 이미지 밖에서 주입</li>
+          <li>비밀정보는 Git과 이미지 레이어에서 제외</li>
+          <li>Healthcheck, 재시도, 타임아웃 정의</li>
+          <li>이미지는 고정된 버전 태그 사용</li>
+        </ul>
+      </div>
+      <div>
+        <h2>장애 주입 실습</h2>
+        <ol>
+          <li>8000 포트를 먼저 점유해 충돌을 만든다.</li>
+          <li><code>REDIS_HOST</code>를 잘못 지정해 연결 오류를 만든다.</li>
+          <li>볼륨 디렉터리 권한을 바꿔 쓰기 오류를 만든다.</li>
+          <li>각 사례를 <code>ps → logs → inspect</code>로 진단한다.</li>
+          <li>원인을 고친 뒤 Health와 데이터 보존을 재검증한다.</li>
+        </ol>
+        <div class="highlight-box"><strong>완료 기준:</strong> “컨테이너가 떴다”가 아니라 요청 성공, 의존 서비스 정상, 재시작 후 데이터 보존, 장애 원인 설명까지 확인합니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20. 부록: Node & Vue.js 설치 -->
   <section class="slide" data-title="부록: Node & Vue.js 설치">
-    <div class="slide-label">11 — 부록: Node & Vue.js 설치</div>
+    <div class="slide-label">20 — 부록: Node & Vue.js 설치</div>
     <h1>✨ 부록: Node & Vue.js 설치</h1>
     <p>Node.js와 npm을 설치하고 최신 Vue 템플릿을 생성하여 개발 서버를 실행하는 과정입니다.</p>
 

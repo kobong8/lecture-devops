@@ -1524,7 +1524,7 @@
         <h2>Docker version 확인</h2>
         <div class="code-block" style="flex-shrink: 0;">[devops@localhost ~]$ <span class="code-cmd">sudo docker</span> <span class="code-flag">version</span></div>
 
-        <details class="highlight-box">
+        <details class="highlight-box" open>
           <summary><h3 style="margin-bottom: 6px;">📋 출력 결과 보기</h3></summary>
           <div>
             <div class="code-block" style="flex-shrink: 0;">Client: Docker Engine - Community
@@ -1558,7 +1558,7 @@ Server: Docker Engine - Community
         <h2>Docker info 확인</h2>
         <div class="code-block" style="flex-shrink: 0;">[devops@localhost ~]$ <span class="code-cmd">sudo docker</span> <span class="code-flag">info</span></div>
 
-        <details class="highlight-box">
+        <details class="highlight-box" open>
           <summary><h3 style="margin-bottom: 6px;">📋 출력 결과 보기</h3></summary>
           <div>
             <div class="code-block" style="flex-shrink: 0;">Server:
@@ -1660,6 +1660,20 @@ def read_root():
     <h2>📄 requirements.txt</h2>
     <div class="code-block" style="font-size: 15px;">fastapi==0.115.0
 uvicorn==0.30.0</div>
+
+    <h2>📄 Dockerfile</h2>
+    <div class="code-block" style="font-size: 15px;"><span class="code-cmd">FROM</span> python:3.12-slim
+
+<span class="code-cmd">WORKDIR</span> /app
+
+<span class="code-cmd">COPY</span> requirements.txt .
+<span class="code-cmd">RUN</span> pip install --no-cache-dir -r requirements.txt
+
+<span class="code-cmd">COPY</span> app.py .
+
+<span class="code-cmd">EXPOSE</span> 8000
+
+<span class="code-cmd">CMD</span> ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]</div>
 
     <h2>🔨 이미지 빌드</h2>
     <div class="code-block">[devops@localhost fastapi-app]$ <span class="code-cmd">docker build</span> <span class="code-flag">-t</span> <span class="code-str">fastapi-image:1.0</span> .</div>

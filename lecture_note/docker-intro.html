@@ -1673,6 +1673,9 @@ uvicorn==0.30.0</div>
 
 <span class="code-cmd">EXPOSE</span> 8000
 
+<span class="code-comment"># uvicorn 명령을 찾지 못할 때 아래 설정의 주석을 해제</span>
+<span class="code-comment"># ENV PATH="/root/.local/bin:${PATH}"</span>
+
 <span class="code-cmd">CMD</span> ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]</div>
 
     <h2>🔨 이미지 빌드</h2>
@@ -1834,6 +1837,8 @@ Deleted: 231f12d09df2e38a173c0cf4f39e73bf92d69b95ce6dac971ca014f2fbcaedaf</div>
 <span class="code-cmd">WORKDIR</span> /project
 <span class="code-comment"># 5. 포트 명시 (EXPOSE) 및 실행 명령 (CMD)</span>
 <span class="code-cmd">EXPOSE</span> 8000
+<span class="code-comment"># uvicorn 명령을 찾지 못할 때 아래 설정의 주석을 해제</span>
+<span class="code-comment"># ENV PATH="/root/.local/bin:${PATH}"</span>
 <span class="code-cmd">CMD</span> ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]</div>
       </div>
 
@@ -1941,7 +1946,7 @@ INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)</div>
     </div>
 
     <h2>API 접속 확인</h2>
-    <div class="code-block">[devops@localhost fastapi-app]$ <span class="code-cmd">curl</span> 127.0.0.1:8000
+    <div class="code-block">[devops@localhost fastapi-app]$ <span class="code-cmd">curl</span> http://127.0.0.1:8000
 {"message":"Hello, FastAPI!"}</div>
 
     <h2>컨테이너 중지 및 삭제</h2>

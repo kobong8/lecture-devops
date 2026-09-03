@@ -199,6 +199,24 @@
     text-transform: uppercase;
   }
 
+  .toc-label {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    text-align: left;
+  }
+  .toc-label:hover { color: var(--text); }
+  .toc-toggle-icon {
+    font-size: 14px;
+    transition: transform 0.2s ease;
+  }
+  .toc-label[aria-expanded="false"] .toc-toggle-icon { transform: rotate(180deg); }
+  .toc-list.toc-collapsed { display: none; }
+
   .toc-list {
     flex: 1;
     overflow-y: auto;
@@ -1236,7 +1254,10 @@
     </div>
   </div>
 
-  <div class="toc-label">목 차</div>
+  <button class="toc-label" id="tocToggle" type="button" aria-expanded="true" aria-controls="tocList" onclick="toggleToc()">
+    <span>목 차</span>
+    <span class="toc-toggle-icon" aria-hidden="true">⌃</span>
+  </button>
   <div class="toc-list" id="tocList"></div>
 
   <div class="sidebar-footer">
@@ -1589,6 +1610,12 @@
 
   function toggleSidebar() {
     document.body.classList.toggle('sidebar-open');
+  }
+
+  function toggleToc() {
+    const toggle = document.getElementById('tocToggle');
+    const collapsed = tocList.classList.toggle('toc-collapsed');
+    toggle.setAttribute('aria-expanded', String(!collapsed));
   }
 
   // Theme with localStorage persistence

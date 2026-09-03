@@ -780,9 +780,9 @@
 
   /* ── MOBILE ── */
   .menu-toggle {
-    display: none;
+    display: flex;
     position: fixed;
-    top: 12px; left: 12px;
+    top: 12px; left: calc(var(--sidebar-w) + 12px);
     z-index: 300;
     width: 40px; height: 40px;
     border-radius: 8px;
@@ -795,6 +795,16 @@
     box-shadow: 0 2px 12px rgba(0,0,0,0.3);
     backdrop-filter: blur(8px);
   }
+  @media (min-width: 769px) {
+    body.sidebar-collapsed #sidebar {
+      width: 0;
+      min-width: 0;
+      overflow: hidden;
+      border-right: 0;
+    }
+    body.sidebar-collapsed .menu-toggle { left: 12px; }
+    #sidebar, .menu-toggle { transition: width 0.3s ease, min-width 0.3s ease, left 0.3s ease; }
+  }
   .sidebar-overlay {
     display: none;
     position: fixed;
@@ -803,7 +813,7 @@
     z-index: 150;
   }
   @media (max-width: 768px) {
-    .menu-toggle { display: flex; }
+    .menu-toggle { display: flex; left: 12px; }
     #sidebar {
       position: fixed;
       left: 0; top: 0;
@@ -834,7 +844,7 @@
 </head>
 <body>
 
-<button class="menu-toggle" onclick="toggleSidebar()" aria-label="메뉴 열기">☰</button>
+<button class="menu-toggle" onclick="toggleSidebar()" aria-label="좌측 패널 접기" aria-controls="sidebar" aria-expanded="true">‹</button>
 <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
 <!-- ── SIDEBAR ── -->
@@ -859,10 +869,7 @@
     </div>
   </div>
 
-  <button class="toc-label" id="tocToggle" type="button" aria-expanded="true" aria-controls="tocList" onclick="toggleToc()">
-    <span>목 차</span>
-    <span class="toc-toggle-icon" aria-hidden="true">⌃</span>
-  </button>
+  <div class="toc-label">목 차</div>
   <div class="toc-list" id="tocList"></div>
 
   <div class="sidebar-footer">
@@ -1466,20 +1473,31 @@ http://localhost:8000<span class="code-flag">/redoc</span>
     document.getElementById('btnPrev').disabled = current === 0;
     document.getElementById('btnNext').disabled = current === slides.length - 1;
 
-    if (window.innerWidth <= 768) document.body.classList.remove('sidebar-open');
+    if (window.innerWidth <= 768) {
+      document.body.classList.remove('sidebar-open');
+      setSidebarToggle(false);
+    }
   }
 
   function navigate(dir) { goSlide(current + dir); }
 
-  function toggleSidebar() {
-    document.body.classList.toggle('sidebar-open');
+  function setSidebarToggle(isOpen) {
+    const toggle = document.querySelector('.menu-toggle');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+    toggle.setAttribute('aria-label', isOpen ? '좌측 패널 접기' : '좌측 패널 열기');
+    toggle.textContent = isOpen ? '‹' : '☰';
   }
 
-  function toggleToc() {
-    const toggle = document.getElementById('tocToggle');
-    const collapsed = tocList.classList.toggle('toc-collapsed');
-    toggle.setAttribute('aria-expanded', String(!collapsed));
+  function toggleSidebar() {
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const isOpen = isMobile
+      ? document.body.classList.toggle('sidebar-open')
+      : !document.body.classList.toggle('sidebar-collapsed');
+    setSidebarToggle(isOpen);
   }
+
+  setSidebarToggle(!window.matchMedia('(max-width: 768px)').matches);
+
 
   // Theme
   let isDark = localStorage.getItem('devops-theme') !== 'light';

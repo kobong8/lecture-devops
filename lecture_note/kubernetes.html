@@ -1014,6 +1014,16 @@
     z-index: 150;
   }
   @media (max-width: 768px) {
+    html,
+    body {
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+    }
+    #main {
+      width: 100%;
+      min-width: 0;
+    }
     .menu-toggle { display: flex; left: 12px; }
     #sidebar {
       position: fixed;
@@ -1026,13 +1036,97 @@
     }
     body.sidebar-open #sidebar { transform: translateX(0); }
     body.sidebar-open .sidebar-overlay { display: block; }
-    .slide { padding: 56px 20px 80px; }
+    .slide {
+      width: 100%;
+      min-width: 0;
+      padding: 56px 20px 80px;
+      overflow-x: hidden;
+      overflow-wrap: anywhere;
+      word-break: keep-all;
+    }
+    .slide > *,
+    .split-layout > *,
+    .highlight-box,
+    details,
+    details summary,
+    details summary > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .slide-home { justify-content: flex-start; padding-top: 96px; }
+    .slide-home .deco-grid { display: none; }
+    .slide-home .eyebrow {
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      overflow-wrap: anywhere;
+    }
+    .slide-home p.subtitle { font-size: 16px; }
+    .meta-row { gap: 8px; }
+    .meta-chip { max-width: 100%; font-size: 14px; }
+    .slide h1 { font-size: clamp(26px, 9vw, 36px); }
+    .slide p,
+    .slide li,
+    .highlight-box p,
+    .highlight-box li { font-size: 16px; }
+    .split-layout {
+      width: 100%;
+      gap: 12px !important;
+    }
+    .split-layout > div {
+      flex: 1 1 100% !important;
+      width: 100%;
+    }
+    .highlight-box { padding: 15px 16px; }
+    details.highlight-box summary {
+      gap: 8px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+    .code-block-container,
+    .code-block { width: 100%; max-width: 100%; }
+    .code-block {
+      font-size: 14px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+    .slide table,
+    .comparison-table {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .slide table th,
+    .slide table td { padding: 9px 10px; font-size: 14px; }
+    /* Keep inline diagrams inside the viewport without changing desktop layout. */
+    .slide [style*="display:flex"] {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .slide [style*="display:flex"] > * { min-width: 0; }
     .nav-arrows { right: 16px; bottom: 16px; }
     .key-hint { display: none; }
   }
   @media (max-width: 480px) {
     .slide { padding: 56px 14px 80px; }
     .slide h2 { font-size: 22px !important; }
+    .slide h3,
+    .highlight-box h3,
+    details.highlight-box summary,
+    details.highlight-box summary h3 { font-size: 18px !important; }
+    .slide [style*="gap:40px"] { gap: 16px !important; }
+    .slide [style*="gap:16px"][style*="width:90%"] {
+      width: 100% !important;
+      gap: 8px !important;
+    }
+    .slide [style*="width:90%"] {
+      width: 100% !important;
+      padding-left: 12px !important;
+      padding-right: 12px !important;
+    }
+    .slide [style*="width:90%"] span { overflow-wrap: anywhere; }
     .nav-btn { width: 44px; height: 44px; font-size: 16px; }
   }
 </style>

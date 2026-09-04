@@ -1911,14 +1911,24 @@ Events:
         </section>
 
 
-        <!-- Slide 9: 운영 관점에서 Pod 이해하기 -->
+        <!-- Slide 9: 상태 기반 Pod 진단 -->
         <section class="slide practice-slide" data-title="상태 기반 Pod 진단">
           <div class="slide-label">09 — 상태 기반 Pod 진단</div><h1>🔍 상태 기반 Pod 진단</h1>
-          <p>Pod의 <code>STATUS</code>는 결과이고 원인은 아닙니다. 현재 상태, 컨테이너 상태와 Events를 차례로 확인해야 합니다.</p>
-          <table><tr><th>상태</th><th>의미</th><th>다음 확인</th></tr><tr><td>Pending</td><td>스케줄링 또는 볼륨 연결 대기</td><td><code>describe</code>의 Events</td></tr><tr><td>CrashLoopBackOff</td><td>시작 후 반복 종료</td><td><code>logs --previous</code></td></tr><tr><td>ImagePullBackOff</td><td>이미지 가져오기 실패</td><td>이미지·Secret·Registry</td></tr><tr><td>Running</td><td>프로세스 실행 중</td><td>READY와 Probe 결과</td></tr></table>
-          <div class="code" data-lang="bash"><span class="cmd">kubectl get pods</span> -o wide
-<span class="cmd">kubectl get pods</span> -A
-<span class="cmd">kubectl get events</span> --sort-by=.lastTimestamp</div>
+          <p><code>get</code>으로 이상한 Pod를 찾고, <code>describe</code>로 상태와 Events를 확인한 뒤, <code>logs</code>로 애플리케이션 오류를 확인합니다.</p>
+          <div class="split">
+            <div class="box"><h3>1️⃣ kubectl get pods</h3><p>Pod의 상태, 준비 여부, 재시작 횟수를 요약해 보여줍니다.</p><div class="code" data-lang="bash"><span class="cmd">kubectl get pods</span>
+
+NAME       READY   STATUS             RESTARTS
+myapp-pod  0/1     CrashLoopBackOff   5</div></div>
+            <div class="box"><h3>2️⃣ kubectl describe pod</h3><p>Pod의 컨테이너 상태와 하단 <strong>Events</strong>에서 실패 원인을 찾습니다.</p><div class="code" data-lang="bash"><span class="cmd">kubectl describe pod</span> myapp-pod
+
+State:   Waiting
+Reason:  CrashLoopBackOff
+Events:  Back-off restarting failed container</div></div>
+          </div>
+          <div class="box"><h3>3️⃣ kubectl logs</h3><p>현재 컨테이너의 출력을 확인합니다. 반복 재시작 중이면 <code>--previous</code>로 직전에 종료된 컨테이너의 로그를 조회합니다.</p><div class="code" data-lang="bash"><span class="cmd">kubectl logs</span> myapp-pod --previous
+
+ERROR: DATABASE_URL environment variable is missing</div></div>
         </section>
 
         <!-- Slide 10: kubectl 진단 도구 -->
@@ -1989,37 +1999,19 @@ Events:
           <div class="warning">requests를 과도하게 높이면 여유 자원이 있어도 Pod가 Pending이 될 수 있습니다. limits만 늘리기 전에 실제 사용량과 메모리 누수를 확인합니다.</div>
         </section>
 
-        <!-- Slide 14: Probes -->
-        <section class="slide practice-slide" data-title="Startup, Readiness, Liveness Probe">
-          <div class="slide-label">14 — Startup, Readiness, Liveness Probe</div><h1>❤️ Startup, Readiness, Liveness Probe</h1>
-          <table><tr><th>Probe</th><th>질문</th><th>실패 시 동작</th></tr><tr><td>startup</td><td>애플리케이션 시작이 끝났는가?</td><td>성공 전 다른 Probe 대기</td></tr><tr><td>readiness</td><td>지금 요청을 받을 수 있는가?</td><td>Service Endpoint에서 제외</td></tr><tr><td>liveness</td><td>재시작이 필요한 상태인가?</td><td>컨테이너 재시작</td></tr></table>
-          <div class="code" data-lang="yaml"><span class="key">readinessProbe:</span>
-  <span class="key">httpGet:</span> { <span class="key">path:</span> <span class="str">/ready</span>, <span class="key">port:</span> 8000 }
-  <span class="key">periodSeconds:</span> 5
-<span class="key">livenessProbe:</span>
-  <span class="key">httpGet:</span> { <span class="key">path:</span> <span class="str">/health</span>, <span class="key">port:</span> 8000 }
-  <span class="key">failureThreshold:</span> 3</div>
-        </section>
-
         <!-- Slide 15: 장애 대응 I -->
         <section class="slide practice-slide" data-title="장애 대응 I">
           <div class="slide-label">15 — 장애 대응 I</div><h1>🧯 CrashLoopBackOff와 ImagePullBackOff</h1>
-          <div class="split"><div class="box"><h3>CrashLoopBackOff</h3><ol><li><code>describe</code>로 Exit Code 확인</li><li><code>logs --previous</code>로 직전 로그 확인</li><li>명령, 환경변수, 의존 서비스 점검</li><li>Probe가 너무 공격적인지 확인</li></ol></div>
-          <div class="box"><h3>ImagePullBackOff</h3><ol><li>이미지 이름과 태그 확인</li><li>Registry에 이미지 존재 여부 확인</li><li><code>imagePullSecrets</code> 확인</li><li>노드의 Registry 접근성 확인</li></ol></div></div>
-          <div class="code" data-lang="bash"><span class="cmd">kubectl describe pod</span> myapp-pod
-<span class="cmd">kubectl logs</span> myapp-pod --previous
-<span class="cmd">kubectl get secret</span> regcred
-<span class="cmd">kubectl rollout status</span> deployment/myapp</div>
+          <p><code>kubectl describe pod</code>의 컨테이너 상태와 Events에 표시되는 대표적인 오류입니다.</p>
+          <div class="split"><div class="box"><h3>CrashLoopBackOff</h3><p>컨테이너가 시작된 뒤 계속 종료되어 Kubernetes가 반복 재시작하고 있음을 뜻합니다. 실패가 반복될수록 다음 재시작까지의 대기 시간이 늘어납니다.</p></div>
+          <div class="box"><h3>ImagePullBackOff</h3><p>Kubernetes가 컨테이너 이미지를 가져오지 못해 Pod를 시작하지 못하고, 다음 다운로드 재시도 전까지 대기 중임을 뜻합니다.</p></div></div>
         </section>
 
         <!-- Slide 16: 장애 대응 II -->
         <section class="slide practice-slide" data-title="장애 대응 II">
           <div class="slide-label">16 — 장애 대응 II</div><h1>🚨 Pending OOMKilled Probe Failed PVC Pending</h1>
+          <p><code>kubectl describe pod</code>의 Status, Last State와 Events를 함께 보면 각 오류가 의미하는 상태를 구분할 수 있습니다.</p>
           <table><tr><th>증상</th><th>주요 원인</th><th>핵심 확인</th></tr><tr><td>Pending</td><td>CPU·Memory 부족, Taint, Affinity</td><td>Events의 FailedScheduling</td></tr><tr><td>OOMKilled</td><td>메모리 limit 초과 또는 누수</td><td>Last State, Exit Code 137</td></tr><tr><td>Readiness Failed</td><td>경로·포트 오류, 의존 서비스 실패</td><td>Probe Events와 앱 로그</td></tr><tr><td>PVC Pending</td><td>StorageClass 없음, 용량·AccessMode 불일치</td><td>PVC Events와 StorageClass</td></tr></table>
-          <div class="code" data-lang="bash"><span class="cmd">kubectl describe pod</span> myapp-pod
-<span class="cmd">kubectl get events</span> --sort-by=.lastTimestamp
-<span class="cmd">kubectl describe pvc</span> data-pvc
-<span class="cmd">kubectl top pod</span> myapp-pod</div>
         </section>
 
         <!-- Slide 17: HPA -->

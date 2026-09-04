@@ -10,7 +10,7 @@
 | **Linux 기초** | [linux.html](lecture_note/linux.html) | 리눅스 환경 설정, 기본 명령어, 쉘 활용법 |
 | **Git & GitHub** | [github.html](lecture_note/github.html) | 버전 관리 기초, GitHub를 활용한 협업 워크플로우 |
 | **Docker** | [docker.html](lecture_note/docker.html) | 컨테이너 기술의 이해, Dockerfile 작성 및 컨테이너 관리 |
-| **Kubernetes** | [kubernetes.html](lecture_note/kubernetes.html) | 컨테이너 오케스트레이션, 쿠버네티스 아키텍처 및 클러스터 관리 |
+| **Kubernetes** | [kubernetes.html](lecture_note/kubernetes.html) | 핵심 개념, 설정·자원 관리, 상태 검사, 자동 확장 및 장애 대응 |
 
 ---
 

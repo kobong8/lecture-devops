@@ -1130,7 +1130,24 @@
     .nav-btn { width: 44px; height: 44px; font-size: 16px; }
   }
 </style>
-<style>.moved-to-practice { display: none !important; }</style>
+<style>
+  .moved-to-practice { display: none !important; }
+  .practice-slide .split { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+  .practice-slide .box,
+  .practice-slide .warning { padding: 17px 20px; margin: 14px 0; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; background: rgba(110,231,183,.05); }
+  .practice-slide .warning { border-left-color: #f59e0b; background: rgba(245,158,11,.05); }
+  .practice-slide .code { position: relative; white-space: pre-wrap; word-break: break-all; overflow-wrap: break-word; overflow: visible; overflow-x: hidden; flex-shrink: 0; margin: 14px 0; padding: 35px 20px 18px; border: 1px solid rgba(255,255,255,.07); border-radius: 10px; background: var(--code-bg); color: var(--code-text); font: 15px/1.65 'Google Sans Code', monospace; }
+  .practice-slide .code::before { content: attr(data-lang); position: absolute; left: 0; top: 0; padding: 3px 10px; border-radius: 9px 0 8px 0; background: var(--accent2); color: white; font: 700 11px 'Space Mono'; text-transform: uppercase; }
+  .practice-slide .cmd { color: #6ee7b7; font-weight: 700; }
+  .practice-slide .key { color: #818cf8; }
+  .practice-slide .str { color: #a5d6ff; }
+  .practice-slide .comment { color: #6e7681; }
+  .practice-slide table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 16px; }
+  .practice-slide th { padding: 10px 14px; text-align: left; color: var(--accent); background: rgba(255,255,255,.05); border-bottom: 1px solid var(--border); font: 700 14px 'Space Mono'; }
+  .practice-slide td { padding: 9px 14px; color: var(--muted); border-bottom: 1px solid var(--border); line-height: 1.55; }
+  .practice-slide tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+  @media (max-width: 768px) { .practice-slide .split { grid-template-columns: 1fr; } }
+</style>
 </head>
 <body>
 
@@ -1144,7 +1161,7 @@
       <div class="brand-icon">⎈</div>
       <div>
         <div class="brand-text">Kubernetes 기초</div>
-        <div class="brand-sub">Introduction to Kubernetes</div>
+        <div class="brand-sub">Fundamentals & Operations</div>
       </div>
     </div>
     <a class="home-btn" href="../" title="홈으로">
@@ -1172,13 +1189,13 @@
 <main id="main">
 
   <section class="slide slide-home" data-title="Kubernetes 시작하기">
-    <div class="eyebrow">— DevOps Lecture 2026 · Introduction to Kubernetes</div>
+    <div class="eyebrow">— DevOps Lecture 2026 · Fundamentals & Operations</div>
     <h1>⎈ <em>Kubernetes</em> 기초</h1>
-    <p class="subtitle">컨테이너화된 애플리케이션의 자동 배포, 스케일링 및 관리를 위한 오케스트레이션 플랫폼 Kubernetes의 핵심을 배웁니다.</p>
+    <p class="subtitle">Kubernetes 핵심 개념부터 설정·자원 관리, 상태 검사, 자동 확장과 장애 대응까지 하나의 흐름으로 학습합니다.</p>
     <div class="meta-row">
       <div class="meta-chip"><span class="dot"></span> 2026 DevOps</div>
-      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 10 슬라이드</div>
-      <div class="meta-chip"><span class="dot" style="background:var(--accent3)"></span> Container Orchestration</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 20 슬라이드</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent3)"></span> Orchestration · Operations</div>
     </div>
     <div class="deco-grid">
       <div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div><div class="deco-cell"></div>
@@ -1894,9 +1911,141 @@ Events:
         </section>
 
 
-        <!-- Slide 16: 핵심 정리 -->
+        <!-- Slide 9: 운영 관점에서 Pod 이해하기 -->
+        <section class="slide practice-slide" data-title="상태 기반 Pod 진단">
+          <div class="slide-label">09 — 상태 기반 Pod 진단</div><h1>🔍 상태 기반 Pod 진단</h1>
+          <p>Pod의 <code>STATUS</code>는 결과이고 원인은 아닙니다. 현재 상태, 컨테이너 상태와 Events를 차례로 확인해야 합니다.</p>
+          <table><tr><th>상태</th><th>의미</th><th>다음 확인</th></tr><tr><td>Pending</td><td>스케줄링 또는 볼륨 연결 대기</td><td><code>describe</code>의 Events</td></tr><tr><td>CrashLoopBackOff</td><td>시작 후 반복 종료</td><td><code>logs --previous</code></td></tr><tr><td>ImagePullBackOff</td><td>이미지 가져오기 실패</td><td>이미지·Secret·Registry</td></tr><tr><td>Running</td><td>프로세스 실행 중</td><td>READY와 Probe 결과</td></tr></table>
+          <div class="code" data-lang="bash"><span class="cmd">kubectl get pods</span> -o wide
+<span class="cmd">kubectl get pods</span> -A
+<span class="cmd">kubectl get events</span> --sort-by=.lastTimestamp</div>
+        </section>
+
+        <!-- Slide 10: kubectl 진단 도구 -->
+        <section class="slide practice-slide" data-title="kubectl 진단 흐름">
+          <div class="slide-label">10 — kubectl 진단 흐름</div><h1>🩺 kubectl 진단 흐름</h1>
+          <div class="split"><div><h2>증거 수집 순서</h2><ol><li><code>get</code>: 상태와 재시작 횟수 확인</li><li><code>describe</code>: 컨테이너 상태와 Events 확인</li><li><code>logs</code>: 애플리케이션 오류 확인</li><li><code>exec</code>: 살아 있는 컨테이너 내부 점검</li></ol><div class="warning"><code>exec</code>부터 실행하지 않습니다. 크래시 중인 컨테이너에는 접속할 수 없고 상태를 바꿔 증거가 흐려질 수 있습니다.</div></div>
+          <div><div class="code" data-lang="bash"><span class="cmd">kubectl describe pod</span> myapp-pod
+<span class="cmd">kubectl logs</span> myapp-pod --previous
+<span class="cmd">kubectl logs</span> myapp-pod -c app --tail=100
+<span class="cmd">kubectl exec</span> -it myapp-pod -- sh
+<span class="cmd">kubectl exec</span> myapp-pod -- curl -sS http://api:8000/health</div></div></div>
+        </section>
+
+        <!-- Slide 11: ConfigMap -->
+        <section class="slide practice-slide" data-title="ConfigMap과 환경별 설정 관리">
+          <div class="slide-label">11 — ConfigMap과 환경별 설정 관리</div><h1>📄 ConfigMap과 환경별 설정 관리</h1>
+          <div class="split"><div><div class="code" data-lang="yaml"><span class="key">apiVersion:</span> v1
+<span class="key">kind:</span> ConfigMap
+<span class="key">metadata:</span>
+  <span class="key">name:</span> app-config
+<span class="key">data:</span>
+  <span class="key">LOG_LEVEL:</span> <span class="str">"info"</span>
+  <span class="key">DB_HOST:</span> <span class="str">"postgres"</span></div></div>
+          <div><div class="code" data-lang="yaml"><span class="key">envFrom:</span>
+  - <span class="key">configMapRef:</span>
+      <span class="key">name:</span> app-config
+
+<span class="comment"># 특정 키만 선택할 때</span>
+<span class="key">env:</span>
+  - <span class="key">name:</span> DB_HOST
+    <span class="key">valueFrom:</span>
+      <span class="key">configMapKeyRef:</span>
+        <span class="key">name:</span> app-config
+        <span class="key">key:</span> DB_HOST</div></div></div>
+          <div class="box"><strong>운영 포인트:</strong> 환경변수로 주입된 값은 ConfigMap을 수정해도 실행 중인 프로세스에 자동 반영되지 않습니다. 설정 변경 후 Rollout 전략을 함께 설계합니다.</div>
+        </section>
+
+        <!-- Slide 12: Secret -->
+        <section class="slide practice-slide" data-title="Secret과 민감 정보 관리">
+          <div class="slide-label">12 — Secret과 민감 정보 관리</div><h1>🔐 Secret과 민감 정보 관리</h1>
+          <div class="split"><div><div class="code" data-lang="yaml"><span class="key">apiVersion:</span> v1
+<span class="key">kind:</span> Secret
+<span class="key">metadata:</span>
+  <span class="key">name:</span> db-secret
+<span class="key">type:</span> Opaque
+<span class="key">stringData:</span>
+  <span class="key">password:</span> <span class="str">change-me</span></div></div>
+          <div><div class="code" data-lang="yaml"><span class="key">env:</span>
+  - <span class="key">name:</span> DB_PASSWORD
+    <span class="key">valueFrom:</span>
+      <span class="key">secretKeyRef:</span>
+        <span class="key">name:</span> db-secret
+        <span class="key">key:</span> password</div></div></div>
+          <ul><li>Secret YAML 원문을 Git에 커밋하지 않습니다.</li><li>RBAC으로 읽기 권한을 최소화하고 etcd 암호화를 검토합니다.</li><li>운영에서는 Vault·클라우드 Secret Manager와 External Secrets 같은 연동을 고려합니다.</li></ul>
+        </section>
+
+        <!-- Slide 13: Resources -->
+        <section class="slide practice-slide" data-title="Resource Requests와 Limits">
+          <div class="slide-label">13 — Resource Requests와 Limits</div><h1>📊 Resource Requests와 Limits</h1>
+          <div class="split"><div><div class="code" data-lang="yaml"><span class="key">resources:</span>
+  <span class="key">requests:</span>
+    <span class="key">cpu:</span> <span class="str">"500m"</span>
+    <span class="key">memory:</span> <span class="str">"512Mi"</span>
+  <span class="key">limits:</span>
+    <span class="key">cpu:</span> <span class="str">"1"</span>
+    <span class="key">memory:</span> <span class="str">"1Gi"</span></div></div>
+          <div><table><tr><th>설정</th><th>운영 의미</th></tr><tr><td>CPU request</td><td>스케줄러가 예약 기준으로 사용</td></tr><tr><td>CPU limit</td><td>초과 시 throttling 가능</td></tr><tr><td>Memory request</td><td>노드 배치 기준</td></tr><tr><td>Memory limit</td><td>초과 시 OOMKilled 가능</td></tr></table></div></div>
+          <div class="warning">requests를 과도하게 높이면 여유 자원이 있어도 Pod가 Pending이 될 수 있습니다. limits만 늘리기 전에 실제 사용량과 메모리 누수를 확인합니다.</div>
+        </section>
+
+        <!-- Slide 14: Probes -->
+        <section class="slide practice-slide" data-title="Startup, Readiness, Liveness Probe">
+          <div class="slide-label">14 — Startup, Readiness, Liveness Probe</div><h1>❤️ Startup, Readiness, Liveness Probe</h1>
+          <table><tr><th>Probe</th><th>질문</th><th>실패 시 동작</th></tr><tr><td>startup</td><td>애플리케이션 시작이 끝났는가?</td><td>성공 전 다른 Probe 대기</td></tr><tr><td>readiness</td><td>지금 요청을 받을 수 있는가?</td><td>Service Endpoint에서 제외</td></tr><tr><td>liveness</td><td>재시작이 필요한 상태인가?</td><td>컨테이너 재시작</td></tr></table>
+          <div class="code" data-lang="yaml"><span class="key">readinessProbe:</span>
+  <span class="key">httpGet:</span> { <span class="key">path:</span> <span class="str">/ready</span>, <span class="key">port:</span> 8000 }
+  <span class="key">periodSeconds:</span> 5
+<span class="key">livenessProbe:</span>
+  <span class="key">httpGet:</span> { <span class="key">path:</span> <span class="str">/health</span>, <span class="key">port:</span> 8000 }
+  <span class="key">failureThreshold:</span> 3</div>
+        </section>
+
+        <!-- Slide 15: 장애 대응 I -->
+        <section class="slide practice-slide" data-title="장애 대응 I">
+          <div class="slide-label">15 — 장애 대응 I</div><h1>🧯 CrashLoopBackOff와 ImagePullBackOff</h1>
+          <div class="split"><div class="box"><h3>CrashLoopBackOff</h3><ol><li><code>describe</code>로 Exit Code 확인</li><li><code>logs --previous</code>로 직전 로그 확인</li><li>명령, 환경변수, 의존 서비스 점검</li><li>Probe가 너무 공격적인지 확인</li></ol></div>
+          <div class="box"><h3>ImagePullBackOff</h3><ol><li>이미지 이름과 태그 확인</li><li>Registry에 이미지 존재 여부 확인</li><li><code>imagePullSecrets</code> 확인</li><li>노드의 Registry 접근성 확인</li></ol></div></div>
+          <div class="code" data-lang="bash"><span class="cmd">kubectl describe pod</span> myapp-pod
+<span class="cmd">kubectl logs</span> myapp-pod --previous
+<span class="cmd">kubectl get secret</span> regcred
+<span class="cmd">kubectl rollout status</span> deployment/myapp</div>
+        </section>
+
+        <!-- Slide 16: 장애 대응 II -->
+        <section class="slide practice-slide" data-title="장애 대응 II">
+          <div class="slide-label">16 — 장애 대응 II</div><h1>🚨 Pending OOMKilled Probe Failed PVC Pending</h1>
+          <table><tr><th>증상</th><th>주요 원인</th><th>핵심 확인</th></tr><tr><td>Pending</td><td>CPU·Memory 부족, Taint, Affinity</td><td>Events의 FailedScheduling</td></tr><tr><td>OOMKilled</td><td>메모리 limit 초과 또는 누수</td><td>Last State, Exit Code 137</td></tr><tr><td>Readiness Failed</td><td>경로·포트 오류, 의존 서비스 실패</td><td>Probe Events와 앱 로그</td></tr><tr><td>PVC Pending</td><td>StorageClass 없음, 용량·AccessMode 불일치</td><td>PVC Events와 StorageClass</td></tr></table>
+          <div class="code" data-lang="bash"><span class="cmd">kubectl describe pod</span> myapp-pod
+<span class="cmd">kubectl get events</span> --sort-by=.lastTimestamp
+<span class="cmd">kubectl describe pvc</span> data-pvc
+<span class="cmd">kubectl top pod</span> myapp-pod</div>
+        </section>
+
+        <!-- Slide 17: HPA -->
+        <section class="slide practice-slide" data-title="HPA와 Pod 자동 확장">
+          <div class="slide-label">17 — HPA와 Pod 자동 확장</div><h1>📈 HPA와 Pod 자동 확장</h1>
+          <p>HPA는 Metrics Server 등의 지표를 보고 Deployment의 replica 수를 조절합니다. CPU 사용률 계산을 위해 대상 컨테이너에 CPU request가 필요합니다.</p>
+          <div class="split"><div><div class="code" data-lang="bash"><span class="cmd">kubectl autoscale deployment</span> myapp \
+  --cpu-percent=60 --min=2 --max=5
+
+<span class="cmd">kubectl get hpa</span> -w
+<span class="cmd">kubectl top pods</span></div></div>
+          <div><div class="box" style="text-align:center;line-height:2.1">평상시 <strong>2 Pods</strong><br>↓ 부하 증가<br><strong>5 Pods</strong><br>↓ 안정화 기간<br><strong>2 Pods</strong></div></div></div>
+          <div class="warning">HPA는 즉시 반응하는 마법이 아닙니다. Metrics 수집 주기, 안정화 시간, 애플리케이션 시작 시간과 DB 같은 하위 시스템의 용량도 함께 고려합니다.</div>
+        </section>
+
+        <!-- Slide 18: 종합 장애 대응 실습 -->
+        <section class="slide practice-slide" data-title="종합 장애 대응 실습">
+          <div class="slide-label">18 — 종합 장애 대응 실습</div><h1>✅ 종합 장애 대응 실습</h1>
+          <div class="split"><div><h2>장애 주입</h2><ol><li>존재하지 않는 이미지 태그 배포</li><li>필수 Secret 키 제거</li><li>readiness 경로를 잘못 지정</li><li>과도한 memory limit 설정</li><li>request를 높여 Pending 유도</li></ol></div>
+          <div><h2>완료 기준</h2><ol><li>증상과 영향을 설명한다.</li><li>get·describe·logs로 증거를 남긴다.</li><li>원인 가설을 한 번에 하나씩 검증한다.</li><li>수정 후 Rollout과 Endpoint를 확인한다.</li><li>재발 방지 설정과 모니터링 항목을 제시한다.</li></ol></div></div>
+          <div class="box"><strong>운영 사고 과정:</strong> 상태 확인 → Events와 로그 수집 → 원인 가설 → 최소 변경 → 복구 검증 → 재발 방지</div>
+        </section>
+
+        <!-- Slide 19: 핵심 정리 -->
         <section class="slide" data-title="Kubernetes 핵심 정리">
-    <div class="slide-label">09 — Kubernetes 핵심 정리</div>
+    <div class="slide-label">19 — Kubernetes 핵심 정리</div>
             <h1><span class="emoji">⎈</span>🎯 Kubernetes 핵심 정리</h1>
             
             <h2>1. Kubernetes란?</h2>
@@ -1947,10 +2096,8 @@ Events:
             </ol>
 
             <div class="highlight-box">
-                <h3>🚀 다음 단계</h3>
-                <p>다음 강의인 <strong>Kubernetes 실무</strong>에서 설정 주입, 자원 관리, 상태 검사와 장애 대응을 학습합니다.</p>
-                <p>실습 환경 추천: Minikube, kind, Docker Desktop의 Kubernetes</p>
-                <p><a href="kubernetes-practice.html" style="color: var(--accent); font-weight: 700;">Kubernetes 실무 강의로 이동 →</a></p>
+                <h3>🚀 실습 환경 추천</h3>
+                <p>Minikube, kind 또는 Docker Desktop의 Kubernetes에서 예제를 직접 적용하고 장애 대응 흐름을 반복해 보세요.</p>
             </div>
 
 

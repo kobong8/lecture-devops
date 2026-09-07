@@ -1191,10 +1191,10 @@
   <section class="slide slide-home" data-title="Kubernetes 시작하기">
     <div class="eyebrow">— DevOps Lecture 2026 · Fundamentals & Operations</div>
     <h1>⎈ <em>Kubernetes</em> 기초</h1>
-    <p class="subtitle">Kubernetes 핵심 개념부터 설정·자원 관리, 상태 검사, 자동 확장과 장애 대응까지 하나의 흐름으로 학습합니다.</p>
+    <p class="subtitle">Kubernetes 핵심 개념부터 설정·자원 관리, 상태 확인과 장애 사례 분석까지 하나의 흐름으로 학습합니다.</p>
     <div class="meta-row">
       <div class="meta-chip"><span class="dot"></span> 2026 DevOps</div>
-      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 20 슬라이드</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 18 슬라이드</div>
       <div class="meta-chip"><span class="dot" style="background:var(--accent3)"></span> Orchestration · Operations</div>
     </div>
     <div class="deco-grid">
@@ -1671,7 +1671,7 @@ curl http://myapp-service.default.svc.cluster.local:80</div>
 
 
         <!-- Slide 09: Pod 상태 조회 -->
-        <section class="slide moved-to-practice" data-title="Pod 상태 조회">
+        <section class="slide imported-from-prev" data-title="Pod 상태 조회">
             <div class="slide-label">09 — kubectl get</div>
             <h1><span class="emoji">⎈</span>🔍 Pod 상태 조회</h1>
             <p><span class="keyword">kubectl get</span>은 리소스의 현재 상태를 요약해서 보여줍니다.</p>
@@ -1698,7 +1698,7 @@ kubectl get pods -o wide</div>
         </section>
 
         <!-- Slide 10: 상세 정보 확인 -->
-        <section class="slide moved-to-practice" data-title="상세 정보 확인">
+        <section class="slide imported-from-prev" data-title="상세 정보 확인">
             <div class="slide-label">10 — kubectl describe</div>
             <h1><span class="emoji">⎈</span>🔍 상세 정보 확인</h1>
             <p><span class="keyword">kubectl describe</span>는 특정 리소스의 상세 정보와 이벤트 기록을 보여줍니다.</p>
@@ -1720,7 +1720,7 @@ kubectl describe pod [Pod 이름]
         </section>
 
         <!-- Slide 11: 로그 확인 -->
-        <section class="slide moved-to-practice" data-title="로그 확인">
+        <section class="slide imported-from-prev" data-title="로그 확인">
             <div class="slide-label">11 — kubectl logs</div>
             <h1><span class="emoji">⎈</span>🔍 로그 확인</h1>
             <p><span class="keyword">kubectl logs</span>는 애플리케이션이 출력하는 로그를 확인하여 <strong>에러 원인을 진단</strong>합니다.</p>
@@ -1740,7 +1740,7 @@ kubectl logs [Pod 이름] --since=1h</div>
         </section>
 
         <!-- Slide 12: 컨테이너 내부 접속 -->
-        <section class="slide moved-to-practice" data-title="컨테이너 내부 접속">
+        <section class="slide imported-from-prev" data-title="컨테이너 내부 접속">
             <div class="slide-label">12 — kubectl exec</div>
             <h1><span class="emoji">⎈</span>🔍 컨테이너 내부 접속</h1>
             <p><span class="keyword">kubectl exec</span>는 실행 중인 컨테이너 내부에 직접 접속하여 <strong>디버깅</strong>을 수행합니다.</p>
@@ -1771,7 +1771,7 @@ kubectl exec [Pod 이름] -- curl http://other-service:80</div>
 
 
         <!-- Slide 13: ConfigMap -->
-        <section class="slide moved-to-practice" data-title="설정 관리">
+        <section class="slide imported-from-prev priority-after-ingress" data-title="설정 관리">
             <div class="slide-label">13 — ConfigMap</div>
             <h1><span class="emoji">⎈</span>📄 설정 관리</h1>
             <p><span class="keyword">ConfigMap</span>은 환경 변수, 설정 파일 경로, 로그 레벨 등 <strong>민감하지 않은 데이터</strong>를 저장합니다.</p>
@@ -1796,7 +1796,7 @@ data:
         </section>
 
         <!-- Slide 14: Secret -->
-        <section class="slide moved-to-practice" data-title="민감 정보 관리">
+        <section class="slide imported-from-prev priority-after-ingress" data-title="민감 정보 관리">
             <div class="slide-label">14 — Secret</div>
             <h1><span class="emoji">⎈</span>🔐 민감 정보 관리</h1>
             <p><span class="keyword">Secret</span>은 비밀번호, API 키, 토큰 등 <strong>외부에 노출되면 안 되는 데이터</strong>를 base64 인코딩하여 저장합니다.</p>
@@ -1834,7 +1834,7 @@ env:
 
 
         <!-- Slide 15: 장애 사례 분석 -->
-        <section class="slide moved-to-practice" data-title="자주 발생하는 장애 사례 분석">
+        <section class="slide imported-from-prev" data-title="자주 발생하는 장애 사례 분석">
     <div class="slide-label">15 — 자주 발생하는 장애 사례 분석</div>
             <h1><span class="emoji">⎈</span>🚨 자주 발생하는 장애 사례 분석</h1>
             <p><code>kubectl describe pod</code>에서 자주 만나는 장애 상황과 해결 방법을 알아봅니다.</p>
@@ -1911,83 +1911,9 @@ Events:
         </section>
 
 
-        <!-- Slide 9: 상태 기반 Pod 진단 -->
-        <section class="slide practice-slide" data-title="상태 기반 Pod 진단">
-          <div class="slide-label">09 — 상태 기반 Pod 진단</div><h1>🔍 상태 기반 Pod 진단</h1>
-          <p><code>get</code>으로 이상한 Pod를 찾고, <code>describe</code>로 상태와 Events를 확인한 뒤, <code>logs</code>로 애플리케이션 오류를 확인합니다.</p>
-          <div class="split">
-            <div class="box"><h3>1️⃣ kubectl get pods</h3><p>Pod의 상태, 준비 여부, 재시작 횟수를 요약해 보여줍니다.</p><div class="code" data-lang="bash"><span class="cmd">kubectl get pods</span>
-
-NAME       READY   STATUS             RESTARTS
-myapp-pod  0/1     CrashLoopBackOff   5</div></div>
-            <div class="box"><h3>2️⃣ kubectl describe pod</h3><p>Pod의 컨테이너 상태와 하단 <strong>Events</strong>에서 실패 원인을 찾습니다.</p><div class="code" data-lang="bash"><span class="cmd">kubectl describe pod</span> myapp-pod
-
-State:   Waiting
-Reason:  CrashLoopBackOff
-Events:  Back-off restarting failed container</div></div>
-          </div>
-          <div class="box"><h3>3️⃣ kubectl logs</h3><p>현재 컨테이너의 출력을 확인합니다. 반복 재시작 중이면 <code>--previous</code>로 직전에 종료된 컨테이너의 로그를 조회합니다.</p><div class="code" data-lang="bash"><span class="cmd">kubectl logs</span> myapp-pod --previous
-
-ERROR: DATABASE_URL environment variable is missing</div></div>
-        </section>
-
-        <!-- Slide 10: kubectl 진단 도구 -->
-        <section class="slide practice-slide" data-title="kubectl 진단 흐름">
-          <div class="slide-label">10 — kubectl 진단 흐름</div><h1>🩺 kubectl 진단 흐름</h1>
-          <div class="split"><div><h2>증거 수집 순서</h2><ol><li><code>get</code>: 상태와 재시작 횟수 확인</li><li><code>describe</code>: 컨테이너 상태와 Events 확인</li><li><code>logs</code>: 애플리케이션 오류 확인</li><li><code>exec</code>: 살아 있는 컨테이너 내부 점검</li></ol><div class="warning"><code>exec</code>부터 실행하지 않습니다. 크래시 중인 컨테이너에는 접속할 수 없고 상태를 바꿔 증거가 흐려질 수 있습니다.</div></div>
-          <div><div class="code" data-lang="bash"><span class="cmd">kubectl describe pod</span> myapp-pod
-<span class="cmd">kubectl logs</span> myapp-pod --previous
-<span class="cmd">kubectl logs</span> myapp-pod -c app --tail=100
-<span class="cmd">kubectl exec</span> -it myapp-pod -- sh
-<span class="cmd">kubectl exec</span> myapp-pod -- curl -sS http://api:8000/health</div></div></div>
-        </section>
-
-        <!-- Slide 11: ConfigMap -->
-        <section class="slide practice-slide" data-title="ConfigMap과 환경별 설정 관리">
-          <div class="slide-label">11 — ConfigMap과 환경별 설정 관리</div><h1>📄 ConfigMap과 환경별 설정 관리</h1>
-          <div class="split"><div><div class="code" data-lang="yaml"><span class="key">apiVersion:</span> v1
-<span class="key">kind:</span> ConfigMap
-<span class="key">metadata:</span>
-  <span class="key">name:</span> app-config
-<span class="key">data:</span>
-  <span class="key">LOG_LEVEL:</span> <span class="str">"info"</span>
-  <span class="key">DB_HOST:</span> <span class="str">"postgres"</span></div></div>
-          <div><div class="code" data-lang="yaml"><span class="key">envFrom:</span>
-  - <span class="key">configMapRef:</span>
-      <span class="key">name:</span> app-config
-
-<span class="comment"># 특정 키만 선택할 때</span>
-<span class="key">env:</span>
-  - <span class="key">name:</span> DB_HOST
-    <span class="key">valueFrom:</span>
-      <span class="key">configMapKeyRef:</span>
-        <span class="key">name:</span> app-config
-        <span class="key">key:</span> DB_HOST</div></div></div>
-          <div class="box"><strong>운영 포인트:</strong> 환경변수로 주입된 값은 ConfigMap을 수정해도 실행 중인 프로세스에 자동 반영되지 않습니다. 설정 변경 후 Rollout 전략을 함께 설계합니다.</div>
-        </section>
-
-        <!-- Slide 12: Secret -->
-        <section class="slide practice-slide" data-title="Secret과 민감 정보 관리">
-          <div class="slide-label">12 — Secret과 민감 정보 관리</div><h1>🔐 Secret과 민감 정보 관리</h1>
-          <div class="split"><div><div class="code" data-lang="yaml"><span class="key">apiVersion:</span> v1
-<span class="key">kind:</span> Secret
-<span class="key">metadata:</span>
-  <span class="key">name:</span> db-secret
-<span class="key">type:</span> Opaque
-<span class="key">stringData:</span>
-  <span class="key">password:</span> <span class="str">change-me</span></div></div>
-          <div><div class="code" data-lang="yaml"><span class="key">env:</span>
-  - <span class="key">name:</span> DB_PASSWORD
-    <span class="key">valueFrom:</span>
-      <span class="key">secretKeyRef:</span>
-        <span class="key">name:</span> db-secret
-        <span class="key">key:</span> password</div></div></div>
-          <ul><li>Secret YAML 원문을 Git에 커밋하지 않습니다.</li><li>RBAC으로 읽기 권한을 최소화하고 etcd 암호화를 검토합니다.</li><li>운영에서는 Vault·클라우드 Secret Manager와 External Secrets 같은 연동을 고려합니다.</li></ul>
-        </section>
-
-        <!-- Slide 13: Resources -->
+        <!-- Slide 11: Resources -->
         <section class="slide practice-slide" data-title="Resource Requests와 Limits">
-          <div class="slide-label">13 — Resource Requests와 Limits</div><h1>📊 Resource Requests와 Limits</h1>
+          <div class="slide-label">11 — Resource Requests와 Limits</div><h1>📊 Resource Requests와 Limits</h1>
           <div class="split"><div><div class="code" data-lang="yaml"><span class="key">resources:</span>
   <span class="key">requests:</span>
     <span class="key">cpu:</span> <span class="str">"500m"</span>
@@ -1999,45 +1925,9 @@ ERROR: DATABASE_URL environment variable is missing</div></div>
           <div class="warning">requests를 과도하게 높이면 여유 자원이 있어도 Pod가 Pending이 될 수 있습니다. limits만 늘리기 전에 실제 사용량과 메모리 누수를 확인합니다.</div>
         </section>
 
-        <!-- Slide 15: 장애 대응 I -->
-        <section class="slide practice-slide" data-title="장애 대응 I">
-          <div class="slide-label">15 — 장애 대응 I</div><h1>🧯 CrashLoopBackOff와 ImagePullBackOff</h1>
-          <p><code>kubectl describe pod</code>의 컨테이너 상태와 Events에 표시되는 대표적인 오류입니다.</p>
-          <div class="split"><div class="box"><h3>CrashLoopBackOff</h3><p>컨테이너가 시작된 뒤 계속 종료되어 Kubernetes가 반복 재시작하고 있음을 뜻합니다. 실패가 반복될수록 다음 재시작까지의 대기 시간이 늘어납니다.</p></div>
-          <div class="box"><h3>ImagePullBackOff</h3><p>Kubernetes가 컨테이너 이미지를 가져오지 못해 Pod를 시작하지 못하고, 다음 다운로드 재시도 전까지 대기 중임을 뜻합니다.</p></div></div>
-        </section>
-
-        <!-- Slide 16: 장애 대응 II -->
-        <section class="slide practice-slide" data-title="장애 대응 II">
-          <div class="slide-label">16 — 장애 대응 II</div><h1>🚨 Pending OOMKilled Probe Failed PVC Pending</h1>
-          <p><code>kubectl describe pod</code>의 Status, Last State와 Events를 함께 보면 각 오류가 의미하는 상태를 구분할 수 있습니다.</p>
-          <table><tr><th>증상</th><th>주요 원인</th><th>핵심 확인</th></tr><tr><td>Pending</td><td>CPU·Memory 부족, Taint, Affinity</td><td>Events의 FailedScheduling</td></tr><tr><td>OOMKilled</td><td>메모리 limit 초과 또는 누수</td><td>Last State, Exit Code 137</td></tr><tr><td>Readiness Failed</td><td>경로·포트 오류, 의존 서비스 실패</td><td>Probe Events와 앱 로그</td></tr><tr><td>PVC Pending</td><td>StorageClass 없음, 용량·AccessMode 불일치</td><td>PVC Events와 StorageClass</td></tr></table>
-        </section>
-
-        <!-- Slide 17: HPA -->
-        <section class="slide practice-slide" data-title="HPA와 Pod 자동 확장">
-          <div class="slide-label">17 — HPA와 Pod 자동 확장</div><h1>📈 HPA와 Pod 자동 확장</h1>
-          <p>HPA는 Metrics Server 등의 지표를 보고 Deployment의 replica 수를 조절합니다. CPU 사용률 계산을 위해 대상 컨테이너에 CPU request가 필요합니다.</p>
-          <div class="split"><div><div class="code" data-lang="bash"><span class="cmd">kubectl autoscale deployment</span> myapp \
-  --cpu-percent=60 --min=2 --max=5
-
-<span class="cmd">kubectl get hpa</span> -w
-<span class="cmd">kubectl top pods</span></div></div>
-          <div><div class="box" style="text-align:center;line-height:2.1">평상시 <strong>2 Pods</strong><br>↓ 부하 증가<br><strong>5 Pods</strong><br>↓ 안정화 기간<br><strong>2 Pods</strong></div></div></div>
-          <div class="warning">HPA는 즉시 반응하는 마법이 아닙니다. Metrics 수집 주기, 안정화 시간, 애플리케이션 시작 시간과 DB 같은 하위 시스템의 용량도 함께 고려합니다.</div>
-        </section>
-
-        <!-- Slide 18: 종합 장애 대응 실습 -->
-        <section class="slide practice-slide" data-title="종합 장애 대응 실습">
-          <div class="slide-label">18 — 종합 장애 대응 실습</div><h1>✅ 종합 장애 대응 실습</h1>
-          <div class="split"><div><h2>장애 주입</h2><ol><li>존재하지 않는 이미지 태그 배포</li><li>필수 Secret 키 제거</li><li>readiness 경로를 잘못 지정</li><li>과도한 memory limit 설정</li><li>request를 높여 Pending 유도</li></ol></div>
-          <div><h2>완료 기준</h2><ol><li>증상과 영향을 설명한다.</li><li>get·describe·logs로 증거를 남긴다.</li><li>원인 가설을 한 번에 하나씩 검증한다.</li><li>수정 후 Rollout과 Endpoint를 확인한다.</li><li>재발 방지 설정과 모니터링 항목을 제시한다.</li></ol></div></div>
-          <div class="box"><strong>운영 사고 과정:</strong> 상태 확인 → Events와 로그 수집 → 원인 가설 → 최소 변경 → 복구 검증 → 재발 방지</div>
-        </section>
-
-        <!-- Slide 19: 핵심 정리 -->
+        <!-- Slide 17: 핵심 정리 -->
         <section class="slide" data-title="Kubernetes 핵심 정리">
-    <div class="slide-label">19 — Kubernetes 핵심 정리</div>
+    <div class="slide-label">17 — Kubernetes 핵심 정리</div>
             <h1><span class="emoji">⎈</span>🎯 Kubernetes 핵심 정리</h1>
             
             <h2>1. Kubernetes란?</h2>
@@ -2084,12 +1974,12 @@ ERROR: DATABASE_URL environment variable is missing</div></div>
                 <li><strong>기초:</strong> Pod, Deployment, Service</li>
                 <li><strong>스토리지:</strong> PV, PVC, Stateful/Stateless</li>
                 <li><strong>네트워킹:</strong> Service, Ingress</li>
-                <li><strong>실무:</strong> ConfigMap, Secret, Resources, Probe, HPA, 장애 대응</li>
+                <li><strong>실무:</strong> ConfigMap, Secret, Resources, 상태 확인, 로그 분석, 장애 진단</li>
             </ol>
 
             <div class="highlight-box">
                 <h3>🚀 실습 환경 추천</h3>
-                <p>Minikube, kind 또는 Docker Desktop의 Kubernetes에서 예제를 직접 적용하고 장애 대응 흐름을 반복해 보세요.</p>
+                <p>Minikube, kind 또는 Docker Desktop의 Kubernetes에서 예제를 직접 적용해 보세요.</p>
             </div>
 
 
@@ -2126,7 +2016,18 @@ ERROR: DATABASE_URL environment variable is missing</div></div>
 </div>
 
 <script>
-  const slides = Array.from(document.querySelectorAll('.slide:not(.moved-to-practice)'));
+  const main = document.getElementById('main');
+  const summarySlide = Array.from(main.querySelectorAll('.slide'))
+    .find((slide) => slide.dataset.title === 'Kubernetes 핵심 정리');
+  main.querySelectorAll('.imported-from-prev:not(.priority-after-ingress)').forEach((slide) => {
+    main.insertBefore(slide, summarySlide);
+  });
+
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  slides.slice(1).forEach((slide, index) => {
+    const label = slide.querySelector('.slide-label');
+    if (label) label.textContent = label.textContent.replace(/^\d+/, String(index + 1).padStart(2, '0'));
+  });
   const tocList = document.getElementById('tocList');
   let current = -1;
 

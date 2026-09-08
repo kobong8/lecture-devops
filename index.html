@@ -635,13 +635,56 @@
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.72);
+            backdrop-filter: blur(14px);
             z-index: 9999;
             justify-content: center;
             align-items: center;
             flex-direction: column;
         }
         #chicken-game-overlay.active { display: flex; }
+        #chicken-game-overlay { padding: 20px; overflow-y: auto; justify-content: flex-start; }
+        #chicken-game-overlay .chicken-hud { margin-top: auto; padding-top: 12px; }
+        #chicken-game-overlay canvas { width: min(800px, 100%); height: auto; flex-shrink: 0; margin-bottom: auto; }
+        #chicken-game-overlay.show-result canvas,
+        #chicken-game-overlay.show-result .chicken-hud { display: none; }
+        .chicken-panel[hidden] { display: none; }
+        .chicken-panel {
+            width: min(680px, 100%); margin: auto; padding: 32px;
+            background: radial-gradient(ellipse at top left, rgba(110,231,183,0.07), transparent 60%), var(--bg);
+            color: var(--text); border: 1px solid var(--border); border-radius: 20px;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+        }
+        .chicken-eyebrow { font: 11px 'Space Mono', monospace; letter-spacing: 0.18em; color: var(--accent2); }
+        .chicken-result-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 18px 0 24px; border-bottom: 1px solid var(--border); }
+        .chicken-panel h2 { font-size: 26px; letter-spacing: -0.04em; }
+        .chicken-score { font: 36px 'Space Mono', monospace; color: var(--accent); white-space: nowrap; }
+        .chicken-score small { font: 13px 'Noto Sans KR', sans-serif; color: var(--text-muted); }
+        .chicken-panel p { color: var(--text-muted); font-size: 12px; line-height: 1.6; margin: 8px 0; }
+        .chicken-panel h3 { font: 13px 'Space Mono', monospace; letter-spacing: 0.12em; color: var(--accent2); margin-top: 24px; }
+        .chicken-panel table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        .chicken-panel th, .chicken-panel td { padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+        .chicken-panel th { color: var(--text-muted); font-size: 11px; font-weight: 500; }
+        .chicken-panel td:first-child { width: 56px; font-family: 'Space Mono', monospace; color: var(--text-muted); }
+        .chicken-panel tbody tr:first-child { background: var(--card-bg); color: var(--accent); }
+        .chicken-panel td:nth-child(2) { overflow-wrap: anywhere; }
+        .chicken-panel th:last-child, .chicken-panel td:last-child { text-align: right; }
+        #chicken-score-form { margin-top: 20px; }
+        #chicken-score-form label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+        .chicken-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+        .chicken-panel input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--card-bg); color: var(--text); font: inherit; font-size: 14px; }
+        .chicken-panel input::placeholder { color: var(--text-muted); }
+        .chicken-panel button { padding: 13px 18px; border: 1px solid var(--border); border-radius: 10px; background: var(--card-bg); color: var(--text); font: inherit; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+        .chicken-panel button:hover { background: var(--card-hover-bg); }
+        #chicken-restart { background: var(--accent); color: var(--bg); font-weight: 700; }
+        #chicken-restart:hover { filter: brightness(0.92); }
+        .chicken-panel :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+        #chicken-score-status:empty { display: none; }
+        @media (max-width: 480px) {
+            .chicken-panel { padding: 22px; border-radius: 16px; }
+            .chicken-panel h2 { font-size: 22px; }
+            .chicken-score { font-size: 30px; }
+        }
         #chicken-game-overlay canvas {
             border: 2px solid var(--accent);
             border-radius: 8px;
@@ -879,6 +922,31 @@
     <div id="chicken-game-overlay">
         <div class="chicken-hud">Press SPACE or UP to jump &middot; ESC to quit</div>
         <canvas id="chicken-canvas" width="800" height="250"></canvas>
+        <section id="chicken-result" class="chicken-panel" aria-label="치킨 점프 결과와 순위판" hidden>
+            <div>
+                <div class="chicken-eyebrow">CHICKEN JUMP / RESULT</div>
+                <div class="chicken-result-heading">
+                    <h2>이번 도전의 기록</h2>
+                    <div class="chicken-score"><span id="chicken-final-score">0</span> <small>점</small></div>
+                </div>
+                <form id="chicken-score-form">
+                    <label for="chicken-player-name">순위판에 남길 이름</label>
+                    <input id="chicken-player-name" name="player" maxlength="20" autocomplete="off" placeholder="이름을 입력하세요 (선택)" aria-describedby="chicken-name-hint">
+                    <p id="chicken-name-hint">이름을 입력하면 다시하기·나가기 선택 시 기록이 저장됩니다. Enter로 먼저 등록할 수도 있습니다.</p>
+                </form>
+            </div>
+            <h3>TOP 10</h3>
+            <p id="chicken-storage-note">이 브라우저의 기록 · 동점은 먼저 등록한 순서</p>
+            <p id="chicken-score-status" role="status" aria-live="polite"></p>
+            <table>
+                <thead><tr><th scope="col">순위</th><th scope="col">이름</th><th scope="col">점수</th></tr></thead>
+                <tbody id="chicken-ranking"></tbody>
+            </table>
+            <div class="chicken-actions">
+                <button id="chicken-restart" type="button">다시하기</button>
+                <button id="chicken-close" type="button">나가기</button>
+            </div>
+        </section>
     </div>
 
     <div class="contact-overlay" id="contactOverlay" aria-hidden="true">
@@ -930,6 +998,7 @@
 
         // Keyboard Shortcut for Theme Toggle
         document.addEventListener('keydown', e => {
+            if (e.target.closest('input, textarea, [contenteditable="true"]')) return;
             if (e.key === 't' || e.key === 'T') {
                 toggleTheme();
             }
@@ -1005,6 +1074,85 @@
             const ctx     = canvas.getContext('2d');
             let gameRunning = false;
             let animFrame   = null;
+            const result = document.getElementById('chicken-result');
+            const scoreForm = document.getElementById('chicken-score-form');
+            const playerName = document.getElementById('chicken-player-name');
+            const scoreStatus = document.getElementById('chicken-score-status');
+            const ranking = document.getElementById('chicken-ranking');
+            const STORAGE_KEY = 'lecture-devops:chicken-top10:v1';
+            let records = [];
+            let submitted = false;
+            let finalScore = 0;
+            let previousFocus = null;
+
+            function loadRecords() {
+                try {
+                    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                    if (!Array.isArray(stored)) throw new Error('Invalid records');
+                    records = stored.filter(row => row && typeof row.name === 'string' && row.name.trim() && row.name.length <= 20 && Number.isSafeInteger(row.score) && row.score >= 0)
+                        .sort((a, b) => b.score - a.score).slice(0, 10);
+                } catch {
+                    scoreStatus.textContent = '저장된 기록을 읽을 수 없어 이번 실행의 기록만 표시합니다.';
+                }
+            }
+
+            function renderRanking() {
+                ranking.replaceChildren();
+                for (let i = 0; i < 10; i++) {
+                    const row = document.createElement('tr');
+                    const record = records[i];
+                    [String(i + 1), record ? record.name : '—', record ? String(record.score) : '—'].forEach(value => {
+                        const cell = document.createElement('td');
+                        cell.textContent = value;
+                        row.appendChild(cell);
+                    });
+                    ranking.appendChild(row);
+                }
+            }
+
+            function showResult() {
+                finalScore = Math.floor(score / 5);
+                document.getElementById('chicken-final-score').textContent = finalScore;
+                result.hidden = false;
+                overlay.classList.add('show-result');
+                playerName.focus();
+            }
+
+            function saveRecord() {
+                if (!gameOver || submitted) return;
+                const name = playerName.value.trim();
+                if (!name) {
+                    scoreStatus.textContent = '공백을 제외한 이름을 입력해 주세요.';
+                    playerName.focus();
+                    return;
+                }
+                loadRecords();
+                const entry = { name: name.slice(0, 20), score: finalScore };
+                records = [...records, entry].sort((a, b) => b.score - a.score).slice(0, 10);
+                const place = records.indexOf(entry) + 1;
+                scoreStatus.textContent = place ? `${name}님, ${place}위로 등록되었습니다!` : '이번 점수는 TOP 10에 들지 못했습니다. 다시 도전해 보세요!';
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+                } catch {
+                    scoreStatus.textContent += ' 브라우저 저장이 불가능하여 페이지를 닫으면 기록이 사라집니다.';
+                }
+                submitted = true;
+                playerName.disabled = true;
+                renderRanking();
+                document.getElementById('chicken-restart').focus();
+            }
+            scoreForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (!e.isComposing) saveRecord();
+            });
+            document.getElementById('chicken-restart').addEventListener('click', () => {
+                if (gameRunning && gameOver) {
+                    if (playerName.value.trim()) saveRecord();
+                    resetGame();
+                    loop();
+                }
+            });
+            document.getElementById('chicken-close').addEventListener('click', stopGame);
 
             // Game constants
             const GROUND_Y  = 200;
@@ -1017,6 +1165,13 @@
             let chicken, obstacles, score, gameSpeed, gameOver, clouds;
 
             function resetGame() {
+                result.hidden = true;
+                overlay.classList.remove('show-result');
+                submitted = false;
+                playerName.disabled = false;
+                playerName.value = '';
+                scoreStatus.textContent = '';
+                if (overlay.contains(document.activeElement)) document.activeElement.blur();
                 chicken = { x: 60, y: GROUND_Y, w: 30, h: 36, vy: 0, grounded: true, frame: 0 };
                 obstacles = [];
                 clouds = [];
@@ -1252,7 +1407,9 @@
                     ctx.textAlign = 'center';
                     ctx.fillText('GAME OVER', canvas.width / 2, 100);
                     ctx.font = '16px "Space Mono", monospace';
-                    ctx.fillText('Press SPACE to restart', canvas.width / 2, 135);
+                    ctx.fillText('Enter your name below', canvas.width / 2, 135);
+                    showResult();
+                    return;
                 }
 
                 animFrame = requestAnimationFrame(loop);
@@ -1261,17 +1418,22 @@
             function startGame() {
                 if (gameRunning) return;
                 gameRunning = true;
+                previousFocus = document.activeElement;
                 overlay.classList.add('active');
                 resetGame();
+                loadRecords();
+                renderRanking();
                 loop();
             }
 
             window.startChickenGame = startGame;
 
             function stopGame() {
+                if (gameOver && playerName.value.trim()) saveRecord();
                 gameRunning = false;
                 overlay.classList.remove('active');
                 if (animFrame) cancelAnimationFrame(animFrame);
+                if (previousFocus) previousFocus.focus();
             }
 
             document.addEventListener('keydown', function(e) {
@@ -1286,20 +1448,23 @@
 
                 if (!gameRunning) return;
 
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    stopGame();
+                    return;
+                }
+                // Let the name form and buttons handle text, IME, Enter, Space and Tab.
+                if (gameOver || e.key === 'Tab' || e.target.closest('button, input')) {
+                    e.stopPropagation();
+                    return;
+                }
+
                 // Prevent page interactions while game is active
                 e.preventDefault();
                 e.stopPropagation();
 
-                if (e.key === 'Escape') {
-                    stopGame();
-                    return;
-                }
-
                 if (e.key === ' ' || e.key === 'ArrowUp') {
-                    if (gameOver) {
-                        resetGame();
-                        return;
-                    }
                     if (chicken.grounded) {
                         chicken.vy = JUMP_FORCE;
                         chicken.grounded = false;

@@ -1213,6 +1213,10 @@
             <p><span class="keyword">Kubernetes</span>(쿠버네티스, K8s)는 <strong>컨테이너화된 애플리케이션의 배포, 스케일링 및 관리를 자동화</strong>하는 오픈소스 컨테이너 오케스트레이션 플랫폼입니다.</p>
             
             <div class="highlight-box">
+                <h3>⎈ Kubernetes 이름의 뜻</h3>
+                <p><strong>Kubernetes는 그리스어에서 유래한 이름으로, ‘키잡이’ 또는 ‘조타수’라는 뜻</strong>입니다. 배의 키를 잡고 방향을 조종하는 사람을 가리킵니다.</p>
+                <p>배의 항로를 유지하는 조타수에 비유하면, Kubernetes는 컨테이너화된 앱이 원하는 상태로 실행되도록 배치와 운영을 관리하는 역할을 합니다.</p>
+                <p style="font-size: 14px;"><a href="https://kubernetes.io/docs/concepts/overview/" target="_blank" rel="noopener noreferrer" style="color: var(--accent);">출처: Kubernetes 공식 문서 — 이름의 유래</a></p>
                 <h3>💡 K8s의 의미</h3>
                 <p>Kubernetes를 <strong>K8s</strong>로 줄여 쓰는 이유는 'K'와 's' 사이에 8개의 문자가 있기 때문입니다.</p>
             </div>
@@ -1375,6 +1379,62 @@
             
         </section>
 
+
+        <!-- Image, Container, and Pod comparison -->
+        <section class="slide" data-title="Image · Container · Pod 비교">
+            <div class="slide-label">04 — Image · Container · Pod 비교</div>
+            <h1><span class="emoji">⎈</span>Image · Container · Pod 비교</h1>
+            <p><span class="keyword">Image</span>는 실행에 필요한 패키지, <span class="keyword">Container</span>는 그 이미지로 만든 실행 인스턴스, <span class="keyword">Pod</span>는 Kubernetes가 컨테이너를 묶어 배치하는 최소 단위입니다.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">구분</th>
+                        <th scope="col">Image (이미지)</th>
+                        <th scope="col">Container (컨테이너)</th>
+                        <th scope="col">Pod (파드)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>무엇인가?</strong></td>
+                        <td>앱 코드·라이브러리·실행 설정을 담은 읽기 전용 템플릿</td>
+                        <td>이미지를 바탕으로 생성한 격리된 실행 환경</td>
+                        <td>하나 이상의 컨테이너를 담는 Kubernetes 리소스</td>
+                    </tr>
+                    <tr>
+                        <td><strong>실행과 상태</strong></td>
+                        <td>자체적으로 실행되지 않는 배포 산출물</td>
+                        <td>프로세스를 실행하며, 중지·종료 상태도 존재</td>
+                        <td>컨테이너를 같은 노드에 함께 배치하는 단위</td>
+                    </tr>
+                    <tr>
+                        <td><strong>관계</strong></td>
+                        <td>이미지 하나로 여러 컨테이너 생성 가능</td>
+                        <td>각 컨테이너는 사용할 이미지를 지정</td>
+                        <td>보통 앱 컨테이너 하나, 필요하면 보조 컨테이너도 포함</td>
+                    </tr>
+                    <tr>
+                        <td><strong>예시</strong></td>
+                        <td><code>fastapi-app:v1</code><br>Python·FastAPI·앱 코드를 담아 빌드한 이미지</td>
+                        <td>이미지로 생성하고 Uvicorn으로 FastAPI 앱을 실행한 컨테이너</td>
+                        <td>FastAPI 앱 컨테이너를 담은 <code>api-1</code> Pod</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>같은 이미지로 Pod 두 개를 실행하면?</h2>
+            <div class="code-block" data-lang="개념도">Image: fastapi-app:v1 (Python + FastAPI + 앱 코드)
+  ├─ 이미지로 생성 → Pod api-1 [ FastAPI Container A ]
+  └─ 이미지로 생성 → Pod api-2 [ FastAPI Container B ]</div>
+            <p>같은 이미지를 사용해도 각 컨테이너에서 FastAPI 앱이 별도로 실행됩니다. Kubernetes에서는 Pod 수를 늘려 앱의 실행 인스턴스를 확장합니다.</p>
+
+            <div class="highlight-box">
+                <h3>💡 Pod 안에서 공유하는 것</h3>
+                <p>같은 Pod의 컨테이너는 <strong>IP와 포트 공간을 공유</strong>하고 <code>localhost</code>로 통신합니다. Pod에 정의한 볼륨을 각 컨테이너에 마운트하면 파일도 공유할 수 있습니다.</p>
+                <p style="margin-bottom: 0;">컨테이너마다 자체 파일시스템이 있으므로 <strong>Pod에 함께 넣는 것만으로 모든 파일이 공유되지는 않습니다.</strong></p>
+            </div>
+        </section>
 
         <!-- Slide 4: PVC -->
         <section class="slide" data-title="Persistent Volume Claim PVC">

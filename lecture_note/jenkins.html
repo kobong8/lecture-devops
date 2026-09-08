@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jenkins 가이드</title>
+<title>Jenkins 핵심 가이드</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -924,8 +924,8 @@
     <div class="sidebar-brand">
       <div class="brand-icon">🔧</div>
       <div>
-        <div class="brand-text">Jenkins 가이드</div>
-        <div class="brand-sub">General Jenkins Guide</div>
+        <div class="brand-text">Jenkins 완전 정복</div>
+        <div class="brand-sub">DevOps 자동화 가이드</div>
       </div>
     </div>
     <a class="home-btn" href="../" title="홈으로">
@@ -954,11 +954,11 @@
   <!-- 0. HOME -->
   <section class="slide slide-home" data-title="Jenkins 시작하기">
     <div class="eyebrow">— CI/CD Automation Guide</div>
-    <h1>🔧 <em>Jenkins</em> 가이드</h1>
+    <h1>🔧 <em>Jenkins</em> 핵심 생존 가이드</h1>
     <p class="subtitle">빌드, 테스트, 배포 전 과정을 자동화하는 <strong>지휘자(Orchestrator)</strong> Jenkins의 모든 것을 실무 중심으로 배웁니다.</p>
     <div class="meta-row">
       <div class="meta-chip"><span class="dot"></span> 2026 DevOps</div>
-      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 4 슬라이드</div>
+      <div class="meta-chip"><span class="dot" style="background:var(--accent2)"></span> 15 슬라이드</div>
       <div class="meta-chip"><span class="dot" style="background:var(--accent3)"></span> CI/CD Mastery</div>
     </div>
     <div class="deco-grid">
@@ -1169,6 +1169,467 @@
         </tr>
     </table>
   </section>
+
+  <!-- 4. 상세 설명: ① Checkout -->
+  <section class="slide" data-title="① Checkout 상세">
+    <div class="slide-label">04 — Detail: Checkout</div>
+    <h1>🔑 ① Checkout — 코드 가져오기</h1>
+    <p>GitHub Webhook이 코드 Push를 감지하면 Jenkins가 자동으로 <strong>최신 코드를 다운로드</strong>합니다. 이 단계가 파이프라인의 출발점입니다.</p>
+
+    <div class="code-block"><span class="c-stage">stage</span>(<span class="c-string">'Checkout'</span>) {
+    <span class="c-keyword">steps</span> {
+        <span class="c-comment">// 방법 1 — 기본 (Public 저장소)</span>
+        <span class="c-fn">git</span> branch: <span class="c-string">'main'</span>,
+            url: <span class="c-string">'https://github.com/myorg/my-app.git'</span>
+
+        <span class="c-comment">// 방법 2 — credentialsId로 인증 (Private 저장소)</span>
+        <span class="c-fn">checkout</span> scm  <span class="c-comment">// Webhook에 연결된 저장소를 자동으로 사용</span>
+    }
+}</div>
+
+    <div class="tool-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="tool-card" style="text-align:left;">
+        <h4>📁 checkout scm 을 권장하는 이유</h4>
+        <p>URL을 하드코딩하지 않고, Jenkins Job에 설정된 저장소 정보를 그대로 사용합니다. Webhook을 통해 자동으로 트리거된 브랜치·커밋을 정확히 체크아웃합니다.</p>
+      </div>
+      <div class="tool-card" style="text-align:left;">
+        <h4>🔐 Private 저장소 연결</h4>
+        <p>Jenkins Credentials에 GitHub Token을 등록하고 credentialsId로 참조합니다. SSH Key 방식도 지원합니다.</p>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <h3>💡 Checkout 후 Jenkins 작업공간</h3>
+      <p>코드는 <code>/var/jenkins_home/workspace/&lt;JOB_NAME&gt;/</code> 경로에 저장됩니다. 이후 모든 <code>sh</code> 명령어는 이 디렉터리를 기준으로 실행됩니다.</p>
+    </div>
+  </section>
+
+  <!-- 5. 상세 설명: ② Build -->
+  <section class="slide" data-title="② Build 상세">
+    <div class="slide-label">05 — Detail: Build</div>
+    <h1>🔑 ② Build — 의존성 설치 · 패키징</h1>
+    <p>Python/FastAPI는 컴파일 과정이 없으므로 Build 단계는 주로 <strong>가상환경 구성과 의존성 설치</strong>를 수행합니다. <code>requirements.txt</code> 또는 <code>pyproject.toml</code>을 기반으로 합니다.</p>
+
+    <div class="code-block"><span class="c-stage">stage</span>(<span class="c-string">'Build'</span>) {
+    <span class="c-keyword">steps</span> {
+        <span class="c-comment">// ① 가상환경 생성 및 의존성 설치</span>
+        <span class="c-fn">sh</span> <span class="c-string">'''
+            python3 -m venv .venv
+            . .venv/bin/activate
+            pip install --upgrade pip
+            pip install -r requirements.txt
+        '''</span>
+
+        <span class="c-comment">// ② (선택) 정적 분석 — 코드 품질 검사</span>
+        <span class="c-fn">sh</span> <span class="c-string">'. .venv/bin/activate && flake8 app/ --max-line-length=120'</span>
+
+        <span class="c-comment">// ③ (선택) 타입 체크</span>
+        <span class="c-fn">sh</span> <span class="c-string">'. .venv/bin/activate && mypy app/'</span>
+    }
+}</div>
+
+    <div class="highlight-box">
+      <h3>📁 FastAPI 프로젝트 기본 구조</h3>
+      <div class="code-block" style="font-size:13px;"><span class="c-comment">fastapi-app/
+├── app/
+│   ├── main.py          # FastAPI 앱 진입점
+│   ├── routers/         # 라우터 모듈
+│   └── models.py        # Pydantic 모델
+├── tests/
+│   └── test_main.py     # pytest 테스트
+├── requirements.txt     # 의존성 목록
+├── Dockerfile
+└── Jenkinsfile</span></div>
+    </div>
+
+    <div class="warning-box">
+      <p>⚠️ <code>requirements.txt</code>는 <strong>버전을 고정</strong>(<code>fastapi==0.111.0</code>)해서 관리하세요. 버전 미고정 시 빌드 시점마다 의존성이 달라져 재현 불가능한 빌드가 됩니다.</p>
+    </div>
+  </section>
+
+  <!-- 6. 상세 설명: ③ Test -->
+  <section class="slide" data-title="③ Test 상세">
+    <div class="slide-label">06 — Detail: Test</div>
+    <h1>🔑 ③ Test — pytest · 커버리지</h1>
+    <p>FastAPI는 <strong>pytest</strong>와 <strong>httpx</strong> 기반의 <code>TestClient</code>로 엔드포인트를 테스트합니다. 이 단계 실패 시 Docker Push·Deploy는 자동으로 중단됩니다.</p>
+
+    <div class="code-block"><span class="c-stage">stage</span>(<span class="c-string">'Test'</span>) {
+    <span class="c-keyword">steps</span> {
+        <span class="c-comment">// pytest 실행 + JUnit XML 리포트 + 커버리지 측정</span>
+        <span class="c-fn">sh</span> <span class="c-string">'''
+            . .venv/bin/activate
+            pytest tests/ \
+              --junitxml=test-results.xml \
+              --cov=app \
+              --cov-report=xml:coverage.xml \
+              -v
+        '''</span>
+    }
+    <span class="c-keyword">post</span> {
+        <span class="c-fn">always</span> {
+            <span class="c-comment">// JUnit 결과 → Jenkins 리포트 패널에 시각화</span>
+            <span class="c-fn">junit</span> allowEmptyResults: <span class="c-keyword">true</span>, testResults: <span class="c-string">'test-results.xml'</span>
+        }
+    }
+}</div>
+
+    <div class="highlight-box">
+      <h3>🧪 FastAPI TestClient 예시 (tests/test_main.py)</h3>
+      <div class="code-block" style="font-size:13px;"><span class="c-keyword">from</span> fastapi.testclient <span class="c-keyword">import</span> TestClient
+<span class="c-keyword">from</span> app.main <span class="c-keyword">import</span> app
+
+client = TestClient(app)
+
+<span class="c-keyword">def</span> <span class="c-fn">test_health_check</span>():
+    res = client.<span class="c-fn">get</span>(<span class="c-string">"/health"</span>)
+    <span class="c-keyword">assert</span> res.status_code == <span class="c-var">200</span>
+    <span class="c-keyword">assert</span> res.<span class="c-fn">json</span>() == {<span class="c-string">"status"</span>: <span class="c-string">"ok"</span>}
+
+<span class="c-keyword">def</span> <span class="c-fn">test_create_item</span>():
+    res = client.<span class="c-fn">post</span>(<span class="c-string">"/items"</span>, json={<span class="c-string">"name"</span>: <span class="c-string">"apple"</span>, <span class="c-string">"price"</span>: <span class="c-var">1.5</span>})
+    <span class="c-keyword">assert</span> res.status_code == <span class="c-var">201</span></div>
+    </div>
+
+    <div class="tool-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+      <div class="tool-card">
+        <div class="tool-icon">🧪</div>
+        <h4>단위 테스트</h4>
+        <p>함수·유틸리티 단위 격리 테스트. pytest fixtures로 의존성 주입</p>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">🔗</div>
+        <h4>통합 테스트</h4>
+        <p>TestClient로 실제 HTTP 요청·응답을 DB 포함하여 검증</p>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">📊</div>
+        <h4>커버리지</h4>
+        <p>pytest-cov로 측정. coverage.xml을 Jenkins Cobertura 플러그인으로 시각화</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. 상세 설명: ④ Docker Push -->
+  <section class="slide" data-title="④ Docker Push 상세">
+    <div class="slide-label">07 — Detail: Docker Push</div>
+    <h1>🔑 ④ Docker Push — 이미지 빌드 & 레지스트리 Push</h1>
+    <p>테스트를 통과한 코드를 기반으로 <strong>Docker 이미지를 빌드</strong>하고 레지스트리에 Push합니다. 이 단계부터 배포 가능한 산출물이 만들어집니다.</p>
+
+    <div class="code-block"><span class="c-stage">stage</span>(<span class="c-string">'Docker Push'</span>) {
+    <span class="c-keyword">steps</span> {
+        <span class="c-fn">script</span> {
+            <span class="c-keyword">def</span> fullImage = <span class="c-string">"${REGISTRY}/${APP_NAME}:${IMAGE_TAG}"</span>
+
+            <span class="c-comment">// ① FastAPI 이미지 빌드 (빌드 번호를 ARG로 전달)</span>
+            <span class="c-fn">sh</span> <span class="c-string">"docker build --build-arg BUILD_NUM=${IMAGE_TAG} -t ${fullImage} ."</span>
+
+            <span class="c-comment">// ② 레지스트리 로그인 (Credentials 사용)</span>
+            <span class="c-fn">withCredentials</span>([<span class="c-fn">usernamePassword</span>(
+                credentialsId: <span class="c-string">'registry-creds'</span>,
+                usernameVariable: <span class="c-string">'REG_USER'</span>,
+                passwordVariable: <span class="c-string">'REG_PASS'</span>
+            )]) {
+                <span class="c-fn">sh</span> <span class="c-string">"echo $REG_PASS | docker login ${REGISTRY} -u $REG_USER --password-stdin"</span>
+            }
+
+            <span class="c-comment">// ③ 버전 태그 Push (롤백용)</span>
+            <span class="c-fn">sh</span> <span class="c-string">"docker push ${fullImage}"</span>
+
+            <span class="c-comment">// ④ latest 태그 Push (편의성)</span>
+            <span class="c-fn">sh</span> <span class="c-string">"docker tag ${fullImage} ${REGISTRY}/${APP_NAME}:latest"</span>
+            <span class="c-fn">sh</span> <span class="c-string">"docker push ${REGISTRY}/${APP_NAME}:latest"</span>
+        }
+    }
+}</div>
+
+    <div class="info-box">
+      <h3>💡 왜 태그를 두 개 Push할까요?</h3>
+      <table>
+        <tr><th>태그</th><th>예시</th><th>목적</th></tr>
+        <tr><td><strong>버전 태그</strong></td><td><code>my-app:42</code></td><td>빌드 번호로 이전 버전 롤백 가능</td></tr>
+        <tr><td><strong>latest</strong></td><td><code>my-app:latest</code></td><td>항상 최신 이미지를 쉽게 Pull</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 8. 상세 설명: ⑤ Deploy -->
+  <section class="slide" data-title="⑤ Deploy 상세">
+    <div class="slide-label">08 — Detail: Deploy</div>
+    <h1>🔑 ⑤ Deploy — 서버 / Kubernetes 배포</h1>
+    <p>레지스트리에 올라간 이미지를 실제 운영 환경에 반영하는 단계입니다. 배포 대상에 따라 방식이 달라집니다.</p>
+
+    <div class="code-block"><span class="c-stage">stage</span>(<span class="c-string">'Deploy'</span>) {
+    <span class="c-keyword">steps</span> {
+        <span class="c-fn">script</span> {
+            <span class="c-comment">// ── 방법 A: Kubernetes (kubectl apply) ──</span>
+            <span class="c-fn">sh</span> <span class="c-string">"""
+              kubectl set image deployment/${APP_NAME} \\
+                ${APP_NAME}=${REGISTRY}/${APP_NAME}:${IMAGE_TAG} \\
+                --record
+              kubectl rollout status deployment/${APP_NAME}
+            """</span>
+
+            <span class="c-comment">// ── 방법 B: Docker Compose (SSH 원격 배포) ──</span>
+            <span class="c-fn">sshagent</span>([<span class="c-string">'prod-server-key'</span>]) {
+                <span class="c-fn">sh</span> <span class="c-string">"""
+                  ssh user@prod-server \\
+                    "cd /app && docker compose pull && docker compose up -d"
+                """</span>
+            }
+        }
+    }
+}</div>
+
+    <div class="tool-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="tool-card" style="text-align:left;">
+        <h4>☸️ Kubernetes 배포 포인트</h4>
+        <p><code>kubectl set image</code>로 Deployment의 컨테이너 이미지만 교체합니다. <code>kubectl rollout status</code>로 롤아웃 완료를 대기합니다. 실패 시 <code>kubectl rollout undo</code>로 롤백.</p>
+      </div>
+      <div class="tool-card" style="text-align:left;">
+        <h4>🖥️ SSH 배포 포인트</h4>
+        <p><code>sshagent</code> 플러그인으로 SSH 키를 안전하게 주입합니다. 원격 서버에서 <code>docker compose pull</code> 후 재시작하는 패턴이 가장 일반적입니다.</p>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <p>⚠️ <strong>운영 배포 전 승인 게이트</strong>: 프로덕션 배포는 자동 실행 대신 <code>input()</code> 스텝으로 담당자의 수동 승인을 받는 것이 안전합니다.</p>
+      <div class="code-block" style="margin-top:10px; font-size:13px;"><span class="c-fn">input</span> message: <span class="c-string">'프로덕션 배포를 승인하시겠습니까?'</span>, ok: <span class="c-string">'배포 진행'</span></div>
+    </div>
+  </section>
+
+  <!-- 9. 상세 설명: post 블록 -->
+  <section class="slide" data-title="post 블록 상세">
+    <div class="slide-label">09 — Detail: Post Actions</div>
+    <h1>🔑 post — 후처리 블록</h1>
+    <p>파이프라인이 끝난 후 <strong>항상 실행</strong>되는 블록입니다. 성공/실패/중단 등 상태별로 다른 동작을 정의할 수 있습니다.</p>
+
+    <div class="code-block"><span class="c-keyword">post</span> {
+    <span class="c-fn">always</span> {
+        <span class="c-comment">// ① 항상 실행 — Docker 이미지 정리 (디스크 절약)</span>
+        <span class="c-fn">sh</span> <span class="c-string">"docker rmi ${REGISTRY}/${APP_NAME}:${IMAGE_TAG} || true"</span>
+        <span class="c-comment">// JUnit 리포트 수집 (테스트 결과 시각화)</span>
+        <span class="c-fn">junit</span> allowEmptyResults: <span class="c-keyword">true</span>, testResults: <span class="c-string">'**/test-results.xml'</span>
+    }
+    <span class="c-fn">success</span> {
+        <span class="c-comment">// ② 성공 시 — Slack 알림</span>
+        <span class="c-fn">slackSend</span> channel: <span class="c-string">'#deploy'</span>, color: <span class="c-string">'good'</span>,
+            message: <span class="c-string">"✅ 배포 성공: ${APP_NAME}:${IMAGE_TAG} (빌드 #${BUILD_NUMBER})"</span>
+    }
+    <span class="c-fn">failure</span> {
+        <span class="c-comment">// ③ 실패 시 — 실패 URL 포함 알림</span>
+        <span class="c-fn">slackSend</span> channel: <span class="c-string">'#deploy'</span>, color: <span class="c-string">'danger'</span>,
+            message: <span class="c-string">"❌ 파이프라인 실패: ${env.BUILD_URL}"</span>
+    }
+    <span class="c-fn">aborted</span> {
+        <span class="c-comment">// ④ 수동 중단 시</span>
+        <span class="c-fn">slackSend</span> channel: <span class="c-string">'#deploy'</span>, color: <span class="c-string">'warning'</span>,
+            message: <span class="c-string">"⚠️ 파이프라인 수동 중단: ${APP_NAME}"</span>
+    }
+}</div>
+
+    <div class="highlight-box">
+      <h3>📋 post 조건 종류</h3>
+      <table>
+        <tr><th>조건</th><th>실행 시점</th></tr>
+        <tr><td><code>always</code></td><td>성공/실패/중단 모든 경우에 실행 (정리 작업에 필수)</td></tr>
+        <tr><td><code>success</code></td><td>파이프라인이 정상 완료된 경우에만</td></tr>
+        <tr><td><code>failure</code></td><td>어느 Stage에서든 실패한 경우</td></tr>
+        <tr><td><code>aborted</code></td><td>사용자가 수동으로 중단한 경우</td></tr>
+        <tr><td><code>unstable</code></td><td>테스트 실패 등으로 UNSTABLE 상태가 된 경우</td></tr>
+        <tr><td><code>changed</code></td><td>이전 빌드와 결과가 달라진 경우 (예: 실패→성공)</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 10. Jenkins에서 Docker 이미지 관리 -->
+  <section class="slide" data-title="Docker 이미지 관리">
+    <div class="slide-label">10 — Docker Management</div>
+    <h1>🐳 Jenkins에서 Docker 이미지 관리</h1>
+    <p>Jenkins 파이프라인에서 Docker 이미지를 <strong>빌드, 실행, 삭제</strong>하는 주요 명령어 패턴입니다.</p>
+
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4>🔨 빌드 (build)</h4>
+        <div class="code-block" style="font-size: 13px;"><span class="c-fn">sh</span> <span class="c-string">"docker build -t fastapi-app:${IMAGE_TAG} ."</span></div>
+      </div>
+      <div class="tool-card">
+        <h4>▶️ 실행 (run)</h4>
+        <div class="code-block" style="font-size: 13px;"><span class="c-fn">sh</span> <span class="c-string">"docker run -d -p 8000:8000 fastapi-app:${IMAGE_TAG}"</span></div>
+      </div>
+      <div class="tool-card">
+        <h4>🗑️ 삭제 (rmi)</h4>
+        <div class="code-block" style="font-size: 13px;"><span class="c-fn">sh</span> <span class="c-string">"docker rmi fastapi-app:${IMAGE_TAG} || true"</span></div>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+        <h3>📦 Dockerfile로 데이터 전달하기</h3>
+        <table>
+            <tr><th>방법</th><th>명령어</th><th>용도</th></tr>
+            <tr><td><strong>--build-arg</strong></td><td><code>docker build --build-arg K=V</code></td><td>빌드 시점 값 전달 (ARG 수신)</td></tr>
+            <tr><td><strong>-e</strong></td><td><code>docker run -e K=V</code></td><td>실행 시점 환경변수 전달 (ENV 수신)</td></tr>
+        </table>
+    </div>
+  </section>
+
+  <!-- 11. Dockerfile ARG 활용 -->
+  <section class="slide" data-title="Dockerfile ARG">
+    <div class="slide-label">11 — Dockerfile ARG</div>
+    <h1>📋 FastAPI Dockerfile — ARG 활용</h1>
+    <p>Jenkins에서 <code>--build-arg</code>로 전달한 값을 Dockerfile 안에서 <span class="keyword">ARG</span>로 받아 사용하는 방법입니다. FastAPI 앱의 실제 Dockerfile 패턴을 기준으로 설명합니다.</p>
+
+    <div class="code-block"><span class="c-comment"># [Jenkinsfile] — 빌드 번호를 이미지에 기록</span>
+<span class="c-fn">sh</span> <span class="c-string">"docker build --build-arg BUILD_NUM=${BUILD_NUMBER} -t fastapi-app:${BUILD_NUMBER} ."</span>
+
+<span class="c-comment"># ──────────────────────────────────────────────
+# [Dockerfile] — FastAPI 멀티 스테이지 빌드
+# ──────────────────────────────────────────────</span>
+<span class="c-keyword">FROM</span> python:3.11-slim <span class="c-keyword">AS</span> builder
+<span class="c-keyword">WORKDIR</span> /build
+<span class="c-keyword">COPY</span> requirements.txt .
+<span class="c-fn">RUN</span> pip install --no-cache-dir -r requirements.txt
+
+<span class="c-keyword">FROM</span> python:3.11-slim
+<span class="c-keyword">ARG</span>  <span class="c-var">BUILD_NUM</span>=dev
+<span class="c-keyword">ENV</span>  <span class="c-var">BUILD_VERSION</span>=${BUILD_NUM}
+<span class="c-keyword">WORKDIR</span> /app
+<span class="c-keyword">COPY</span> --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+<span class="c-keyword">COPY</span> app/ ./app/
+<span class="c-keyword">EXPOSE</span> 8000
+<span class="c-fn">CMD</span> [<span class="c-string">"uvicorn"</span>, <span class="c-string">"app.main:app"</span>, <span class="c-string">"--host"</span>, <span class="c-string">"0.0.0.0"</span>, <span class="c-string">"--port"</span>, <span class="c-string">"8000"</span>]</div>
+
+    <div class="info-box">
+        <h3>💡 ARG vs ENV 차이</h3>
+        <table>
+            <tr><th>구분</th><th>ARG</th><th>ENV</th></tr>
+            <tr><td><strong>사용 시점</strong></td><td>빌드 시점</td><td>실행 시점 (컨테이너 내부)</td></tr>
+            <tr><td><strong>컨테이너 내 접근</strong></td><td>❌ 불가</td><td>✅ 가능 (<code>os.environ</code>으로 읽기)</td></tr>
+            <tr><td><strong>전달 방법</strong></td><td><code>--build-arg</code></td><td><code>-e</code> 또는 <code>--env-file</code></td></tr>
+            <tr><td><strong>FastAPI 활용</strong></td><td>버전 라벨, 빌드 시점 설정</td><td>DB URL, SECRET_KEY 등 런타임 설정</td></tr>
+        </table>
+    </div>
+  </section>
+
+  <!-- 12. GitHub 인증 전달 -->
+  <section class="slide" data-title="GitHub 인증 전달">
+    <div class="slide-label">12 — Auth in Docker Build</div>
+    <h1>🔐 GitHub Token을 Docker로 전달</h1>
+    <p>Private 저장소의 Python 패키지를 빌드 시 <code>pip install</code>로 설치해야 할 때, <strong>Jenkins Credentials</strong>를 안전하게 전달하는 패턴입니다.</p>
+
+    <div class="code-block"><span class="c-comment">// Jenkinsfile — Credentials를 --build-arg로 주입</span>
+<span class="c-fn">withCredentials</span>([<span class="c-fn">usernamePassword</span>(
+    credentialsId: <span class="c-string">'gh-creds'</span>,
+    usernameVariable: <span class="c-string">'GH_USER'</span>,
+    passwordVariable: <span class="c-string">'GH_TOKEN'</span>
+)]) {
+    <span class="c-fn">sh</span> <span class="c-string">"docker build --build-arg GH_TOKEN=${GH_TOKEN} -t fastapi-app:${IMAGE_TAG} ."</span>
+}
+
+<span class="c-comment"># Dockerfile — ARG로 토큰을 받아 pip 설치에만 사용</span>
+<span class="c-keyword">FROM</span> python:3.11-slim <span class="c-keyword">AS</span> builder
+<span class="c-keyword">ARG</span>  <span class="c-var">GH_TOKEN</span>
+<span class="c-keyword">COPY</span> requirements.txt .
+<span class="c-comment"># Private 패키지를 GitHub 토큰으로 설치</span>
+<span class="c-fn">RUN</span> pip install --no-cache-dir \
+    -r requirements.txt \
+    git+https://${GH_TOKEN}@github.com/myorg/private-lib.git
+
+<span class="c-keyword">FROM</span> python:3.11-slim   <span class="c-comment"># 최종 이미지에는 토큰이 남지 않음</span>
+<span class="c-keyword">COPY</span> --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+<span class="c-keyword">COPY</span> app/ ./app/
+<span class="c-fn">CMD</span> [<span class="c-string">"uvicorn"</span>, <span class="c-string">"app.main:app"</span>, <span class="c-string">"--host"</span>, <span class="c-string">"0.0.0.0"</span>, <span class="c-string">"--port"</span>, <span class="c-string">"8000"</span>]</div>
+
+    <div class="warning-box">
+        <p>⚠️ <strong>멀티 스테이지 빌드가 필수인 이유</strong>: ARG로 주입한 <code>GH_TOKEN</code>은 <code>builder</code> 스테이지 레이어에 남아 있습니다. 최종 이미지를 별도 <code>FROM</code>으로 분리하면 토큰이 포함된 레이어가 제외되어 <strong>이미지 히스토리에서 토큰이 노출되지 않습니다.</strong></p>
+    </div>
+  </section>
+
+  <!-- 13. 코드·Docker·K8s 연동 흐름 -->
+  <section class="slide" data-title="전체 연동 흐름">
+    <div class="slide-label">13 — Integration Workflow</div>
+    <h1>🔗 코드 · Docker · Kubernetes 연동</h1>
+    <p>코드 변경부터 서비스 배포까지의 <strong>End-to-End</strong> 여정입니다.</p>
+
+    <div class="flow-diagram">
+        <div class="flow-actor dev">
+            <div class="flow-icon">👨‍💻</div>
+            <div class="flow-content">
+                <strong>1. 개발자 소스 Push</strong>
+                <span>app/main.py, tests/, requirements.txt, Dockerfile, Jenkinsfile 포함</span>
+            </div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-actor jenkins">
+            <div class="flow-icon">🔧</div>
+            <div class="flow-content">
+                <strong>2. Jenkins 파이프라인</strong>
+                <span>pip install → pytest → docker build → Registry Push</span>
+            </div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-actor docker">
+            <div class="flow-icon">🐳</div>
+            <div class="flow-content">
+                <strong>3. Docker Registry</strong>
+                <span>빌드된 이미지 저장 보관</span>
+            </div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-actor k8s">
+            <div class="flow-icon">☸️</div>
+            <div class="flow-content">
+                <strong>4. Kubernetes 배포</strong>
+                <span>새 이미지 Pull하여 롤링 업데이트 — FastAPI uvicorn 포트 8000 노출</span>
+            </div>
+        </div>
+    </div>
+  </section>
+
+  <!-- 14. 전체 요약 -->
+  <section class="slide" data-title="최종 요약">
+    <div class="slide-label">14 — Summary</div>
+    <h1>📋 전체 요약</h1>
+    <p>개발자는 코드와 설정 파일만 잘 작성하면, 나머지는 Jenkins가 처리합니다.</p>
+
+    <div class="tool-grid">
+        <div class="tool-card">
+            <div class="tool-icon">📥</div>
+            <h4>① Checkout</h4>
+            <p>GitHub에서 최신 코드를 가져오는 파이프라인의 시작점</p>
+        </div>
+        <div class="tool-card">
+            <div class="tool-icon">🔨</div>
+            <h4>② Build</h4>
+            <p>가상환경 구성 + pip install로 의존성 설치, flake8/mypy 정적 분석</p>
+        </div>
+        <div class="tool-card">
+            <div class="tool-icon">🧪</div>
+            <h4>③ Test</h4>
+            <p>pytest + TestClient로 엔드포인트 검증 — 실패 시 이후 단계 자동 중단</p>
+        </div>
+        <div class="tool-card">
+            <div class="tool-icon">🐳</div>
+            <h4>④ Docker Push</h4>
+            <p>이미지 빌드 후 레지스트리에 버전 태그 + latest Push</p>
+        </div>
+        <div class="tool-card">
+            <div class="tool-icon">🚀</div>
+            <h4>⑤ Deploy</h4>
+            <p>K8s / Docker Compose 등 운영 환경에 새 이미지 반영</p>
+        </div>
+        <div class="tool-card">
+            <div class="tool-icon">📣</div>
+            <h4>post 블록</h4>
+            <p>성공/실패 알림 발송 및 임시 파일·이미지 정리</p>
+        </div>
+    </div>
+
+    <div class="success-box">
+        <p>🎯 <strong>핵심 한 줄 요약</strong>: <span class="keyword">git push</span> 한 번이면 Jenkins가 FastAPI 앱을 테스트하고 Docker 이미지로 빌드해 자동 배포합니다. 개발자는 비즈니스 로직에만 집중하세요.</p>
+    </div>
+  </section>
+
+</main>
 
 <!-- NAV -->
 <div class="nav-arrows">

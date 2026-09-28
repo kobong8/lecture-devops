@@ -1,0 +1,192 @@
+{
+  "browser": "Chromium",
+  "results": [
+    {
+      "origin": "http://localhost:8765",
+      "page": "index.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "localhost"
+      ]
+    },
+    {
+      "origin": "http://localhost:8765",
+      "page": "lecture_note/devops.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "localhost"
+      ]
+    },
+    {
+      "origin": "http://localhost:8765",
+      "page": "lecture_note/docker-intro.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "github.com",
+        "localhost"
+      ]
+    },
+    {
+      "origin": "http://localhost:8765",
+      "page": "lecture_note/docker-practice.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "localhost"
+      ]
+    },
+    {
+      "origin": "http://localhost:8765",
+      "page": "lecture_note/github.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "github.com",
+        "localhost"
+      ]
+    },
+    {
+      "origin": "http://localhost:8765",
+      "page": "lecture_note/jenkins.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "localhost"
+      ]
+    },
+    {
+      "origin": "http://localhost:8765",
+      "page": "lecture_note/kubernetes.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "localhost"
+      ]
+    },
+    {
+      "origin": "http://localhost:8765",
+      "page": "lecture_note/linux.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "github.com",
+        "localhost"
+      ]
+    },
+    {
+      "origin": "http://localhost:8765",
+      "page": "lecture_note/server-client.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "localhost"
+      ]
+    },
+    {
+      "origin": "http://lecture.internal:8765",
+      "page": "index.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "lecture.internal"
+      ]
+    },
+    {
+      "origin": "http://lecture.internal:8765",
+      "page": "lecture_note/devops.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "lecture.internal"
+      ]
+    },
+    {
+      "origin": "http://lecture.internal:8765",
+      "page": "lecture_note/docker-intro.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "github.com",
+        "lecture.internal"
+      ]
+    },
+    {
+      "origin": "http://lecture.internal:8765",
+      "page": "lecture_note/docker-practice.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "lecture.internal"
+      ]
+    },
+    {
+      "origin": "http://lecture.internal:8765",
+      "page": "lecture_note/github.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "github.com",
+        "lecture.internal"
+      ]
+    },
+    {
+      "origin": "http://lecture.internal:8765",
+      "page": "lecture_note/jenkins.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "lecture.internal"
+      ]
+    },
+    {
+      "origin": "http://lecture.internal:8765",
+      "page": "lecture_note/kubernetes.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "lecture.internal"
+      ]
+    },
+    {
+      "origin": "http://lecture.internal:8765",
+      "page": "lecture_note/linux.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "github.com",
+        "lecture.internal"
+      ]
+    },
+    {
+      "origin": "http://lecture.internal:8765",
+      "page": "lecture_note/server-client.html",
+      "analytics_requests": 0,
+      "page_errors": [],
+      "resource_hosts": [
+        "fonts.googleapis.com",
+        "lecture.internal"
+      ]
+    }
+  ],
+  "opt_in_checks": "passed"
+}

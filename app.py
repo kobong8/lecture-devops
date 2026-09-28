@@ -6,6 +6,7 @@ app = FastAPI(title="DevOps Lecture Server")
 
 # 정적 파일 서빙 (이미지, lecture_note 등)
 app.mount("/images", StaticFiles(directory="images"), name="images")
+app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 app.mount("/lecture_note", StaticFiles(directory="lecture_note"), name="lecture_note")
 
 @app.get("/")

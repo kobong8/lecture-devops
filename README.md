@@ -14,6 +14,13 @@
 
 ---
 
+## 외부 분석 및 E2E 테스트
+
+Cloudflare Web Analytics / RUM은 모든 환경에서 기본 비활성화됩니다.
+외부 폰트와 강의 이미지는 기존대로 로딩합니다.
+설정 방법, 원인 조사, 프록시 주입 점검 및 브라우저 검증은 [분석 요청 정책](docs/analytics.md)을 참고하세요.
+
+
 ### v0.1.0 - Initial Deployment 
 
 **🚀 Key Changes**

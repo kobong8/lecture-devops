@@ -1,0 +1,38 @@
+/* Scoped to the DevOps introduction's lifecycle and CI/CD slides. */
+.cycle-slide { min-width: 0; overflow-x: hidden; }
+.cycle-slide > * { flex-shrink: 0; }
+.cycle-slide .cycle-figure { margin: 20px 0; }
+.cycle-scroll, .cycle-table-scroll { max-width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: 4px; }
+.cycle-scroll { background: var(--card-bg); }
+.cycle-svg { display: block; width: 100%; min-width: 760px; height: auto; }
+.cycle-svg .route { fill: none; stroke-width: 3; }
+.cycle-svg .node { fill: var(--bg); stroke-width: 2; }
+.cycle-svg text { fill: var(--text); font: 16px 'Space Mono', monospace; text-anchor: middle; }
+.cycle-svg .scope { font: 14px 'Noto Sans KR', sans-serif; fill: var(--text-muted); }
+.cycle-svg .ci { stroke: var(--accent); }
+.cycle-svg .cd { stroke: var(--accent2); }
+.cycle-svg .feedback { stroke: var(--accent3); }
+.cycle-svg .ci-label { fill: var(--accent); }
+.cycle-svg .cd-label { fill: var(--accent2); }
+.cycle-svg .feedback-label { fill: var(--accent3); }
+.cycle-slide .cycle-caption, .cycle-slide .cycle-sources { font-size: 14px; line-height: 1.8; color: var(--text-muted); margin-top: 12px; }
+.cycle-sources a { color: var(--accent2); text-underline-offset: 3px; overflow-wrap: anywhere; }
+.cycle-steps { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0 !important; margin: 16px 0 !important; }
+.cycle-slide .cycle-steps li { font-size: 16px; padding: 12px 16px; margin: 0; border: 1px solid var(--border); background: var(--card-bg); border-radius: 4px; }
+.cycle-steps strong { display: block; margin-bottom: 5px; }
+.cycle-slide .cycle-table { min-width: 640px; margin: 0; font-size: 16px; }
+.cycle-example { list-style: none; display: flex; flex-wrap: wrap; gap: 26px; padding: 0 !important; margin: 20px 0 !important; }
+.cycle-slide .cycle-example li { position: relative; flex: 1 1 130px; padding: 14px; margin: 0; background: var(--card-bg); border: 1px solid var(--border); font-size: 15px; }
+.cycle-example strong { display: block; margin-bottom: 8px; color: var(--accent); }
+.cycle-example li:not(:last-child)::after { content: '→'; position: absolute; right: -22px; top: 12px; color: var(--accent2); }
+.cycle-mobile-hint { display: none; }
+@media (max-width: 768px) {
+  .cycle-slide { padding-left: 20px; padding-right: 20px; }
+  .cycle-slide h1 { font-size: 30px; line-height: 1.4; overflow-wrap: anywhere; }
+  .cycle-slide p { font-size: 16px; }
+  .cycle-steps { grid-template-columns: 1fr; }
+  .cycle-mobile-hint { display: block; font-size: 13px; color: var(--text-muted); margin: 8px 0; }
+  .cycle-example { flex-direction: column; gap: 28px; }
+  .cycle-slide .cycle-example li { flex: none; }
+  .cycle-example li:not(:last-child)::after { content: '↓'; right: auto; left: 20px; top: auto; bottom: -26px; }
+}

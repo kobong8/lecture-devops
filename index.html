@@ -718,48 +718,66 @@
     </style>
 <script defer src="assets/analytics-config.js"></script>
 <script defer src="assets/analytics.js"></script>
+<link rel="stylesheet" href="assets/devops-design.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
-<body>
+<body class="portal">
     
     <div class="top-bar">
+        <a class="ops-brand" href="index.html" aria-label="DevOps Fieldnotes 홈"><span class="ops-mark">&gt;_</span> DEVOPS / FIELDNOTES</a>
         <div class="nav-controls">
-            <div class="theme-toggle" onclick="toggleTheme()">
+            <button type="button" class="theme-toggle" onclick="toggleTheme()">
                 <span class="theme-label" id="themeLabel">🌙 다크 모드</span>
-                <div class="toggle-track"><div class="toggle-thumb">🌙</div></div>
-            </div>
+                <span class="toggle-track"><span class="toggle-thumb">🌙</span></span>
+            </button>
             <div class="top-shortcuts">
-                <div class="shortcut-item" onclick="toggleTheme()">
+                <button type="button" class="shortcut-item" onclick="toggleTheme()">
                     <span class="shortcut-key">T</span> Theme
-                </div>
-                <div class="shortcut-item" onclick="startChickenGame()">
+                </button>
+                <button type="button" class="shortcut-item" onclick="startChickenGame()">
                     <span class="shortcut-key">E</span> 🐔 Secret
-                </div>
-                <div class="shortcut-item" onclick="openContactModal()">
+                </button>
+                <button type="button" class="shortcut-item" onclick="openContactModal()">
                     <span class="shortcut-key">C</span> Contact
-                </div>
+                </button>
             </div>
         </div>
     </div>
 
     <div class="container">
         <!-- Hero -->
-        <div class="hero">
-            <div class="hero-badge">— Tech Stack Overview</div>
-            <h1><em>DevOps</em> Lecture Notes by Kobong</h1>
-            <p>DevOps, Linux, Git, Docker, Kubernetes 등<br>소프트웨어 개발 및 운영의 기술을 학습합니다.</p>
-        </div>
+        <section class="hero" aria-label="DevOps 학습 소개">
+            <div class="hero-copy">
+                <div class="hero-badge">ENGINEERING LOG / BY KOBONG</div>
+                <h1>Build. Ship.<br><em>Operate.</em></h1>
+                <p>코드 한 줄에서 안정적인 서비스까지.<br>직접 만들고, 배포하고, 운영하며 배우는 DevOps 강의 노트.</p>
+                <div class="hero-actions"><a class="start-link" href="lecture_note/devops.html">학습 시작하기 ↗</a><span class="hero-meta">08 MODULES / 03 STAGES</span></div>
+            </div>
+            <div class="pipeline" aria-label="기초, 빌드, 운영으로 이어지는 학습 경로">
+                <div class="pipeline-head"><span>LEARNING PIPELINE</span><span>● SELF-PACED</span></div>
+                <div class="pipeline-body">
+                    <div class="pipeline-caption">$ map --from code --to production</div>
+                    <div class="pipeline-stages">
+                        <div class="pipeline-stage"><small>01 / FOUNDATION</small><strong>Understand</strong><span>DevOps · Linux<br>Server &amp; Client</span></div>
+                        <div class="pipeline-stage"><small>02 / DELIVERY</small><strong>Build</strong><span>Git &amp; GitHub<br>Docker · Compose</span></div>
+                        <div class="pipeline-stage"><small>03 / OPERATIONS</small><strong>Run</strong><span>Kubernetes<br>Jenkins · CI/CD</span></div>
+                    </div>
+                    <div class="pipeline-foot">↶ CONTINUOUS LEARNING &amp; IMPROVEMENT</div>
+                </div>
+            </div>
+        </section>
 
         <!-- Course Cards -->
         <div class="courses-grid">
 
             <!-- Section 1: Intro & Basics -->
             <div class="section-header">
-                <h2><span class="emoji">🚀</span> 기획 및 기초 역량 <span class="subtitle">Core Fundamentals</span></h2>
+                <h2><span class="emoji">01</span><span class="section-title">기획 및 기초 역량</span><span class="subtitle">Core Fundamentals</span></h2>
             </div>
 
             <!-- DevOps -->
             <a href="lecture_note/devops.html" class="course-card course-devops" id="course-devops">
-                <div class="card-icon">🔄</div>
+                <div class="card-icon" aria-hidden="true">DV</div>
                 <div class="card-header">
                     <span class="card-title">DevOps 개론</span>
                     <span class="card-arrow">→</span>
@@ -777,7 +795,7 @@
 
             <!-- Linux 기초 -->
             <a href="lecture_note/linux.html" class="course-card course-linux-basic" id="course-linux-basic">
-                <div class="card-icon">🐧</div>
+                <div class="card-icon" aria-hidden="true">>_</div>
                 <div class="card-header">
                     <span class="card-title">Linux 기초</span>
                     <span class="card-arrow">→</span>
@@ -795,7 +813,7 @@
 
             <!-- Server & Client -->
             <a href="lecture_note/server-client.html" class="course-card course-server-client" id="course-server-client">
-                <div class="card-icon">🌐</div>
+                <div class="card-icon" aria-hidden="true">API</div>
                 <div class="card-header">
                     <span class="card-title">서버와 클라이언트</span>
                     <span class="card-arrow">→</span>
@@ -813,12 +831,12 @@
 
             <!-- Section 2: Code & Containers -->
             <div class="section-header">
-                <h2><span class="emoji">📦</span> 코드 관리 및 컨테이너 <span class="subtitle">Source & Containers</span></h2>
+                <h2><span class="emoji">02</span><span class="section-title">코드 관리 및 컨테이너</span><span class="subtitle">Source & Containers</span></h2>
             </div>
 
             <!-- GitHub -->
             <a href="lecture_note/github.html" class="course-card course-github" id="course-github">
-                <div class="card-icon">🐙</div>
+                <div class="card-icon" aria-hidden="true">GIT</div>
                 <div class="card-header">
                     <span class="card-title">Git & GitHub</span>
                     <span class="card-arrow">→</span>
@@ -836,7 +854,7 @@
 
             <!-- Docker -->
             <a href="lecture_note/docker-intro.html" class="course-card course-docker" id="course-docker">
-                <div class="card-icon">🐳</div>
+                <div class="card-icon" aria-hidden="true">IMG</div>
                 <div class="card-header">
                     <span class="card-title">Docker 기초</span>
                     <span class="card-arrow">→</span>
@@ -854,7 +872,7 @@
             
             <!-- Docker 실무 -->
             <a href="lecture_note/docker-practice.html" class="course-card course-docker-practice" id="course-docker-practice">
-                <div class="card-icon">🛠️</div>
+                <div class="card-icon" aria-hidden="true">RUN</div>
                 <div class="card-header">
                     <span class="card-title">Docker 실무 (수정 중)</span>
                     <span class="card-arrow">→</span>
@@ -872,12 +890,12 @@
 
             <!-- Section 3: Orchestration & Automation -->
             <div class="section-header">
-                <h2><span class="emoji">⚙️</span> 운영 및 자동화 <span class="subtitle">Cloud Native & Automation</span></h2>
+                <h2><span class="emoji">03</span><span class="section-title">운영 및 자동화</span><span class="subtitle">Cloud Native & Automation</span></h2>
             </div>
 
             <!-- Kubernetes -->
             <a href="lecture_note/kubernetes.html" class="course-card course-kubernetes" id="course-kubernetes">
-                <div class="card-icon">☸️</div>
+                <div class="card-icon" aria-hidden="true">K8S</div>
                 <div class="card-header">
                     <span class="card-title">Kubernetes 기초</span>
                     <span class="card-arrow">→</span>
@@ -895,7 +913,7 @@
 
             <!-- Jenkins -->
             <a href="lecture_note/jenkins.html" class="course-card course-jenkins" id="course-jenkins">
-                <div class="card-icon">🔧</div>
+                <div class="card-icon" aria-hidden="true">CI</div>
                 <div class="card-header">
                     <span class="card-title">Jenkins (수정 중)</span>
                     <span class="card-arrow">→</span>

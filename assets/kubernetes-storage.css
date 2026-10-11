@@ -1,0 +1,28 @@
+/* Object and storage lessons use the existing lecture palette and code toolbar. */
+.storage-slide { min-width: 0; overflow-x: hidden; }
+.storage-slide > * { flex-shrink: 0; min-width: 0; }
+.storage-slide .storage-flow { display: flex; align-items: stretch; gap: 28px; list-style: none; padding: 0; margin: 20px 0; }
+.storage-slide .storage-flow li { position: relative; flex: 1 1 0; min-width: 0; margin: 0; padding: 14px; border: 1px solid var(--border); border-top: 3px solid var(--accent2); background: var(--card-bg); font-size: 15px; line-height: 1.7; border-radius: 3px; overflow-wrap: anywhere; }
+.storage-flow strong { display: block; color: var(--accent); margin-bottom: 6px; }
+.storage-flow li:not(:last-child)::after { content: '→'; position: absolute; right: -23px; top: 17px; color: var(--accent2); }
+.storage-slide .storage-note, .storage-slide .storage-sources { font-size: 14px; line-height: 1.8; color: var(--text-muted); }
+.storage-sources a { color: var(--accent2); text-underline-offset: 3px; }
+.storage-table-wrap { max-width: 100%; overflow-x: auto; margin: 16px 0; }
+.storage-slide .storage-table-wrap table { margin: 0; min-width: 560px; font-size: 16px; }
+.storage-slide .storage-table-wrap th:first-child,
+.storage-slide .storage-table-wrap td:first-child { white-space: nowrap; }
+.storage-slide details { margin: 18px 0; }
+.storage-slide summary { color: var(--accent); cursor: pointer; font-weight: 700; padding: 12px 0; }
+.storage-slide .code-block { white-space: pre; overflow-x: auto; overflow-wrap: normal; word-break: normal; font-size: 15px; }
+.storage-slide .code-block-container { flex-shrink: 0; min-width: 0; max-width: 100%; }
+@media (max-width: 900px) {
+  .storage-slide .storage-flow { flex-direction: column; gap: 28px; }
+  .storage-slide .storage-flow li { flex: none; }
+  .storage-flow li:not(:last-child)::after { content: '↓'; top: auto; bottom: -26px; left: 18px; right: auto; }
+}
+@media (max-width: 768px) {
+  .storage-slide h1 { line-height: 1.4; }
+  .storage-slide .storage-table-wrap table { display: table; }
+  .storage-table-wrap::before { content: '↔ 표를 좌우로 밀어 확인하세요'; display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 13px; }
+  .storage-slide .code-block { font-size: 14px; }
+}

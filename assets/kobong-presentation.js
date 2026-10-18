@@ -64,12 +64,14 @@
     const progress = document.querySelector('.progress-bar');
     progress.setAttribute('role', 'progressbar'); progress.setAttribute('aria-label', '강의 진행');
     progress.setAttribute('aria-valuemin', '1'); progress.setAttribute('aria-valuemax', slides.length); progress.setAttribute('aria-valuenow', index + 1);
-    history.replaceState(null, '', `#${slides[index].id}`);
+    history.replaceState(null, '', `#${encodeURIComponent(slides[index].id)}`);
     status.textContent = `${index + 1} / ${slides.length} · ${slides[index].dataset.title}`;
   };
   select.onchange = () => window.goSlide(Number(select.value));
   function fromHash() {
-    const index = slides.findIndex(slide => `#${slide.id}` === location.hash);
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { id = ''; }
+    const index = slides.findIndex(slide => slide.id === id);
     window.goSlide(index < 0 ? 0 : index);
   }
   window.addEventListener('hashchange', fromHash);
@@ -96,6 +98,7 @@
   focusButton.onclick = toggleFocus;
   document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && focused) setFocus(false); });
   document.addEventListener('keydown', event => {
+    if (document.querySelector('dialog[open]')) return;
     if (event.altKey || event.ctrlKey || event.metaKey || event.target.closest('input,textarea,select,[contenteditable]:not([contenteditable="false"])')) return;
     // Let the existing modal handlers own their keys.
     if ([...document.querySelectorAll('.image-modal,.text-modal')].some(modal => getComputedStyle(modal).display !== 'none')) return;
@@ -124,5 +127,6 @@
       }
     };
   });
+  window.kobongPresentation = { setFocused: setFocus };
   fromHash();
 })();

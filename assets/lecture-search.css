@@ -1,0 +1,23 @@
+.lecture-action {padding:9px 12px;border:1px solid var(--border);border-radius:7px;background:var(--nav-bg);color:var(--text);font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
+.portal .top-bar .lecture-action {background:#202c46;color:#eef2ff;border-color:#43537a}
+#lecture-search,.link-copy-dialog {margin:auto;width:min(850px,calc(100vw - 32px));max-height:85dvh;padding:26px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:12px;box-shadow:0 24px 80px #0005}
+#lecture-search::backdrop,.link-copy-dialog::backdrop {background:#0a1429b3}
+#lecture-search[open] {display:flex;flex-direction:column;gap:16px}
+.search-heading {display:flex;align-items:center;justify-content:space-between;gap:16px}.search-heading h2,.link-copy-dialog h2 {font-size:23px;margin:0}
+#lecture-search>p,.link-copy-dialog p {font-size:13px;color:var(--text-muted);line-height:1.7;margin:0}
+#lecture-search button,.link-copy-dialog button {padding:9px 14px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);cursor:pointer;font:inherit;font-size:13px}
+.search-controls {display:flex;gap:12px;align-items:flex-end}.search-controls label {display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--text-muted)}
+.search-query {flex:1;min-width:0}.search-controls input,.search-controls select,.link-copy-dialog input {min-width:0;width:100%;padding:11px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font:inherit}
+#lecture-search .search-controls button {background:#5265de;color:white;border-color:#5265de;padding:11px 18px}
+.search-results {min-height:0;overflow-y:auto;list-style:none;margin:0;padding:0;border-top:1px solid var(--border)}
+.search-results li {border-bottom:1px solid var(--border)}.search-results a {display:flex;flex-direction:column;gap:9px;padding:18px 12px;text-decoration:none;color:var(--text);border-radius:6px}
+.search-results a:hover,.search-results a:focus-visible {background:var(--highlight-bg)}.search-results small {font-size:11px;color:var(--accent)}.search-results strong {font-size:18px}.search-results span {font-size:13px;line-height:1.85;color:var(--text-muted);overflow-wrap:anywhere}
+.search-results mark {background:#ffe49a;color:#17233e;border-radius:2px;padding:0 2px}.link-copy-dialog input {margin:16px 0}.link-copy-dialog button {float:right}
+.kobong-toolbar .kobong-tools {flex-wrap:wrap;justify-content:flex-end}.kobong-breadcrumb {white-space:nowrap}
+@media(max-width:1300px) {.kobong-toolbar .kobong-breadcrumb {display:none}.kobong-toolbar {justify-content:flex-end}}
+@media(max-width:768px) {
+  #main {padding-top:160px}.kobong-focused #main {padding-top:160px}.kobong-toolbar {min-height:100px;align-items:center}.kobong-mobile {top:112px}
+  .kobong-tools {gap:6px}.kobong-tools button {padding:7px 9px;font-size:11px}
+  #lecture-search {padding:18px;max-height:90dvh;gap:12px}.search-controls {flex-wrap:wrap}.search-controls label:first-child {width:100%}.search-query {flex-basis:65%}
+  .portal .nav-controls {gap:6px}.portal .top-bar {gap:8px}.portal .ops-brand {font-size:10px}
+}

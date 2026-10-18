@@ -12,6 +12,8 @@ Push-Location -LiteralPath $projectRoot
 try {
     & $pythonPath -c 'import fastapi, uvicorn'
     if ($LASTEXITCODE -ne 0) { throw 'Dependencies are missing. Run .\scripts\install.ps1 first.' }
+    & $pythonPath build_search.py
+    if ($LASTEXITCODE -ne 0) { throw 'Search index generation failed.' }
 
     # app.py mounts images; Git does not track this local asset directory.
     if (-not (Test-Path -LiteralPath (Join-Path $projectRoot 'images'))) {

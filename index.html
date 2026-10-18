@@ -721,6 +721,8 @@
 <link rel="stylesheet" href="assets/devops-design.css">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="stylesheet" href="assets/kobong-presentation.css">
+<link rel="stylesheet" href="assets/lecture-search.css">
+<script type="module" src="assets/lecture-search.js"></script>
 </head>
 <body class="portal">
     
@@ -1020,6 +1022,7 @@
 
         // Keyboard Shortcut for Theme Toggle
         document.addEventListener('keydown', e => {
+            if (document.querySelector('dialog[open]')) return;
             if (e.target.closest('input, textarea, [contenteditable="true"]')) return;
             if (e.key === 't' || e.key === 'T') {
                 toggleTheme();
@@ -1073,6 +1076,7 @@
         });
 
         document.addEventListener('keydown', function(e) {
+            if (document.querySelector('dialog[open]')) return;
             const tag = document.activeElement && document.activeElement.tagName;
             const isTyping = tag === 'INPUT' || tag === 'TEXTAREA';
 
@@ -1459,6 +1463,7 @@
             }
 
             document.addEventListener('keydown', function(e) {
+            if (document.querySelector('dialog[open]')) return;
                 // Start game with 'E' key (only when not in an input/textarea)
                 if ((e.key === 'e' || e.key === 'E') && !gameRunning) {
                     const tag = document.activeElement.tagName;

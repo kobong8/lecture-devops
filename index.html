@@ -720,6 +720,7 @@
 <script defer src="assets/analytics.js"></script>
 <link rel="stylesheet" href="assets/devops-design.css">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/kobong-presentation.css">
 </head>
 <body class="portal">
     
@@ -991,7 +992,8 @@
 
     <script>
         // Theme Toggle Logic with localStorage persistence
-        let isDark = localStorage.getItem('devops-theme') !== 'light';
+        let isDark = false;
+  try { isDark = localStorage.getItem('devops-theme') === 'dark'; } catch {}
         const themeLabel = document.getElementById('themeLabel');
         const toggleThumb = document.querySelector('.toggle-thumb');
         const contactOverlay = document.getElementById('contactOverlay');
@@ -1010,7 +1012,7 @@
 
         function toggleTheme() {
             isDark = !isDark;
-            localStorage.setItem('devops-theme', isDark ? 'dark' : 'light');
+            try { localStorage.setItem('devops-theme', isDark ? 'dark' : 'light'); } catch {}
             applyTheme();
         }
 

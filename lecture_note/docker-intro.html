@@ -1049,6 +1049,8 @@
 <script defer src="../assets/analytics.js"></script>
 <link rel="stylesheet" href="../assets/devops-design.css">
 <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="stylesheet" href="../assets/kobong-presentation.css">
+<script defer src="../assets/kobong-presentation.js"></script>
 </head>
 <body>
 
@@ -2182,7 +2184,8 @@ TriggeredBy: ○ docker.socket
 
 
   // Theme with localStorage persistence
-  let isDark = localStorage.getItem('devops-theme') !== 'light';
+  let isDark = false;
+  try { isDark = localStorage.getItem('devops-theme') === 'dark'; } catch {}
   function applyTheme() {
     document.documentElement.classList.toggle('light', !isDark);
     const label = document.getElementById('themeLabel');
@@ -2197,7 +2200,7 @@ TriggeredBy: ○ docker.socket
   }
   function toggleTheme() {
     isDark = !isDark;
-    localStorage.setItem('devops-theme', isDark ? 'dark' : 'light');
+    try { localStorage.setItem('devops-theme', isDark ? 'dark' : 'light'); } catch {}
     applyTheme();
   }
   applyTheme();
@@ -2240,9 +2243,9 @@ TriggeredBy: ○ docker.socket
 
   // Keyboard
   document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
-    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   navigate(-1);
-    if (e.key === 't' || e.key === 'T') toggleTheme();
+
+
+
     if (e.key === 'Escape') closeImageModal();
   });
 

@@ -1,0 +1,83 @@
+/* Adapted from kobong-site-template/assets/theme.css for the existing lecture DOM.
+   Keep subject diagrams, code examples and modal markup intact. */
+:root,html.light {
+  --sidebar-w:264px; --bg:#edf1f8; --sidebar-bg:#111a30;
+  --accent:#5265de; --accent2:#087f80; --accent3:#8665bb;
+  --text:#17233e; --text-muted:#52627c; --border:#d9e0ef;
+  --card-bg:#fff; --card-hover-bg:#f8faff; --toc-hover:#24304b; --toc-active:#5265de;
+  --stat-bg:#e5eafa; --bar-track:#d9e0ef; --kbd-bg:#e5eafa; --nav-bg:#fff;
+  --code-bg:#142033; --code-text:#e7eefb; --highlight-bg:#e5eafa;
+  --highlight-border:#5265de; --table-header:#e5eafa; --table-row-alt:#f5f7fc;
+  --table-border:#d9e0ef; --shadow:0 5px 18px #17233e06;
+}
+html:not(.light) {
+  --bg:#111a2c; --text:#edf2ff; --text-muted:#aebcd4; --border:#35425e;
+  --card-bg:#1b2941; --card-hover-bg:#253650; --accent:#a7b3ff; --accent2:#78d6c8;
+  --accent3:#c6aff4; --stat-bg:#263650; --bar-track:#35425e; --kbd-bg:#263650;
+  --nav-bg:#1b2941; --highlight-bg:#263650; --table-header:#263650;
+  --table-row-alt:#17253b; --table-border:#35425e;
+}
+body,html.light body {background:radial-gradient(ellipse at 90% 0%,#5265de0d,transparent 45%),var(--bg);font-family:'Segoe UI','Malgun Gothic',sans-serif;letter-spacing:-.025em}
+button,select,input {font:inherit} :focus-visible {outline:3px solid var(--accent);outline-offset:4px}
+.kobong-skip {position:fixed;top:-100px;left:20px;padding:12px;background:white;color:#17233e;z-index:3000}
+.kobong-skip:focus {top:12px}
+#sidebar {background:linear-gradient(165deg,#17233e,#111a30 65%,#1a2040);border:0;color:#eef2ff;
+  --text:#eef2ff;--text-muted:#aab7d2;--accent:#b5c2ff;--border:#2b3650;--card-bg:#202c46;--toc-active:#5265de}
+.sidebar-header {padding:28px 20px 20px}.brand-icon {background:#293453;color:#b5c2ff;border-color:#43537a;border-radius:7px}
+.brand-text {font-size:19px}.brand-sub {font:10px/1.6 Consolas,monospace;letter-spacing:.6px}
+.home-btn {font-size:12px;background:transparent;border-color:#354462;border-radius:7px;color:#c5d0ed}
+#sidebar .theme-toggle {background:#202c46;border-color:#354462;border-radius:7px}.theme-label {font-size:12px}
+.toc-label {font-size:11px;letter-spacing:1.5px;padding-top:22px}.toc-list {padding:0 14px 16px}
+.toc-item {border-radius:7px;margin:3px 0;padding:11px 10px;gap:10px}.toc-text {font-size:13px;line-height:1.65;word-break:keep-all;overflow-wrap:anywhere}
+.toc-num {font:10px Consolas,monospace;min-width:18px}.toc-item.active {background:#5265de;box-shadow:none}
+.toc-item.active .toc-text,.toc-item.active .toc-num {color:#fff}.toc-item.active::before,.toc-dot {display:none}
+.sidebar-footer {padding:18px 20px;border-color:#2b3650}.progress-fill {background:#8292ff}
+#main {min-width:0;padding-top:76px;padding-bottom:66px;display:flex;flex-direction:column}
+.slide {display:none;position:relative;inset:auto;flex:1;min-height:0;width:100%;padding:34px 44px 42px;opacity:1;transform:none;overflow-y:auto;overflow-x:hidden;transition:none!important}
+.slide.active {display:block;transform:none}.slide.exit:not(.active) {display:none}
+.slide-home.active {display:flex;justify-content:center}.slide-home::before,.deco-grid {display:none}
+.slide-home .eyebrow,.slide-home h1,.slide-home .subtitle,.meta-row {animation:none;opacity:1}
+.slide h1,.slide-home h1 {font-size:clamp(30px,3.3vw,52px);line-height:1.3;letter-spacing:-.055em;font-weight:750;margin:20px 0 18px;overflow-wrap:anywhere;word-break:keep-all}
+.slide h2 {font-size:24px;line-height:1.5;margin-top:26px}.slide h2::before {display:none}
+.slide h3 {font-size:19px;line-height:1.6}.slide p,.slide li {line-height:1.85;overflow-wrap:anywhere;word-break:keep-all}
+.slide>p {font-size:16px;color:var(--text-muted)}.slide-label,.slide-home .eyebrow {border:0;padding:0;color:var(--accent);font-size:11px;font-weight:700;letter-spacing:1.3px}
+.slide-home p.subtitle {max-width:760px;font-size:16px;font-weight:400;color:var(--text-muted)}
+.meta-chip {font-size:11px;border-radius:5px;background:var(--card-bg)}
+.tool-card,.concept-card,.feature-card,.info-card,.stat-card,.slide .card,.slide .directory-card {background:var(--card-bg);border:1px solid var(--border);border-top:3px solid var(--accent);border-radius:10px;padding:22px;box-shadow:var(--shadow);min-width:0}
+.tool-card:nth-child(3n+2),.feature-card:nth-child(3n+2) {border-top-color:var(--accent2)}
+.tool-card:nth-child(3n+3),.feature-card:nth-child(3n+3) {border-top-color:var(--accent3)}
+.tool-card h4 {font-size:21px;color:var(--text);line-height:1.5}.tool-card p {font-size:14px;color:var(--text-muted)}
+.highlight-box,.info-box {border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;background:var(--highlight-bg)}
+/* Only a concluding, top-level callout becomes a takeaway; preserve its text. */
+.slide>.kobong-takeaway {margin-top:24px;padding:20px 24px;background:linear-gradient(115deg,#17233e,#26365a);color:#f0f4ff;border-color:#5265de}
+.kobong-takeaway::before {content:'KEY TAKEAWAY';display:block;font:10px Consolas,monospace;letter-spacing:1.5px;color:#b5c2ff;margin-bottom:10px}
+.kobong-takeaway p,.kobong-takeaway strong,.kobong-takeaway h3,.kobong-takeaway .keyword {color:#f0f4ff!important;background:transparent}
+.code-block {background:var(--code-bg);color:var(--code-text);border-radius:8px;border-color:#354462;overflow-x:auto}
+.code-lang-tag {background:#35487b;border-color:#35487b;border-radius:7px 0 5px 0}.copy-btn,html.light .copy-btn {background:#283952;color:#e7eefb;border-color:#52627c}
+.kobong-table-wrap {max-width:100%;overflow-x:auto;margin:18px 0}.kobong-table-wrap table {margin:0;width:100%}
+.slide img {max-width:100%;height:auto}.slide pre {max-width:100%;overflow-x:auto}
+.kobong-toolbar {position:absolute;top:0;left:40px;right:40px;min-height:76px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:5;background:var(--bg)}
+.kobong-breadcrumb {font-size:12px;color:var(--text-muted);padding-left:12px}.kobong-tools {display:flex;gap:8px}
+.kobong-tools button {border:1px solid var(--border);border-radius:7px;background:var(--nav-bg);color:var(--text);padding:9px 12px;font-size:12px;cursor:pointer}
+.kobong-mobile {display:none}.kobong-position {position:absolute;bottom:0;left:40px;right:40px;height:66px;border-top:1px solid var(--border);display:flex;align-items:center;gap:14px;font-size:12px;background:var(--bg);padding-right:150px}
+.kobong-position span {color:var(--text-muted);font-size:11px}.nav-arrows {bottom:14px;right:40px;gap:8px}.nav-btn {width:auto;min-width:60px;height:38px;padding:0 12px;border-radius:7px;font-size:12px}
+.key-hint {display:none}.menu-toggle {z-index:300}.kobong-focused #sidebar,.kobong-focused .menu-toggle,.kobong-focused .sidebar-overlay {display:none!important}
+.kobong-focused #main {width:100%}.kobong-focused .slide {padding-inline:max(28px,calc((100vw - 1300px)/2))}
+.portal .top-bar {background:#111a30;color:#eef2ff;border:0}.portal .ops-brand {color:#eef2ff}.portal .ops-mark {background:#5265de;color:white;border-radius:5px}
+.portal .top-bar .theme-toggle,.portal .top-bar .shortcut-item {background:#202c46;border-color:#354462;color:#eef2ff}.portal .top-bar .theme-label {color:#c5d0ed}
+.portal .hero h1 {font-size:clamp(40px,5vw,68px);line-height:1.2}.portal .hero h1 em {color:var(--accent);-webkit-text-fill-color:var(--accent)}
+.portal .pipeline,.portal .course-card {background:var(--card-bg);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow)}
+.portal .course-card {border-top:3px solid #5265de}.portal .course-card:nth-of-type(3n+2) {border-top-color:#34a49b}.portal .course-card:nth-of-type(3n+3) {border-top-color:#9276d3}
+.portal .start-link {border-radius:7px;background:#5265de;border-color:#5265de;color:white}.portal .tag {border-radius:5px}
+@media(max-width:1100px) {#main .slide {padding-inline:28px}.kobong-breadcrumb {display:none}.kobong-toolbar {justify-content:flex-end}}
+@media(max-width:768px) {
+  #main {padding-top:116px;padding-bottom:64px;width:100%}.kobong-toolbar {left:20px;right:20px;min-height:62px;padding-left:40px}
+  .kobong-tools button {font-size:11px;padding:8px}.kobong-mobile {position:absolute;top:70px;left:20px;right:20px;display:flex;align-items:center;gap:10px;font-size:12px}
+  .kobong-mobile select {min-width:0;width:100%;padding:9px;background:var(--card-bg);color:var(--text);border:1px solid var(--border);border-radius:5px}
+  .kobong-mobile label {white-space:nowrap}#main .slide {padding:24px 20px 36px}.slide h1,.slide-home h1 {font-size:32px}.slide h2 {font-size:23px}
+  .tool-grid,.cards,.card-grid,.features-grid,.stats-grid,.grid-2 {grid-template-columns:minmax(0,1fr)!important}.split-layout {flex-direction:column}
+  .slide .highlight-box {min-width:0!important}
+  .slide div {min-width:0}.kobong-position {left:20px;right:20px;padding-right:145px}.kobong-position span {display:none}.nav-arrows {right:20px;bottom:13px}
+  .slide-home .eyebrow {font-size:10px;letter-spacing:.6px}.slide-home p.subtitle {font-size:15px}.kobong-focused #main {padding-top:116px}
+}
+@media(prefers-reduced-motion:reduce) {*,*::before,*::after {animation:none!important;transition:none!important;scroll-behavior:auto!important}}

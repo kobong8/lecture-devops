@@ -55,6 +55,7 @@ button,select,input {font:inherit} :focus-visible {outline:3px solid var(--accen
 .code-block {background:var(--code-bg);color:var(--code-text);border-radius:8px;border-color:#354462;overflow-x:auto}
 .code-lang-tag {background:#35487b;border-color:#35487b;border-radius:7px 0 5px 0}.copy-btn,html.light .copy-btn {background:#283952;color:#e7eefb;border-color:#52627c}
 .kobong-table-wrap {max-width:100%;overflow-x:auto;margin:18px 0}.kobong-table-wrap table {margin:0;width:100%}
+html.light .slide table tr:hover td {background:#e9edfa}
 .slide img {max-width:100%;height:auto}.slide pre {max-width:100%;overflow-x:auto}
 .kobong-toolbar {position:absolute;top:0;left:40px;right:40px;min-height:76px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:5;background:var(--bg)}
 .kobong-breadcrumb {font-size:12px;color:var(--text-muted);padding-left:12px}.kobong-tools {display:flex;gap:8px}

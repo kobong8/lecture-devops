@@ -38,14 +38,17 @@ class PresentationTests(unittest.TestCase):
                 self.assertTrue(all(slide.get('data-title') for slide in page.slides))
                 for hook in ['main', 'sidebar', 'tocList', 'btnPrev', 'btnNext', 'curNum', 'totNum', 'progressFill']:
                     self.assertIn(hook, page.ids)
-                self.assertEqual(page.styles[-1], '../assets/kobong-presentation.css')
+                self.assertIn('../assets/kobong-presentation.css', page.styles)
+                self.assertEqual(page.styles[-1], '../assets/lecture-search.css')
+                self.assertTrue(any(script['src'] == '../assets/lecture-search.js' and script.get('type') == 'module' for script in page.scripts))
                 adapter = [script for script in page.scripts if script['src'] == '../assets/kobong-presentation.js']
                 self.assertEqual(len(adapter), 1)
                 self.assertIn('defer', adapter[0])
 
     def test_portal_and_shared_assets(self):
         page = Page((ROOT / 'index.html').read_text(encoding='utf-8'))
-        self.assertEqual(page.styles[-1], 'assets/kobong-presentation.css')
+        self.assertIn('assets/kobong-presentation.css', page.styles)
+        self.assertEqual(page.styles[-1], 'assets/lecture-search.css')
         for file in ['kobong-presentation.css', 'kobong-presentation.js']:
             self.assertTrue((ROOT / 'assets' / file).is_file())
 
